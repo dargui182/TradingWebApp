@@ -1,6 +1,5 @@
 {
   "tickers": [
-    "AAPL",
     "ABNB",
     "ADI",
     "ADP",
@@ -519,5 +518,5 @@
     "ZTS",
     "ADBE"
   ],
-  "last_updated": "2025-06-13T09:01:19.302192"
+  "last_updated": "2025-06-13T11:42:01.201518"
 }

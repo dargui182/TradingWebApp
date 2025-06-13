@@ -2,6 +2,7 @@ from flask import Flask, render_template, request, jsonify, flash, redirect, url
 from datetime import datetime
 import os
 import logging
+import pandas as pd  # AGGIUNGERE QUESTO IMPORT
 
 # Import del modulo personalizzato per gestione ticker
 from TickerDataManager import TickerDataManager
@@ -241,6 +242,108 @@ def api_upload_csv():
         import traceback
         logger.error(f"Traceback: {traceback.format_exc()}")
         return jsonify({'status': 'error', 'message': f'Errore interno: {str(e)}'}), 500
+    
+    # Aggiungi questi endpoint al tuo app.py, prima della sezione "# === ERROR HANDLERS ==="
+
+@app.route('/api/ticker/<ticker>/details')
+def api_ticker_details(ticker):
+    """API per ottenere i dettagli completi di un ticker"""
+    try:
+        ticker = ticker.upper()
+        
+        # Carica metadati
+        meta = ticker_manager.load_ticker_meta(ticker)
+        if not meta:
+            return jsonify({'status': 'error', 'message': f'Ticker {ticker} non trovato'}), 404
+        
+        # Calcola informazioni aggiuntive
+        file_adj = ticker_manager.data_dir / f"{ticker}.csv"
+        file_not_adj = ticker_manager.data_dir_not_adj / f"{ticker}_notAdjusted.csv"
+        
+        result = meta.copy()
+        result.update({
+            'files_exist': {
+                'adjusted': file_adj.exists(),
+                'not_adjusted': file_not_adj.exists()
+            },
+            'file_sizes': {
+                'adjusted': f"{file_adj.stat().st_size / 1024:.1f} KB" if file_adj.exists() else "0 KB",
+                'not_adjusted': f"{file_not_adj.stat().st_size / 1024:.1f} KB" if file_not_adj.exists() else "0 KB"
+            },
+            'needs_update': False
+        })
+        
+        # Calcola se serve aggiornamento
+        if meta.get('last_close_date'):
+            try:
+                from datetime import datetime
+                last_date = datetime.strptime(meta['last_close_date'], '%Y-%m-%d').date()
+                result['needs_update'] = last_date < datetime.now().date()
+            except:
+                result['needs_update'] = True
+        else:
+            result['needs_update'] = True
+        
+        return jsonify(result)
+        
+    except Exception as e:
+        logger.error(f"Errore nel recuperare dettagli per {ticker}: {e}")
+        return jsonify({'status': 'error', 'message': str(e)}), 500
+
+@app.route('/api/ticker/<ticker>/data')
+def api_ticker_data(ticker):
+    """API per ottenere gli ultimi dati storici di un ticker"""
+    try:
+        ticker = ticker.upper()
+        
+        # Parametri query
+        limit = request.args.get('limit', 50, type=int)  # Ultimi 50 record di default
+        version = request.args.get('version', 'adjusted')  # 'adjusted' o 'raw'
+        
+        # Determina quale file leggere
+        if version == 'raw':
+            file_path = ticker_manager.data_dir_not_adj / f"{ticker}_notAdjusted.csv"
+        else:
+            file_path = ticker_manager.data_dir / f"{ticker}.csv"
+        
+        if not file_path.exists():
+            return jsonify({'status': 'error', 'message': f'File dati per {ticker} non trovato'}), 404
+        
+        # Leggi il CSV
+        df = pd.read_csv(file_path)
+        
+        # Prendi gli ultimi N record
+        df_recent = df.tail(limit)
+        
+        # Converti in formato JSON amichevole
+        records = []
+        for _, row in df_recent.iterrows():
+            record = {
+                'date': row['Date'],
+                'open': round(float(row['Open']), 2) if pd.notna(row['Open']) else None,
+                'high': round(float(row['High']), 2) if pd.notna(row['High']) else None,
+                'low': round(float(row['Low']), 2) if pd.notna(row['Low']) else None,
+                'close': round(float(row['Close']), 2) if pd.notna(row['Close']) else None,
+                'volume': int(row['Volume']) if pd.notna(row['Volume']) else None
+            }
+            
+            # Aggiungi Adj Close se presente (solo per versione adjusted)
+            if version == 'adjusted' and 'Adj Close' in row:
+                record['adj_close'] = round(float(row['Adj Close']), 2) if pd.notna(row['Adj Close']) else None
+            
+            records.append(record)
+        
+        return jsonify({
+            'ticker': ticker,
+            'version': version,
+            'total_records': len(df),
+            'returned_records': len(records),
+            'data': records
+        })
+        
+    except Exception as e:
+        logger.error(f"Errore nel recuperare dati per {ticker}: {e}")
+        return jsonify({'status': 'error', 'message': str(e)}), 500
 
 # === ERROR HANDLERS ===
 
