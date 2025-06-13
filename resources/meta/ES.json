@@ -1,0 +1,27 @@
+{
+  "ticker": "ES",
+  "info": {
+    "symbol": "ES",
+    "name": "Eversource Energy",
+    "sector": "Utilities",
+    "industry": "Electric Utilities",
+    "currency": "USD",
+    "exchange": "N/A",
+    "country": "N/A",
+    "source": "CSV"
+  },
+  "last_close_date": null,
+  "first_date": null,
+  "total_records": 0,
+  "last_updated": "2025-06-13T08:59:32.823509",
+  "csv_import": {
+    "imported_at": "2025-06-13T08:59:32.824020",
+    "company": "Eversource Energy",
+    "sector": "Utilities",
+    "industry": "Electric Utilities"
+  },
+  "files": {
+    "adjusted": "resources\\data\\daily\\ES.csv",
+    "not_adjusted": "resources\\data\\daily_notAdjusted\\ES_notAdjusted.csv"
+  }
+}

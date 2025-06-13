@@ -1,0 +1,27 @@
+{
+  "ticker": "HES",
+  "info": {
+    "symbol": "HES",
+    "name": "Hess Corporation",
+    "sector": "Energy",
+    "industry": "Integrated Oil & Gas",
+    "currency": "USD",
+    "exchange": "N/A",
+    "country": "N/A",
+    "source": "CSV"
+  },
+  "last_close_date": null,
+  "first_date": null,
+  "total_records": 0,
+  "last_updated": "2025-06-13T08:59:32.944675",
+  "csv_import": {
+    "imported_at": "2025-06-13T08:59:32.944675",
+    "company": "Hess Corporation",
+    "sector": "Energy",
+    "industry": "Integrated Oil & Gas"
+  },
+  "files": {
+    "adjusted": "resources\\data\\daily\\HES.csv",
+    "not_adjusted": "resources\\data\\daily_notAdjusted\\HES_notAdjusted.csv"
+  }
+}

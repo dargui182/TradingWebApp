@@ -1,0 +1,27 @@
+{
+  "ticker": "PEP",
+  "info": {
+    "symbol": "PEP",
+    "name": "PepsiCo",
+    "sector": "Consumer Staples",
+    "industry": "Soft Drinks & Non-alcoholic Beverages",
+    "currency": "USD",
+    "exchange": "N/A",
+    "country": "N/A",
+    "source": "CSV"
+  },
+  "last_close_date": null,
+  "first_date": null,
+  "total_records": 0,
+  "last_updated": "2025-06-13T08:59:33.189306",
+  "csv_import": {
+    "imported_at": "2025-06-13T08:59:33.189306",
+    "company": "PepsiCo",
+    "sector": "Consumer Staples",
+    "industry": "Soft Drinks & Non-alcoholic Beverages"
+  },
+  "files": {
+    "adjusted": "resources\\data\\daily\\PEP.csv",
+    "not_adjusted": "resources\\data\\daily_notAdjusted\\PEP_notAdjusted.csv"
+  }
+}

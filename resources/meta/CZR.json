@@ -1,0 +1,27 @@
+{
+  "ticker": "CZR",
+  "info": {
+    "symbol": "CZR",
+    "name": "Caesars Entertainment",
+    "sector": "Consumer Discretionary",
+    "industry": "Casinos & Gaming",
+    "currency": "USD",
+    "exchange": "N/A",
+    "country": "N/A",
+    "source": "CSV"
+  },
+  "last_close_date": null,
+  "first_date": null,
+  "total_records": 0,
+  "last_updated": "2025-06-13T08:59:32.743979",
+  "csv_import": {
+    "imported_at": "2025-06-13T08:59:32.743979",
+    "company": "Caesars Entertainment",
+    "sector": "Consumer Discretionary",
+    "industry": "Casinos & Gaming"
+  },
+  "files": {
+    "adjusted": "resources\\data\\daily\\CZR.csv",
+    "not_adjusted": "resources\\data\\daily_notAdjusted\\CZR_notAdjusted.csv"
+  }
+}

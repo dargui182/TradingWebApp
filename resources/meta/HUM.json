@@ -1,0 +1,27 @@
+{
+  "ticker": "HUM",
+  "info": {
+    "symbol": "HUM",
+    "name": "Humana",
+    "sector": "Health Care",
+    "industry": "Managed Health Care",
+    "currency": "USD",
+    "exchange": "N/A",
+    "country": "N/A",
+    "source": "CSV"
+  },
+  "last_close_date": null,
+  "first_date": null,
+  "total_records": 0,
+  "last_updated": "2025-06-13T08:59:32.964386",
+  "csv_import": {
+    "imported_at": "2025-06-13T08:59:32.964386",
+    "company": "Humana",
+    "sector": "Health Care",
+    "industry": "Managed Health Care"
+  },
+  "files": {
+    "adjusted": "resources\\data\\daily\\HUM.csv",
+    "not_adjusted": "resources\\data\\daily_notAdjusted\\HUM_notAdjusted.csv"
+  }
+}

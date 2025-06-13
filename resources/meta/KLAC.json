@@ -1,0 +1,27 @@
+{
+  "ticker": "KLAC",
+  "info": {
+    "symbol": "KLAC",
+    "name": "KLA Corporation",
+    "sector": "Information Technology",
+    "industry": "Semiconductor Materials & Equipment",
+    "currency": "USD",
+    "exchange": "N/A",
+    "country": "N/A",
+    "source": "CSV"
+  },
+  "last_close_date": null,
+  "first_date": null,
+  "total_records": 0,
+  "last_updated": "2025-06-13T08:59:33.010320",
+  "csv_import": {
+    "imported_at": "2025-06-13T08:59:33.010320",
+    "company": "KLA Corporation",
+    "sector": "Information Technology",
+    "industry": "Semiconductor Materials & Equipment"
+  },
+  "files": {
+    "adjusted": "resources\\data\\daily\\KLAC.csv",
+    "not_adjusted": "resources\\data\\daily_notAdjusted\\KLAC_notAdjusted.csv"
+  }
+}

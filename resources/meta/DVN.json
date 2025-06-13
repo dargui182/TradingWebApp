@@ -1,0 +1,27 @@
+{
+  "ticker": "DVN",
+  "info": {
+    "symbol": "DVN",
+    "name": "Devon Energy",
+    "sector": "Energy",
+    "industry": "Oil & Gas Exploration & Production",
+    "currency": "USD",
+    "exchange": "N/A",
+    "country": "N/A",
+    "source": "CSV"
+  },
+  "last_close_date": null,
+  "first_date": null,
+  "total_records": 0,
+  "last_updated": "2025-06-13T08:59:32.793140",
+  "csv_import": {
+    "imported_at": "2025-06-13T08:59:32.793652",
+    "company": "Devon Energy",
+    "sector": "Energy",
+    "industry": "Oil & Gas Exploration & Production"
+  },
+  "files": {
+    "adjusted": "resources\\data\\daily\\DVN.csv",
+    "not_adjusted": "resources\\data\\daily_notAdjusted\\DVN_notAdjusted.csv"
+  }
+}

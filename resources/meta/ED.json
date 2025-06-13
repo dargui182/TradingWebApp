@@ -1,0 +1,27 @@
+{
+  "ticker": "ED",
+  "info": {
+    "symbol": "ED",
+    "name": "Consolidated Edison",
+    "sector": "Utilities",
+    "industry": "Multi-Utilities",
+    "currency": "USD",
+    "exchange": "N/A",
+    "country": "N/A",
+    "source": "CSV"
+  },
+  "last_close_date": null,
+  "first_date": null,
+  "total_records": 0,
+  "last_updated": "2025-06-13T08:59:32.800864",
+  "csv_import": {
+    "imported_at": "2025-06-13T08:59:32.800864",
+    "company": "Consolidated Edison",
+    "sector": "Utilities",
+    "industry": "Multi-Utilities"
+  },
+  "files": {
+    "adjusted": "resources\\data\\daily\\ED.csv",
+    "not_adjusted": "resources\\data\\daily_notAdjusted\\ED_notAdjusted.csv"
+  }
+}

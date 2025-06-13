@@ -1,0 +1,27 @@
+{
+  "ticker": "NSC",
+  "info": {
+    "symbol": "NSC",
+    "name": "Norfolk Southern",
+    "sector": "Industrials",
+    "industry": "Rail Transportation",
+    "currency": "USD",
+    "exchange": "N/A",
+    "country": "N/A",
+    "source": "CSV"
+  },
+  "last_close_date": null,
+  "first_date": null,
+  "total_records": 0,
+  "last_updated": "2025-06-13T08:59:33.126631",
+  "csv_import": {
+    "imported_at": "2025-06-13T08:59:33.126631",
+    "company": "Norfolk Southern",
+    "sector": "Industrials",
+    "industry": "Rail Transportation"
+  },
+  "files": {
+    "adjusted": "resources\\data\\daily\\NSC.csv",
+    "not_adjusted": "resources\\data\\daily_notAdjusted\\NSC_notAdjusted.csv"
+  }
+}

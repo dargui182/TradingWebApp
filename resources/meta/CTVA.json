@@ -1,0 +1,27 @@
+{
+  "ticker": "CTVA",
+  "info": {
+    "symbol": "CTVA",
+    "name": "Corteva",
+    "sector": "Materials",
+    "industry": "Fertilizers & Agricultural Chemicals",
+    "currency": "USD",
+    "exchange": "N/A",
+    "country": "N/A",
+    "source": "CSV"
+  },
+  "last_close_date": null,
+  "first_date": null,
+  "total_records": 0,
+  "last_updated": "2025-06-13T08:59:32.737033",
+  "csv_import": {
+    "imported_at": "2025-06-13T08:59:32.737543",
+    "company": "Corteva",
+    "sector": "Materials",
+    "industry": "Fertilizers & Agricultural Chemicals"
+  },
+  "files": {
+    "adjusted": "resources\\data\\daily\\CTVA.csv",
+    "not_adjusted": "resources\\data\\daily_notAdjusted\\CTVA_notAdjusted.csv"
+  }
+}

@@ -1,0 +1,27 @@
+{
+  "ticker": "UNH",
+  "info": {
+    "symbol": "UNH",
+    "name": "UnitedHealth Group",
+    "sector": "Health Care",
+    "industry": "Managed Health Care",
+    "currency": "USD",
+    "exchange": "N/A",
+    "country": "N/A",
+    "source": "CSV"
+  },
+  "last_close_date": null,
+  "first_date": null,
+  "total_records": 0,
+  "last_updated": "2025-06-13T08:59:33.362658",
+  "csv_import": {
+    "imported_at": "2025-06-13T08:59:33.362658",
+    "company": "UnitedHealth Group",
+    "sector": "Health Care",
+    "industry": "Managed Health Care"
+  },
+  "files": {
+    "adjusted": "resources\\data\\daily\\UNH.csv",
+    "not_adjusted": "resources\\data\\daily_notAdjusted\\UNH_notAdjusted.csv"
+  }
+}

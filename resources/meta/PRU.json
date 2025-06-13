@@ -1,0 +1,27 @@
+{
+  "ticker": "PRU",
+  "info": {
+    "symbol": "PRU",
+    "name": "Prudential Financial",
+    "sector": "Financials",
+    "industry": "Life & Health Insurance",
+    "currency": "USD",
+    "exchange": "N/A",
+    "country": "N/A",
+    "source": "CSV"
+  },
+  "last_close_date": null,
+  "first_date": null,
+  "total_records": 0,
+  "last_updated": "2025-06-13T08:59:33.240520",
+  "csv_import": {
+    "imported_at": "2025-06-13T08:59:33.240520",
+    "company": "Prudential Financial",
+    "sector": "Financials",
+    "industry": "Life & Health Insurance"
+  },
+  "files": {
+    "adjusted": "resources\\data\\daily\\PRU.csv",
+    "not_adjusted": "resources\\data\\daily_notAdjusted\\PRU_notAdjusted.csv"
+  }
+}

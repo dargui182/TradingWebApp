@@ -1,0 +1,27 @@
+{
+  "ticker": "ITW",
+  "info": {
+    "symbol": "ITW",
+    "name": "Illinois Tool Works",
+    "sector": "Industrials",
+    "industry": "Industrial Machinery & Supplies & Components",
+    "currency": "USD",
+    "exchange": "N/A",
+    "country": "N/A",
+    "source": "CSV"
+  },
+  "last_close_date": null,
+  "first_date": null,
+  "total_records": 0,
+  "last_updated": "2025-06-13T08:59:32.988182",
+  "csv_import": {
+    "imported_at": "2025-06-13T08:59:32.988182",
+    "company": "Illinois Tool Works",
+    "sector": "Industrials",
+    "industry": "Industrial Machinery & Supplies & Components"
+  },
+  "files": {
+    "adjusted": "resources\\data\\daily\\ITW.csv",
+    "not_adjusted": "resources\\data\\daily_notAdjusted\\ITW_notAdjusted.csv"
+  }
+}

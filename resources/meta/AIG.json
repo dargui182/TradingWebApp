@@ -1,0 +1,27 @@
+{
+  "ticker": "AIG",
+  "info": {
+    "symbol": "AIG",
+    "name": "American International Group",
+    "sector": "Financials",
+    "industry": "Multi-line Insurance",
+    "currency": "USD",
+    "exchange": "N/A",
+    "country": "N/A",
+    "source": "CSV"
+  },
+  "last_close_date": null,
+  "first_date": null,
+  "total_records": 0,
+  "last_updated": "2025-06-13T08:59:32.511571",
+  "csv_import": {
+    "imported_at": "2025-06-13T08:59:32.511571",
+    "company": "American International Group",
+    "sector": "Financials",
+    "industry": "Multi-line Insurance"
+  },
+  "files": {
+    "adjusted": "resources\\data\\daily\\AIG.csv",
+    "not_adjusted": "resources\\data\\daily_notAdjusted\\AIG_notAdjusted.csv"
+  }
+}

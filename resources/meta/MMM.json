@@ -1,0 +1,27 @@
+{
+  "ticker": "MMM",
+  "info": {
+    "symbol": "MMM",
+    "name": "3M",
+    "sector": "Industrials",
+    "industry": "Industrial Conglomerates",
+    "currency": "USD",
+    "exchange": "N/A",
+    "country": "N/A",
+    "source": "CSV"
+  },
+  "last_close_date": null,
+  "first_date": null,
+  "total_records": 0,
+  "last_updated": "2025-06-13T08:59:33.083810",
+  "csv_import": {
+    "imported_at": "2025-06-13T08:59:33.083810",
+    "company": "3M",
+    "sector": "Industrials",
+    "industry": "Industrial Conglomerates"
+  },
+  "files": {
+    "adjusted": "resources\\data\\daily\\MMM.csv",
+    "not_adjusted": "resources\\data\\daily_notAdjusted\\MMM_notAdjusted.csv"
+  }
+}

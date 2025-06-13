@@ -1,0 +1,27 @@
+{
+  "ticker": "APP",
+  "info": {
+    "symbol": "APP",
+    "name": "AppLovin",
+    "sector": "Information Technology",
+    "industry": "Application Software",
+    "currency": "USD",
+    "exchange": "N/A",
+    "country": "N/A",
+    "source": "CSV"
+  },
+  "last_close_date": null,
+  "first_date": null,
+  "total_records": 0,
+  "last_updated": "2025-06-13T08:58:37.156988",
+  "csv_import": {
+    "imported_at": "2025-06-13T08:58:37.156988",
+    "company": "AppLovin",
+    "sector": "Information Technology",
+    "industry": "Application Software"
+  },
+  "files": {
+    "adjusted": "resources\\data\\daily\\APP.csv",
+    "not_adjusted": "resources\\data\\daily_notAdjusted\\APP_notAdjusted.csv"
+  }
+}

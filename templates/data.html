@@ -1,0 +1,1503 @@
+{% extends "base.html" %}
+
+{% block header_actions %}
+    <div class="btn-group" role="group">
+        <button type="button" class="btn btn-success btn-sm" id="downloadAllBtn">
+            <i class="bi bi-cloud-download me-1"></i>Aggiorna Tutti
+        </button>
+        <button type="button" class="btn btn-primary btn-sm" data-bs-toggle="modal" data-bs-target="#addTickerModal">
+            <i class="bi bi-plus-circle me-1"></i>Nuovo Ticker
+        </button>
+        <button type="button" class="btn btn-outline-secondary btn-sm" id="refreshStatusBtn">
+            <i class="bi bi-arrow-clockwise me-1"></i>Aggiorna Stato
+        </button>
+    </div>
+{% endblock %}
+
+{% block content %}
+    <!-- Statistics Cards -->
+    <div class="row mb-4">
+        <div class="col-xl-3 col-md-6 mb-4">
+            <div class="card border-left-primary shadow h-100 py-2">
+                <div class="card-body">
+                    <div class="row no-gutters align-items-center">
+                        <div class="col mr-2">
+                            <div class="text-xs font-weight-bold text-primary text-uppercase mb-1">
+                                Ticker Configurati
+                            </div>
+                            <div class="h5 mb-0 font-weight-bold text-gray-800" id="totalTickers">
+                                {{ tickers|length }}
+                            </div>
+                        </div>
+                        <div class="col-auto">
+                            <i class="bi bi-graph-up text-primary" style="font-size: 2rem;"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-xl-3 col-md-6 mb-4">
+            <div class="card border-left-success shadow h-100 py-2">
+                <div class="card-body">
+                    <div class="row no-gutters align-items-center">
+                        <div class="col mr-2">
+                            <div class="text-xs font-weight-bold text-success text-uppercase mb-1">
+                                Ticker Aggiornati
+                            </div>
+                            <div class="h5 mb-0 font-weight-bold text-gray-800" id="updatedTickers">
+                                {{ ticker_status|selectattr('needs_update', 'equalto', false)|list|length }}
+                            </div>
+                        </div>
+                        <div class="col-auto">
+                            <i class="bi bi-check-circle text-success" style="font-size: 2rem;"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-xl-3 col-md-6 mb-4">
+            <div class="card border-left-warning shadow h-100 py-2">
+                <div class="card-body">
+                    <div class="row no-gutters align-items-center">
+                        <div class="col mr-2">
+                            <div class="text-xs font-weight-bold text-warning text-uppercase mb-1">
+                                Da Aggiornare
+                            </div>
+                            <div class="h5 mb-0 font-weight-bold text-gray-800" id="pendingTickers">
+                                {{ ticker_status|selectattr('needs_update', 'equalto', true)|list|length }}
+                            </div>
+                        </div>
+                        <div class="col-auto">
+                            <i class="bi bi-clock text-warning" style="font-size: 2rem;"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-xl-3 col-md-6 mb-4">
+            <div class="card border-left-info shadow h-100 py-2">
+                <div class="card-body">
+                    <div class="row no-gutters align-items-center">
+                        <div class="col mr-2">
+                            <div class="text-xs font-weight-bold text-info text-uppercase mb-1">
+                                Ultimo Aggiornamento
+                            </div>
+                            <div class="small mb-0 font-weight-bold text-gray-800">
+                                {% if last_config_update %}
+                                    {{ last_config_update[:16] }}
+                                {% else %}
+                                    Mai
+                                {% endif %}
+                            </div>
+                        </div>
+                        <div class="col-auto">
+                            <i class="bi bi-calendar-event text-info" style="font-size: 2rem;"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Quick Add Section -->
+    <div class="card shadow mb-4" id="quickAddCard">
+        <div class="card-header bg-primary text-white">
+            <h6 class="m-0">⚡ Aggiungi Ticker Rapidamente</h6>
+        </div>
+        <div class="card-body">
+            <div class="row align-items-end">
+                <div class="col-md-8">
+                    <label for="quickTickerInput" class="form-label">Simbolo Ticker</label>
+                    <input type="text" class="form-control" id="quickTickerInput" 
+                           placeholder="es. AAPL, MSFT, GOOGL..." 
+                           style="text-transform: uppercase;">
+                    <div class="form-text">
+                        Inserisci ticker separati da virgola per aggiungerne multipli: AAPL,MSFT,GOOGL
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <button type="button" class="btn btn-primary w-100" id="quickAddBtn">
+                        <i class="bi bi-plus-circle me-1"></i>Aggiungi
+                    </button>
+                </div>
+            </div>
+            <div class="mt-3">
+                <button type="button" class="btn btn-outline-secondary btn-sm me-2" id="addPopularBtn">
+                    📈 Aggiungi Popolari (AAPL, MSFT, GOOGL, TSLA, AMZN)
+                </button>
+                <button type="button" class="btn btn-outline-info btn-sm me-2" id="showExamplesBtn">
+                    💡 Esempi Ticker
+                </button>
+                <button type="button" class="btn btn-outline-warning btn-sm" id="testConnectionBtn">
+                    🔧 Test Connessione
+                </button>
+                <button type="button" class="btn btn-outline-success btn-sm ms-2" data-bs-toggle="modal" data-bs-target="#uploadCsvModal">
+                    📁 Upload CSV
+                </button>
+            </div>
+        </div>
+    </div>
+
+<!-- Ticker Management Table with Enhanced Features -->
+<div class="card shadow mb-4">
+    <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
+        <h6 class="m-0 font-weight-bold text-primary">Gestione Ticker</h6>
+        <div class="dropdown no-arrow">
+            <a class="dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown">
+                <i class="bi bi-three-dots-vertical text-gray-400"></i>
+            </a>
+            <div class="dropdown-menu dropdown-menu-right shadow">
+                <div class="dropdown-header">Azioni:</div>
+                <a class="dropdown-item" href="#" id="exportConfigBtn">
+                    <i class="bi bi-download me-2"></i>Esporta Configurazione
+                </a>
+                <a class="dropdown-item" href="#" id="clearCacheBtn">
+                    <i class="bi bi-trash me-2"></i>Pulisci Cache
+                </a>
+            </div>
+        </div>
+    </div>
+    <div class="card-body">
+        {% if ticker_status %}
+            <!-- Table Controls -->
+            <div class="row mb-3 align-items-center">
+                <div class="col-md-6">
+                    <div class="input-group">
+                        <span class="input-group-text">
+                            <i class="bi bi-search"></i>
+                        </span>
+                        <input type="text" 
+                               class="form-control" 
+                               id="tickerSearchInput" 
+                               placeholder="Cerca ticker, nome azienda, settore...">
+                        <button class="btn btn-outline-secondary" 
+                                type="button" 
+                                id="clearSearchBtn"
+                                title="Pulisci ricerca">
+                            <i class="bi bi-x"></i>
+                        </button>
+                    </div>
+                    <small class="text-muted">
+                        Ricerca in tempo reale - <span id="searchResults">{{ ticker_status|length }} ticker trovati</span>
+                    </small>
+                </div>
+                <div class="col-md-6">
+                    <div class="d-flex justify-content-end align-items-center">
+                        <label for="pageSize" class="form-label me-2 mb-0">Per pagina:</label>
+                        <select class="form-select" id="pageSize" style="width: auto;">
+                            <option value="10">10</option>
+                            <option value="25" selected>25</option>
+                            <option value="50">50</option>
+                            <option value="100">100</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Table -->
+            <div class="table-responsive">
+                <table class="table table-hover" id="tickersTable">
+                    <thead class="table-light">
+                        <tr>
+                            <th class="sortable" data-column="ticker">
+                                Ticker 
+                                <i class="bi bi-chevron-expand sort-icon ms-1"></i>
+                            </th>
+                            <th class="sortable" data-column="name">
+                                Nome 
+                                <i class="bi bi-chevron-expand sort-icon ms-1"></i>
+                            </th>
+                            <th>Periodo Dati</th>
+                            <th class="sortable" data-column="records">
+                                Record 
+                                <i class="bi bi-chevron-expand sort-icon ms-1"></i>
+                            </th>
+                            <th>File Dimensioni</th>
+                            <th class="sortable" data-column="status">
+                                Stato 
+                                <i class="bi bi-chevron-expand sort-icon ms-1"></i>
+                            </th>
+                            <th>Azioni</th>
+                        </tr>
+                    </thead>
+                    <tbody id="tickersTableBody">
+                        {% for ticker in ticker_status %}
+                            <tr data-ticker="{{ ticker.ticker }}" 
+                                data-name="{{ ticker.name }}" 
+                                data-records="{{ ticker.total_records }}"
+                                data-sector="{{ ticker.csv_info.sector if ticker.csv_info else '' }}"
+                                data-industry="{{ ticker.csv_info.industry if ticker.csv_info else '' }}"
+                                data-status="{% if ticker.needs_update %}pending{% elif ticker.files_exist.adjusted and ticker.files_exist.not_adjusted %}updated{% elif ticker.files_exist.adjusted or ticker.files_exist.not_adjusted %}partial{% else %}missing{% endif %}">
+                                <td>
+                                    <strong class="ticker-symbol">{{ ticker.ticker }}</strong>
+                                </td>
+                                <td>
+                                    <div>
+                                        <span class="company-name">{{ ticker.name }}</span>
+                                        {% if ticker.csv_info %}
+                                            <div class="small text-success sector-info">
+                                                <i class="bi bi-file-earmark-text me-1"></i>{{ ticker.csv_info.sector }}
+                                            </div>
+                                            <div class="small text-muted industry-info">
+                                                {{ ticker.csv_info.industry }}
+                                            </div>
+                                        {% endif %}
+                                    </div>
+                                </td>
+                                <td>
+                                    {% if ticker.last_close_date and ticker.first_date %}
+                                        <div class="small">
+                                            <div><strong>{{ ticker.first_date }}</strong></div>
+                                            <div class="text-muted">↓</div>
+                                            <div><strong>{{ ticker.last_close_date }}</strong></div>
+                                        </div>
+                                    {% elif ticker.last_close_date %}
+                                        <div class="small">
+                                            <div class="text-muted">Da: N/A</div>
+                                            <div><strong>{{ ticker.last_close_date }}</strong></div>
+                                        </div>
+                                    {% else %}
+                                        <span class="text-muted">N/A</span>
+                                    {% endif %}
+                                </td>
+                                <td>
+                                    <span class="badge bg-info record-count">{{ ticker.total_records }}</span>
+                                </td>
+                                <td>
+                                    {% if ticker.file_sizes %}
+                                        <div class="small">
+                                            <div>📊 Adj: {{ ticker.file_sizes.adjusted }}</div>
+                                            <div>📋 Raw: {{ ticker.file_sizes.not_adjusted }}</div>
+                                        </div>
+                                    {% else %}
+                                        <small class="text-muted">N/A</small>
+                                    {% endif %}
+                                </td>
+                                <td>
+                                    {% if ticker.needs_update %}
+                                        <span class="badge bg-warning status-badge">Da aggiornare</span>
+                                    {% elif ticker.files_exist.adjusted and ticker.files_exist.not_adjusted %}
+                                        <span class="badge bg-success status-badge">✅ 2 Versioni</span>
+                                    {% elif ticker.files_exist.adjusted or ticker.files_exist.not_adjusted %}
+                                        <span class="badge bg-warning status-badge">⚠️ Parziale</span>
+                                    {% else %}
+                                        <span class="badge bg-danger status-badge">❌ Mancante</span>
+                                    {% endif %}
+                                </td>
+                                <td>
+                                    <div class="btn-group btn-group-sm" role="group">
+                                        <button class="btn btn-outline-primary download-ticker-btn" 
+                                                data-ticker="{{ ticker.ticker }}"
+                                                title="Scarica/Aggiorna">
+                                            <i class="bi bi-cloud-download"></i>
+                                        </button>
+                                        <button class="btn btn-outline-info view-ticker-btn" 
+                                                data-ticker="{{ ticker.ticker }}"
+                                                title="Visualizza Info">
+                                            <i class="bi bi-eye"></i>
+                                        </button>
+                                        <button class="btn btn-outline-danger remove-ticker-btn" 
+                                                data-ticker="{{ ticker.ticker }}"
+                                                title="Rimuovi">
+                                            <i class="bi bi-trash"></i>
+                                        </button>
+                                    </div>
+                                </td>
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+
+            <!-- Pagination -->
+            <div class="d-flex justify-content-between align-items-center mt-3">
+                <div>
+                    <small class="text-muted">
+                        Mostrando <span id="showingFrom">1</span> - <span id="showingTo">10</span> 
+                        di <span id="totalRows">{{ ticker_status|length }}</span> ticker
+                        <span id="filteredInfo"></span>
+                    </small>
+                </div>
+                <nav aria-label="Paginazione ticker">
+                    <ul class="pagination pagination-sm mb-0" id="paginationNav">
+                        <!-- Pagination buttons will be generated by JavaScript -->
+                    </ul>
+                </nav>
+            </div>
+
+            <!-- No Results Message (initially hidden) -->
+            <div id="noResultsMessage" class="text-center py-4 d-none">
+                <i class="bi bi-search display-1 text-muted"></i>
+                <h5 class="mt-3">Nessun ticker trovato</h5>
+                <p class="text-muted">
+                    Prova a modificare i criteri di ricerca o 
+                    <button class="btn btn-link p-0" id="resetSearchBtn">cancella il filtro</button>.
+                </p>
+            </div>
+
+            <!-- Table Enhancement Styles -->
+            <style>
+            .sortable {
+                cursor: pointer;
+                user-select: none;
+                position: relative;
+            }
+
+            .sortable:hover {
+                background-color: #f8f9fa;
+            }
+
+            .sort-icon {
+                font-size: 0.8rem;
+                opacity: 0.5;
+                transition: all 0.2s ease;
+            }
+
+            .sortable:hover .sort-icon {
+                opacity: 1;
+            }
+
+            .sortable.asc .sort-icon::before {
+                content: "\f143"; /* bi-chevron-up */
+                opacity: 1;
+                color: #007bff;
+            }
+
+            .sortable.desc .sort-icon::before {
+                content: "\f140"; /* bi-chevron-down */
+                opacity: 1;
+                color: #007bff;
+            }
+
+            .table-hover tbody tr:hover {
+                background-color: rgba(0, 123, 255, 0.05);
+            }
+
+            .highlighted {
+                background-color: yellow;
+                font-weight: bold;
+            }
+
+            .ticker-symbol {
+                color: #007bff;
+                font-family: monospace;
+            }
+
+            .company-name {
+                font-weight: 500;
+            }
+
+            .record-count {
+                font-family: monospace;
+                font-size: 0.9rem;
+            }
+
+            .pagination-sm .page-link {
+                font-size: 0.875rem;
+            }
+
+            #tickerSearchInput:focus {
+                border-color: #007bff;
+                box-shadow: 0 0 0 0.2rem rgba(0, 123, 255, 0.25);
+            }
+
+            .fade-in {
+                animation: fadeIn 0.3s ease-in;
+            }
+
+            @keyframes fadeIn {
+                from { opacity: 0; transform: translateY(10px); }
+                to { opacity: 1; transform: translateY(0); }
+            }
+            </style>
+
+            <!-- Enhanced Table JavaScript -->
+            <script>
+            // Variabili globali per la gestione tabella
+            let currentPage = 1;
+            let pageSize = 25;
+            let sortColumn = '';
+            let sortDirection = 'asc';
+            let searchTerm = '';
+            let allRows = [];
+            let filteredRows = [];
+
+            function initializeTickerTable() {
+                console.log('Inizializzazione tabella ticker...');
+                
+                // Raccogli tutte le righe
+                allRows = Array.from(document.querySelectorAll('#tickersTableBody tr'));
+                filteredRows = [...allRows];
+                
+                console.log('Righe trovate:', allRows.length);
+                
+                setupTableEventListeners();
+                updateTableDisplay();
+            }
+
+            function setupTableEventListeners() {
+                // Search input
+                const searchInput = document.getElementById('tickerSearchInput');
+                if (searchInput) {
+                    searchInput.addEventListener('input', (e) => {
+                        searchTerm = e.target.value.toLowerCase();
+                        filterTableRows();
+                        currentPage = 1;
+                        updateTableDisplay();
+                    });
+                }
+
+                // Clear search
+                const clearBtn = document.getElementById('clearSearchBtn');
+                if (clearBtn) {
+                    clearBtn.addEventListener('click', () => {
+                        document.getElementById('tickerSearchInput').value = '';
+                        searchTerm = '';
+                        filterTableRows();
+                        currentPage = 1;
+                        updateTableDisplay();
+                    });
+                }
+
+                // Reset search
+                const resetBtn = document.getElementById('resetSearchBtn');
+                if (resetBtn) {
+                    resetBtn.addEventListener('click', () => {
+                        document.getElementById('tickerSearchInput').value = '';
+                        searchTerm = '';
+                        filterTableRows();
+                        currentPage = 1;
+                        updateTableDisplay();
+                    });
+                }
+
+                // Page size change
+                const pageSizeSelect = document.getElementById('pageSize');
+                if (pageSizeSelect) {
+                    pageSizeSelect.addEventListener('change', (e) => {
+                        pageSize = parseInt(e.target.value);
+                        currentPage = 1;
+                        updateTableDisplay();
+                    });
+                }
+
+                // Column sorting
+                document.querySelectorAll('.sortable').forEach(header => {
+                    header.addEventListener('click', () => {
+                        const column = header.dataset.column;
+                        console.log('Ordinamento colonna:', column);
+                        handleTableSort(column);
+                    });
+                });
+            }
+
+            function filterTableRows() {
+                if (!searchTerm) {
+                    filteredRows = [...allRows];
+                    return;
+                }
+
+                filteredRows = allRows.filter(row => {
+                    const ticker = (row.dataset.ticker || '').toLowerCase();
+                    const name = (row.dataset.name || '').toLowerCase();
+                    const sector = (row.dataset.sector || '').toLowerCase();
+                    const industry = (row.dataset.industry || '').toLowerCase();
+                    
+                    return ticker.includes(searchTerm) ||
+                           name.includes(searchTerm) ||
+                           sector.includes(searchTerm) ||
+                           industry.includes(searchTerm);
+                });
+
+                // Update search results count
+                const searchResults = document.getElementById('searchResults');
+                if (searchResults) {
+                    searchResults.textContent = `${filteredRows.length} ticker trovati`;
+                }
+            }
+
+            function handleTableSort(column) {
+                console.log('Ordinamento per:', column, 'direzione attuale:', sortDirection);
+                
+                if (sortColumn === column) {
+                    sortDirection = sortDirection === 'asc' ? 'desc' : 'asc';
+                } else {
+                    sortColumn = column;
+                    sortDirection = 'asc';
+                }
+
+                console.log('Nuova direzione:', sortDirection);
+                
+                sortTableRows();
+                updateSortIcons();
+                currentPage = 1;
+                updateTableDisplay();
+            }
+
+            function sortTableRows() {
+                console.log('Ordinamento righe per:', sortColumn, sortDirection);
+                
+                filteredRows.sort((a, b) => {
+                    let valueA, valueB;
+
+                    switch (sortColumn) {
+                        case 'ticker':
+                            valueA = (a.dataset.ticker || '').trim();
+                            valueB = (b.dataset.ticker || '').trim();
+                            console.log('Confronto ticker:', valueA, 'vs', valueB);
+                            break;
+                        case 'name':
+                            valueA = (a.dataset.name || '').trim();
+                            valueB = (b.dataset.name || '').trim();
+                            break;
+                        case 'records':
+                            valueA = parseInt(a.dataset.records) || 0;
+                            valueB = parseInt(b.dataset.records) || 0;
+                            break;
+                        case 'status':
+                            const statusOrder = {
+                                'missing': 1,
+                                'pending': 2,
+                                'partial': 3,
+                                'updated': 4
+                            };
+                            valueA = statusOrder[a.dataset.status] || 0;
+                            valueB = statusOrder[b.dataset.status] || 0;
+                            break;
+                        default:
+                            return 0;
+                    }
+
+                    // Ordinamento
+                    if (typeof valueA === 'string' && typeof valueB === 'string') {
+                        const result = valueA.localeCompare(valueB, 'en', { 
+                            numeric: true, 
+                            sensitivity: 'base' 
+                        });
+                        return sortDirection === 'asc' ? result : -result;
+                    }
+
+                    // Per numeri
+                    if (valueA < valueB) return sortDirection === 'asc' ? -1 : 1;
+                    if (valueA > valueB) return sortDirection === 'asc' ? 1 : -1;
+                    return 0;
+                });
+                
+                console.log('Righe ordinate. Prime 5 ticker:', 
+                    filteredRows.slice(0, 5).map(r => r.dataset.ticker));
+            }
+
+            function updateSortIcons() {
+                // Reset all icons
+                document.querySelectorAll('.sortable').forEach(header => {
+                    header.classList.remove('asc', 'desc');
+                });
+
+                // Set current column icon
+                if (sortColumn) {
+                    const currentHeader = document.querySelector(`[data-column="${sortColumn}"]`);
+                    if (currentHeader) {
+                        currentHeader.classList.add(sortDirection);
+                    }
+                }
+            }
+
+            function updateTableDisplay() {
+                const totalRows = filteredRows.length;
+                const totalPages = Math.ceil(totalRows / pageSize);
+                
+                console.log('Aggiornamento display. Righe totali:', totalRows);
+                
+                // Show/hide no results message
+                const noResultsMsg = document.getElementById('noResultsMessage');
+                const tableContainer = document.querySelector('.table-responsive');
+                const paginationContainer = document.querySelector('.d-flex.justify-content-between.align-items-center.mt-3');
+                
+                if (totalRows === 0 && searchTerm) {
+                    if (noResultsMsg) noResultsMsg.classList.remove('d-none');
+                    if (tableContainer) tableContainer.style.display = 'none';
+                    if (paginationContainer) paginationContainer.style.display = 'none';
+                    return;
+                } else {
+                    if (noResultsMsg) noResultsMsg.classList.add('d-none');
+                    if (tableContainer) tableContainer.style.display = 'block';
+                    if (paginationContainer) paginationContainer.style.display = 'flex';
+                }
+
+                // Ensure current page is valid
+                if (currentPage > totalPages && totalPages > 0) {
+                    currentPage = totalPages;
+                }
+                if (currentPage < 1) {
+                    currentPage = 1;
+                }
+
+                // Calculate showing range
+                const startIndex = (currentPage - 1) * pageSize;
+                const endIndex = Math.min(startIndex + pageSize, totalRows);
+
+                // Update info text
+                const showingFrom = document.getElementById('showingFrom');
+                const showingTo = document.getElementById('showingTo');
+                const totalRowsSpan = document.getElementById('totalRows');
+                
+                if (showingFrom) showingFrom.textContent = totalRows > 0 ? startIndex + 1 : 0;
+                if (showingTo) showingTo.textContent = endIndex;
+                if (totalRowsSpan) totalRowsSpan.textContent = totalRows;
+                
+                const filteredInfo = document.getElementById('filteredInfo');
+                if (filteredInfo) {
+                    if (searchTerm && totalRows < allRows.length) {
+                        filteredInfo.textContent = ` (filtrati da ${allRows.length})`;
+                    } else {
+                        filteredInfo.textContent = '';
+                    }
+                }
+
+                // Hide all rows first
+                allRows.forEach(row => row.style.display = 'none');
+
+                // Show current page rows in the correct order
+                const tbody = document.getElementById('tickersTableBody');
+                if (tbody) {
+                    // Riordina fisicamente le righe nel DOM
+                    filteredRows.slice(startIndex, endIndex).forEach(row => {
+                        row.style.display = '';
+                        tbody.appendChild(row); // Questo sposta la riga alla fine
+                    });
+                }
+
+                // Update pagination
+                updateTablePagination(totalPages);
+            }
+
+            function updateTablePagination(totalPages) {
+                const paginationNav = document.getElementById('paginationNav');
+                if (!paginationNav) return;
+                
+                paginationNav.innerHTML = '';
+
+                if (totalPages <= 1) return;
+
+                // Previous button
+                const prevLi = document.createElement('li');
+                prevLi.className = `page-item ${currentPage === 1 ? 'disabled' : ''}`;
+                prevLi.innerHTML = `<a class="page-link" href="#" data-page="${currentPage - 1}">‹</a>`;
+                paginationNav.appendChild(prevLi);
+
+                // Page numbers
+                const startPage = Math.max(1, currentPage - 2);
+                const endPage = Math.min(totalPages, currentPage + 2);
+
+                if (startPage > 1) {
+                    const firstLi = document.createElement('li');
+                    firstLi.className = 'page-item';
+                    firstLi.innerHTML = '<a class="page-link" href="#" data-page="1">1</a>';
+                    paginationNav.appendChild(firstLi);
+
+                    if (startPage > 2) {
+                        const dotsLi = document.createElement('li');
+                        dotsLi.className = 'page-item disabled';
+                        dotsLi.innerHTML = '<span class="page-link">...</span>';
+                        paginationNav.appendChild(dotsLi);
+                    }
+                }
+
+                for (let i = startPage; i <= endPage; i++) {
+                    const li = document.createElement('li');
+                    li.className = `page-item ${i === currentPage ? 'active' : ''}`;
+                    li.innerHTML = `<a class="page-link" href="#" data-page="${i}">${i}</a>`;
+                    paginationNav.appendChild(li);
+                }
+
+                if (endPage < totalPages) {
+                    if (endPage < totalPages - 1) {
+                        const dotsLi = document.createElement('li');
+                        dotsLi.className = 'page-item disabled';
+                        dotsLi.innerHTML = '<span class="page-link">...</span>';
+                        paginationNav.appendChild(dotsLi);
+                    }
+
+                    const lastLi = document.createElement('li');
+                    lastLi.className = 'page-item';
+                    lastLi.innerHTML = `<a class="page-link" href="#" data-page="${totalPages}">${totalPages}</a>`;
+                    paginationNav.appendChild(lastLi);
+                }
+
+                // Next button
+                const nextLi = document.createElement('li');
+                nextLi.className = `page-item ${currentPage === totalPages ? 'disabled' : ''}`;
+                nextLi.innerHTML = `<a class="page-link" href="#" data-page="${currentPage + 1}">›</a>`;
+                paginationNav.appendChild(nextLi);
+
+                // Add click handlers
+                paginationNav.addEventListener('click', (e) => {
+                    e.preventDefault();
+                    if (e.target.tagName === 'A' && e.target.dataset.page) {
+                        const newPage = parseInt(e.target.dataset.page);
+                        if (newPage >= 1 && newPage <= totalPages && newPage !== currentPage) {
+                            currentPage = newPage;
+                            updateTableDisplay();
+                        }
+                    }
+                });
+            }
+
+            // Inizializza quando il DOM è pronto
+            document.addEventListener('DOMContentLoaded', function() {
+                console.log('DOM caricato, inizializzazione tabella...');
+                
+                // Aspetta che tutti gli script siano caricati
+                setTimeout(() => {
+                    if (document.getElementById('tickersTable')) {
+                        initializeTickerTable();
+                    } else {
+                        console.log('Tabella ticker non trovata');
+                    }
+                }, 500);
+            });
+            </script>
+
+        {% else %}
+            <div class="text-center py-4">
+                <i class="bi bi-inbox display-1 text-muted"></i>
+                <h5 class="mt-3">Nessun ticker configurato</h5>
+                <p class="text-muted">
+                    Inizia aggiungendo il primo ticker per scaricare dati finanziari da Yahoo Finance.
+                </p>
+                <button class="btn btn-primary" id="addFirstTickerBtn">
+                    <i class="bi bi-plus-circle me-2"></i>Aggiungi Primo Ticker
+                </button>
+            </div>
+        {% endif %}
+    </div>
+</div>
+
+    <!-- Activity Log -->
+    <div class="card shadow">
+        <div class="card-header py-3">
+            <h6 class="m-0 font-weight-bold text-primary">Log Attività Download</h6>
+        </div>
+        <div class="card-body">
+            <div id="downloadLog" class="activity-log" style="max-height: 300px; overflow-y: auto;">
+                <div class="text-center text-muted py-3">
+                    <i class="bi bi-clock-history"></i>
+                    <p class="mb-0">Le attività di download verranno mostrate qui...</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Upload CSV Modal -->
+    <div class="modal fade" id="uploadCsvModal" tabindex="-1" aria-labelledby="uploadCsvModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="uploadCsvModalLabel">
+                        <i class="bi bi-file-earmark-arrow-up me-2"></i>Upload File CSV
+                    </h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="mb-3">
+                        <label for="csvFile" class="form-label">Seleziona File CSV</label>
+                        <input type="file" class="form-control" id="csvFile" accept=".csv" required>
+                        <div class="form-text">
+                            Il CSV deve contenere le colonne: Ticker, Company, Sector, Industry
+                        </div>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <div class="form-check">
+                            <input class="form-check-input" type="checkbox" id="downloadData">
+                            <label class="form-check-label" for="downloadData">
+                                Scarica automaticamente i dati dopo l'importazione
+                            </label>
+                        </div>
+                        <div class="form-check">
+                            <input class="form-check-input" type="checkbox" id="replaceExisting">
+                            <label class="form-check-label" for="replaceExisting">
+                                Sostituisci ticker esistenti
+                            </label>
+                        </div>
+                    </div>
+
+                    <!-- CSV Preview -->
+                    <div id="csvPreview" class="d-none">
+                        <h6>Anteprima CSV:</h6>
+                        <div id="csvStats" class="mb-2"></div>
+                        <div class="table-responsive" style="max-height: 200px;">
+                            <table class="table table-sm table-bordered">
+                                <thead id="csvPreviewHeader"></thead>
+                                <tbody id="csvPreviewBody"></tbody>
+                            </table>
+                        </div>
+                    </div>
+
+                    <!-- Upload Progress -->
+                    <div id="uploadProgress" class="d-none">
+                        <h6>Progresso Upload:</h6>
+                        <div class="progress mb-2">
+                            <div class="progress-bar" role="progressbar" style="width: 0%"></div>
+                        </div>
+                        <div id="uploadStatus" class="small text-muted">Preparazione...</div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Annulla</button>
+                    <button type="button" class="btn btn-primary" id="confirmUploadCsv">
+                        <i class="bi bi-upload me-1"></i>Carica CSV
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Add Ticker Modal -->
+    <div class="modal fade" id="addTickerModal" tabindex="-1" aria-labelledby="addTickerModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="addTickerModalLabel">
+                        <i class="bi bi-plus-circle me-2"></i>Aggiungi Nuovo Ticker
+                    </h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="mb-3">
+                        <label for="modalTickerInput" class="form-label">Simbolo Ticker</label>
+                        <input type="text" class="form-control" id="modalTickerInput" 
+                               placeholder="es. AAPL" style="text-transform: uppercase;">
+                        <div class="form-text">
+                            Inserisci il simbolo del ticker come mostrato su Yahoo Finance
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Annulla</button>
+                    <button type="button" class="btn btn-primary" id="confirmAddTicker">
+                        <i class="bi bi-plus-circle me-1"></i>Aggiungi Ticker
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+// Gestione dati finanziari
+document.addEventListener('DOMContentLoaded', function() {
+    initializeDataManagement();
+});
+
+function initializeDataManagement() {
+    setupEventListeners();
+    setInterval(refreshTickerStatus, 30000);
+}
+
+function setupEventListeners() {
+    // Quick add ticker
+    const quickAddBtn = document.getElementById('quickAddBtn');
+    if (quickAddBtn) {
+        quickAddBtn.addEventListener('click', function() {
+            const input = document.getElementById('quickTickerInput');
+            const tickers = input.value.trim().toUpperCase();
+            
+            if (tickers) {
+                const tickerList = tickers.split(',').map(t => t.trim()).filter(t => t);
+                
+                if (tickerList.length === 1) {
+                    addTickerDirect(tickerList[0]);
+                } else if (tickerList.length > 1) {
+                    addMultipleTickers(tickerList);
+                }
+                
+                input.value = '';
+            } else {
+                showNotification('Inserisci almeno un ticker', 'warning');
+            }
+        });
+    }
+    
+    // Enter key for quick add
+    const quickTickerInput = document.getElementById('quickTickerInput');
+    if (quickTickerInput) {
+        quickTickerInput.addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                document.getElementById('quickAddBtn').click();
+            }
+        });
+    }
+    
+    // Add popular tickers
+    const addPopularBtn = document.getElementById('addPopularBtn');
+    if (addPopularBtn) {
+        addPopularBtn.addEventListener('click', function() {
+            const popularTickers = ['AAPL', 'MSFT', 'GOOGL', 'TSLA', 'AMZN'];
+            
+            if (confirm(`Vuoi aggiungere questi ticker popolari?\n${popularTickers.join(', ')}`)) {
+                addMultipleTickers(popularTickers);
+            }
+        });
+    }
+    
+    // Show examples
+    const showExamplesBtn = document.getElementById('showExamplesBtn');
+    if (showExamplesBtn) {
+        showExamplesBtn.addEventListener('click', function() {
+            showTickerExamples();
+        });
+    }
+    
+    // Test connection
+    const testConnectionBtn = document.getElementById('testConnectionBtn');
+    if (testConnectionBtn) {
+        testConnectionBtn.addEventListener('click', function() {
+            testConnection();
+        });
+    }
+    
+    // Upload CSV
+    const confirmUploadCsv = document.getElementById('confirmUploadCsv');
+    if (confirmUploadCsv) {
+        confirmUploadCsv.addEventListener('click', function() {
+            uploadCsvFile();
+        });
+    }
+    
+    // CSV file preview
+    const csvFileInput = document.getElementById('csvFile');
+    if (csvFileInput) {
+        csvFileInput.addEventListener('change', function() {
+            previewCsvFile(this.files[0]);
+        });
+    }
+    
+    // Modal add ticker
+    const confirmAddTicker = document.getElementById('confirmAddTicker');
+    if (confirmAddTicker) {
+        confirmAddTicker.addEventListener('click', function() {
+            const ticker = document.getElementById('modalTickerInput').value.trim().toUpperCase();
+            if (ticker) {
+                addTickerDirect(ticker);
+                const modal = bootstrap.Modal.getInstance(document.getElementById('addTickerModal'));
+                modal.hide();
+                document.getElementById('modalTickerInput').value = '';
+            }
+        });
+    }
+    
+    // Download buttons
+    document.querySelectorAll('.download-ticker-btn').forEach(btn => {
+        btn.addEventListener('click', function() {
+            const ticker = this.dataset.ticker;
+            downloadTicker(ticker);
+        });
+    });
+    
+    // Remove buttons
+    document.querySelectorAll('.remove-ticker-btn').forEach(btn => {
+        btn.addEventListener('click', function() {
+            const ticker = this.dataset.ticker;
+            removeTicker(ticker);
+        });
+    });
+    
+    // View buttons
+    document.querySelectorAll('.view-ticker-btn').forEach(btn => {
+        btn.addEventListener('click', function() {
+            const ticker = this.dataset.ticker;
+            alert(`Info per ${ticker} - Funzionalità in sviluppo`);
+        });
+    });
+    
+    // Download all
+    const downloadAllBtn = document.getElementById('downloadAllBtn');
+    if (downloadAllBtn) {
+        downloadAllBtn.addEventListener('click', downloadAllTickers);
+    }
+    
+    // Refresh status
+    const refreshStatusBtn = document.getElementById('refreshStatusBtn');
+    if (refreshStatusBtn) {
+        refreshStatusBtn.addEventListener('click', refreshTickerStatus);
+    }
+    
+    // Add first ticker (if no tickers exist)
+    const addFirstBtn = document.getElementById('addFirstTickerBtn');
+    if (addFirstBtn) {
+        addFirstBtn.addEventListener('click', function() {
+            const ticker = prompt('Inserisci il primo ticker (es. AAPL):');
+            if (ticker && ticker.trim()) {
+                addTickerDirect(ticker.trim().toUpperCase());
+            }
+        });
+    }
+}
+
+// Preview CSV file before upload
+function previewCsvFile(file) {
+    if (!file) return;
+    
+    const reader = new FileReader();
+    reader.onload = function(e) {
+        try {
+            const csvContent = e.target.result;
+            const lines = csvContent.split('\n').filter(line => line.trim());
+            
+            if (lines.length < 2) {
+                showNotification('❌ File CSV troppo corto', 'danger');
+                return;
+            }
+            
+            // Parse header
+            const header = lines[0].split(',').map(col => col.trim());
+            
+            // Verifica colonne richieste
+            const requiredColumns = ['Ticker', 'Company', 'Sector', 'Industry'];
+            const missingColumns = requiredColumns.filter(col => !header.includes(col));
+            
+            if (missingColumns.length > 0) {
+                showNotification(`❌ Colonne mancanti: ${missingColumns.join(', ')}`, 'danger');
+                return;
+            }
+            
+            // Parse data rows (max 10 per anteprima)
+            const dataRows = lines.slice(1, Math.min(11, lines.length));
+            
+            // Show preview
+            const previewDiv = document.getElementById('csvPreview');
+            const headerDiv = document.getElementById('csvPreviewHeader');
+            const bodyDiv = document.getElementById('csvPreviewBody');
+            const statsDiv = document.getElementById('csvStats');
+            
+            // Header
+            headerDiv.innerHTML = `<tr>${header.map(col => `<th>${col}</th>`).join('')}</tr>`;
+            
+            // Body
+            bodyDiv.innerHTML = dataRows.map(row => {
+                const cells = row.split(',').map(cell => cell.trim());
+                return `<tr>${cells.map(cell => `<td>${cell}</td>`).join('')}</tr>`;
+            }).join('');
+            
+            // Stats
+            const totalRows = lines.length - 1;
+            statsDiv.innerHTML = `
+                <small class="text-muted">
+                    📊 Trovati <strong>${totalRows}</strong> ticker nel CSV
+                    ${totalRows > 10 ? ' (mostrando primi 10)' : ''}
+                </small>
+            `;
+            
+            previewDiv.classList.remove('d-none');
+            
+        } catch (error) {
+            console.error('Error parsing CSV:', error);
+            showNotification('❌ Errore nel parsing del CSV', 'danger');
+        }
+    };
+    
+    reader.readAsText(file);
+}
+
+// Upload CSV file
+async function uploadCsvFile() {
+    const fileInput = document.getElementById('csvFile');
+    const file = fileInput.files[0];
+    
+    if (!file) {
+        showNotification('❌ Seleziona un file CSV', 'warning');
+        return;
+    }
+    
+    const downloadData = document.getElementById('downloadData').checked;
+    const replaceExisting = document.getElementById('replaceExisting').checked;
+    
+    const formData = new FormData();
+    formData.append('csvFile', file);
+    formData.append('downloadData', downloadData);
+    formData.append('replaceExisting', replaceExisting);
+    
+    const btn = document.getElementById('confirmUploadCsv');
+    const originalContent = btn.innerHTML;
+    const progressDiv = document.getElementById('uploadProgress');
+    const progressBar = progressDiv.querySelector('.progress-bar');
+    const statusDiv = document.getElementById('uploadStatus');
+    
+    try {
+        btn.innerHTML = '<i class="bi bi-upload me-1"></i>Caricamento...';
+        btn.disabled = true;
+        progressDiv.classList.remove('d-none');
+        
+        addLogEntry('📁 Inizio upload CSV...', 'info');
+        
+        const response = await fetch('/api/upload/csv', {
+            method: 'POST',
+            body: formData
+        });
+        
+        const result = await response.json();
+        
+        if (result.status === 'success') {
+            progressBar.style.width = '100%';
+            statusDiv.textContent = 'Upload completato!';
+            
+            showNotification(`✅ ${result.message}`, 'success');
+            addLogEntry(`📊 CSV importato: ${result.summary.total_tickers} ticker, ${result.summary.added_tickers} nuovi`, 'success');
+            
+            // Close modal and refresh page
+            setTimeout(() => {
+                const modal = bootstrap.Modal.getInstance(document.getElementById('uploadCsvModal'));
+                modal.hide();
+                location.reload();
+            }, 3000);
+            
+        } else {
+            showNotification(`❌ ${result.message}`, 'danger');
+            addLogEntry(`❌ Errore upload CSV: ${result.message}`, 'error');
+        }
+        
+    } catch (error) {
+        console.error('Error uploading CSV:', error);
+        showNotification('❌ Errore durante l\'upload', 'danger');
+        addLogEntry(`❌ Errore upload: ${error.message}`, 'error');
+    } finally {
+        btn.innerHTML = originalContent;
+        btn.disabled = false;
+        
+        setTimeout(() => {
+            progressDiv.classList.add('d-none');
+            progressBar.style.width = '0%';
+        }, 2000);
+    }
+}
+
+// Show ticker examples
+function showTickerExamples() {
+    const examples = `Esempi di ticker popolari:
+
+🏢 TECH:
+• AAPL - Apple Inc.
+• MSFT - Microsoft
+• GOOGL - Alphabet (Google)
+• TSLA - Tesla
+• NVDA - NVIDIA
+
+🏦 FINANZA:
+• JPM - JPMorgan Chase
+• BAC - Bank of America
+
+🛒 RETAIL:
+• AMZN - Amazon
+• WMT - Walmart
+
+🎬 MEDIA:
+• DIS - Disney
+• NFLX - Netflix
+
+💊 FARMACEUTICO:
+• JNJ - Johnson & Johnson
+• PFE - Pfizer
+
+Inserisci il simbolo esatto come mostrato sopra.`;
+    
+    alert(examples);
+}
+
+// Test connection to Yahoo Finance
+async function testConnection() {
+    const btn = document.getElementById('testConnectionBtn');
+    const originalContent = btn.innerHTML;
+    
+    btn.innerHTML = '<i class="bi bi-gear" style="animation: spin 1s linear infinite;"></i> Testing...';
+    btn.disabled = true;
+    
+    addLogEntry('🔧 Test connessione Yahoo Finance...', 'info');
+    
+    try {
+        const response = await fetch('/api/test/connection');
+        const result = await response.json();
+        
+        if (result.status === 'success') {
+            addLogEntry(`✅ Connessione OK: ${result.message}`, 'success');
+            if (result.test_data) {
+                addLogEntry(`📊 Test data: ${result.test_data}`, 'info');
+            }
+            showNotification('✅ Connessione Yahoo Finance OK!', 'success');
+        } else {
+            addLogEntry(`⚠️ Problemi connessione: ${result.message}`, 'error');
+            showNotification('⚠️ Problemi di connessione rilevati', 'warning');
+        }
+        
+    } catch (error) {
+        console.error('Error testing connection:', error);
+        addLogEntry(`❌ Errore test connessione: ${error.message}`, 'error');
+        showNotification('❌ Errore durante il test', 'danger');
+    } finally {
+        btn.innerHTML = originalContent;
+        btn.disabled = false;
+    }
+}
+
+// Add single ticker directly
+async function addTickerDirect(ticker) {
+    if (!ticker || ticker.length < 1) {
+        showNotification('Ticker non valido', 'warning');
+        return;
+    }
+    
+    showNotification(`Aggiungendo ${ticker}...`, 'info');
+    
+    try {
+        const response = await fetch('/api/tickers', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({ ticker: ticker })
+        });
+        
+        const result = await response.json();
+        
+        if (result.status === 'success') {
+            showNotification(`✅ ${result.message}`, 'success');
+            addLogEntry(`➕ Ticker ${ticker} aggiunto alla configurazione`, 'success');
+            setTimeout(() => location.reload(), 1000);
+        } else {
+            showNotification(`⚠️ ${result.message}`, result.status === 'warning' ? 'warning' : 'danger');
+        }
+        
+    } catch (error) {
+        console.error('Error adding ticker:', error);
+        showNotification(`❌ Errore aggiungendo ${ticker}`, 'danger');
+    }
+}
+
+// Add multiple tickers
+async function addMultipleTickers(tickerList) {
+    showNotification(`Aggiungendo ${tickerList.length} ticker...`, 'info');
+    
+    let successCount = 0;
+    let errorCount = 0;
+    
+    for (const ticker of tickerList) {
+        try {
+            const response = await fetch('/api/tickers', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ ticker: ticker })
+            });
+            
+            const result = await response.json();
+            
+            if (result.status === 'success') {
+                successCount++;
+                addLogEntry(`➕ ${ticker} aggiunto`, 'success');
+            } else {
+                errorCount++;
+                addLogEntry(`❌ ${ticker}: ${result.message}`, 'error');
+            }
+            
+            await new Promise(resolve => setTimeout(resolve, 200));
+            
+        } catch (error) {
+            errorCount++;
+            addLogEntry(`❌ ${ticker}: ${error.message}`, 'error');
+        }
+    }
+    
+    if (successCount > 0) {
+        showNotification(`✅ ${successCount} ticker aggiunti con successo${errorCount > 0 ? `, ${errorCount} errori` : ''}`, 'success');
+        addLogEntry(`🎉 Completata aggiunta multipla: ${successCount} successi, ${errorCount} errori`, 'success');
+        setTimeout(() => location.reload(), 2000);
+    } else {
+        showNotification(`❌ Nessun ticker aggiunto (${errorCount} errori)`, 'danger');
+    }
+}
+
+// Download ticker
+async function downloadTicker(ticker) {
+    const btn = document.querySelector(`[data-ticker="${ticker}"].download-ticker-btn`);
+    const originalContent = btn.innerHTML;
+    
+    btn.innerHTML = '<i class="bi bi-arrow-clockwise" style="animation: spin 1s linear infinite;"></i>';
+    btn.disabled = true;
+    
+    addLogEntry(`Inizio download ${ticker}...`, 'info');
+    
+    try {
+        const response = await fetch(`/api/download/${ticker}`);
+        const result = await response.json();
+        
+        if (result.status === 'success') {
+            addLogEntry(`✅ ${result.message}`, 'success');
+            showNotification(result.message, 'success');
+            setTimeout(() => location.reload(), 1000);
+        } else if (result.status === 'info') {
+            addLogEntry(`ℹ️ ${result.message}`, 'info');
+            showNotification(result.message, 'info');
+        } else {
+            addLogEntry(`❌ ${result.message}`, 'error');
+            showNotification(result.message, 'danger');
+        }
+        
+    } catch (error) {
+        console.error('Error downloading ticker:', error);
+        addLogEntry(`❌ Errore download ${ticker}: ${error.message}`, 'error');
+        showNotification(`Errore download ${ticker}`, 'danger');
+    } finally {
+        btn.innerHTML = originalContent;
+        btn.disabled = false;
+    }
+}
+
+// Download all tickers
+async function downloadAllTickers() {
+    const btn = document.getElementById('downloadAllBtn');
+    const originalContent = btn.innerHTML;
+    
+    btn.innerHTML = '<i class="bi bi-arrow-clockwise me-1" style="animation: spin 1s linear infinite;"></i>Aggiornamento...';
+    btn.disabled = true;
+    
+    addLogEntry('🚀 Inizio aggiornamento di tutti i ticker...', 'info');
+    
+    try {
+        const response = await fetch('/api/download/all');
+        const result = await response.json();
+        
+        if (result.status === 'success') {
+            const summary = result.summary;
+            addLogEntry(`✅ Completato: ${summary.updated_tickers}/${summary.total_tickers} ticker aggiornati, ${summary.total_new_records} nuovi record`, 'success');
+            showNotification(`Aggiornati ${summary.updated_tickers} ticker con ${summary.total_new_records} nuovi record`, 'success');
+            
+            setTimeout(() => location.reload(), 2000);
+        } else {
+            addLogEntry(`❌ Errore generale: ${result.message}`, 'error');
+            showNotification('Errore durante l\'aggiornamento', 'danger');
+        }
+        
+    } catch (error) {
+        console.error('Error downloading all tickers:', error);
+        addLogEntry(`❌ Errore generale: ${error.message}`, 'error');
+        showNotification('Errore durante l\'aggiornamento', 'danger');
+    } finally {
+        btn.innerHTML = originalContent;
+        btn.disabled = false;
+    }
+}
+
+// Remove ticker
+async function removeTicker(ticker) {
+    if (!confirm(`Sei sicuro di voler rimuovere il ticker ${ticker}? Verranno eliminati anche i file di dati.`)) {
+        return;
+    }
+    
+    try {
+        const response = await fetch(`/api/tickers/${ticker}`, {
+            method: 'DELETE'
+        });
+        
+        const result = await response.json();
+        
+        if (result.status === 'success') {
+            showNotification(result.message, 'success');
+            addLogEntry(`🗑️ Ticker ${ticker} rimosso`, 'info');
+            setTimeout(() => location.reload(), 1000);
+        } else {
+            showNotification(result.message, 'danger');
+        }
+        
+    } catch (error) {
+        console.error('Error removing ticker:', error);
+        showNotification('Errore durante la rimozione del ticker', 'danger');
+    }
+}
+
+// Refresh ticker status
+async function refreshTickerStatus() {
+    try {
+        const response = await fetch('/api/tickers/status');
+        const status = await response.json();
+        console.log('Status refreshed:', status);
+        addLogEntry('🔄 Status ticker aggiornato', 'info');
+    } catch (error) {
+        console.error('Error refreshing status:', error);
+    }
+}
+
+// Add log entry
+function addLogEntry(message, type = 'info') {
+    const logDiv = document.getElementById('downloadLog');
+    
+    // Clear placeholder if it exists
+    if (logDiv.children.length === 1 && logDiv.querySelector('.text-center')) {
+        logDiv.innerHTML = '';
+    }
+    
+    const timestamp = new Date().toLocaleTimeString();
+    
+    const entry = document.createElement('div');
+    entry.className = `log-entry mb-2 p-2 border-start border-3 border-${type === 'error' ? 'danger' : type === 'success' ? 'success' : 'info'}`;
+    entry.style.backgroundColor = '#f8f9fa';
+    entry.style.borderRadius = '0.25rem';
+    entry.innerHTML = `
+        <div class="d-flex justify-content-between">
+            <span>${message}</span>
+            <small class="text-muted">${timestamp}</small>
+        </div>
+    `;
+    
+    logDiv.appendChild(entry);
+    logDiv.scrollTop = logDiv.scrollHeight;
+    
+    while (logDiv.children.length > 50) {
+        logDiv.removeChild(logDiv.firstChild);
+    }
+}
+
+// Show notification
+function showNotification(message, type = 'info') {
+    const existingNotifications = document.querySelectorAll('.toast-notification');
+    existingNotifications.forEach(notification => notification.remove());
+    
+    const notification = document.createElement('div');
+    notification.className = `alert alert-${type} alert-dismissible fade show toast-notification`;
+    notification.style.cssText = `
+        position: fixed;
+        top: 80px;
+        right: 20px;
+        z-index: 9999;
+        min-width: 300px;
+        box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+    `;
+    notification.innerHTML = `
+        ${message}
+        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+    `;
+    
+    document.body.appendChild(notification);
+    
+    setTimeout(() => {
+        if (notification.parentNode) {
+            notification.remove();
+        }
+    }, 5000);
+}
+
+// Add CSS for spin animation
+const style = document.createElement('style');
+style.textContent = `
+    @keyframes spin {
+        from { transform: rotate(0deg); }
+        to { transform: rotate(360deg); }
+    }
+`;
+document.head.appendChild(style);
+</script>
+{% endblock %}

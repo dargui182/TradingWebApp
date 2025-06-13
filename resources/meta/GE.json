@@ -1,0 +1,27 @@
+{
+  "ticker": "GE",
+  "info": {
+    "symbol": "GE",
+    "name": "GE Aerospace",
+    "sector": "Industrials",
+    "industry": "Aerospace & Defense",
+    "currency": "USD",
+    "exchange": "N/A",
+    "country": "N/A",
+    "source": "CSV"
+  },
+  "last_close_date": null,
+  "first_date": null,
+  "total_records": 0,
+  "last_updated": "2025-06-13T08:59:32.910651",
+  "csv_import": {
+    "imported_at": "2025-06-13T08:59:32.910651",
+    "company": "GE Aerospace",
+    "sector": "Industrials",
+    "industry": "Aerospace & Defense"
+  },
+  "files": {
+    "adjusted": "resources\\data\\daily\\GE.csv",
+    "not_adjusted": "resources\\data\\daily_notAdjusted\\GE_notAdjusted.csv"
+  }
+}

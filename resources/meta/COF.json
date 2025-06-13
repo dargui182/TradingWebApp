@@ -1,0 +1,27 @@
+{
+  "ticker": "COF",
+  "info": {
+    "symbol": "COF",
+    "name": "Capital One",
+    "sector": "Financials",
+    "industry": "Consumer Finance",
+    "currency": "USD",
+    "exchange": "N/A",
+    "country": "N/A",
+    "source": "CSV"
+  },
+  "last_close_date": null,
+  "first_date": null,
+  "total_records": 0,
+  "last_updated": "2025-06-13T08:59:32.643919",
+  "csv_import": {
+    "imported_at": "2025-06-13T08:59:32.643919",
+    "company": "Capital One",
+    "sector": "Financials",
+    "industry": "Consumer Finance"
+  },
+  "files": {
+    "adjusted": "resources\\data\\daily\\COF.csv",
+    "not_adjusted": "resources\\data\\daily_notAdjusted\\COF_notAdjusted.csv"
+  }
+}

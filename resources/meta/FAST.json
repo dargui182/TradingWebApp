@@ -1,0 +1,27 @@
+{
+  "ticker": "FAST",
+  "info": {
+    "symbol": "FAST",
+    "name": "Fastenal",
+    "sector": "Industrials",
+    "industry": "Trading Companies & Distributors",
+    "currency": "USD",
+    "exchange": "N/A",
+    "country": "N/A",
+    "source": "CSV"
+  },
+  "last_close_date": null,
+  "first_date": null,
+  "total_records": 0,
+  "last_updated": "2025-06-13T08:59:32.876702",
+  "csv_import": {
+    "imported_at": "2025-06-13T08:59:32.876702",
+    "company": "Fastenal",
+    "sector": "Industrials",
+    "industry": "Trading Companies & Distributors"
+  },
+  "files": {
+    "adjusted": "resources\\data\\daily\\FAST.csv",
+    "not_adjusted": "resources\\data\\daily_notAdjusted\\FAST_notAdjusted.csv"
+  }
+}

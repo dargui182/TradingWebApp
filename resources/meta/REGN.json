@@ -1,0 +1,27 @@
+{
+  "ticker": "REGN",
+  "info": {
+    "symbol": "REGN",
+    "name": "Regeneron Pharmaceuticals",
+    "sector": "Health Care",
+    "industry": "Biotechnology",
+    "currency": "USD",
+    "exchange": "N/A",
+    "country": "N/A",
+    "source": "CSV"
+  },
+  "last_close_date": null,
+  "first_date": null,
+  "total_records": 0,
+  "last_updated": "2025-06-13T08:59:33.252896",
+  "csv_import": {
+    "imported_at": "2025-06-13T08:59:33.252896",
+    "company": "Regeneron Pharmaceuticals",
+    "sector": "Health Care",
+    "industry": "Biotechnology"
+  },
+  "files": {
+    "adjusted": "resources\\data\\daily\\REGN.csv",
+    "not_adjusted": "resources\\data\\daily_notAdjusted\\REGN_notAdjusted.csv"
+  }
+}

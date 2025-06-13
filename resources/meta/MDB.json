@@ -1,0 +1,27 @@
+{
+  "ticker": "MDB",
+  "info": {
+    "symbol": "MDB",
+    "name": "MongoDB Inc.",
+    "sector": "Information Technology",
+    "industry": "Systems Software",
+    "currency": "USD",
+    "exchange": "N/A",
+    "country": "N/A",
+    "source": "CSV"
+  },
+  "last_close_date": null,
+  "first_date": null,
+  "total_records": 0,
+  "last_updated": "2025-06-13T08:58:37.239893",
+  "csv_import": {
+    "imported_at": "2025-06-13T08:58:37.239893",
+    "company": "MongoDB Inc.",
+    "sector": "Information Technology",
+    "industry": "Systems Software"
+  },
+  "files": {
+    "adjusted": "resources\\data\\daily\\MDB.csv",
+    "not_adjusted": "resources\\data\\daily_notAdjusted\\MDB_notAdjusted.csv"
+  }
+}

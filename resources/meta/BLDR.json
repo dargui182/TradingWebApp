@@ -1,0 +1,27 @@
+{
+  "ticker": "BLDR",
+  "info": {
+    "symbol": "BLDR",
+    "name": "Builders FirstSource",
+    "sector": "Industrials",
+    "industry": "Building Products",
+    "currency": "USD",
+    "exchange": "N/A",
+    "country": "N/A",
+    "source": "CSV"
+  },
+  "last_close_date": null,
+  "first_date": null,
+  "total_records": 0,
+  "last_updated": "2025-06-13T08:59:32.589438",
+  "csv_import": {
+    "imported_at": "2025-06-13T08:59:32.589438",
+    "company": "Builders FirstSource",
+    "sector": "Industrials",
+    "industry": "Building Products"
+  },
+  "files": {
+    "adjusted": "resources\\data\\daily\\BLDR.csv",
+    "not_adjusted": "resources\\data\\daily_notAdjusted\\BLDR_notAdjusted.csv"
+  }
+}

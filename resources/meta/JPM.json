@@ -1,0 +1,27 @@
+{
+  "ticker": "JPM",
+  "info": {
+    "symbol": "JPM",
+    "name": "JPMorgan Chase",
+    "sector": "Financials",
+    "industry": "Diversified Banks",
+    "currency": "USD",
+    "exchange": "N/A",
+    "country": "N/A",
+    "source": "CSV"
+  },
+  "last_close_date": null,
+  "first_date": null,
+  "total_records": 0,
+  "last_updated": "2025-06-13T08:59:33.000529",
+  "csv_import": {
+    "imported_at": "2025-06-13T08:59:33.000529",
+    "company": "JPMorgan Chase",
+    "sector": "Financials",
+    "industry": "Diversified Banks"
+  },
+  "files": {
+    "adjusted": "resources\\data\\daily\\JPM.csv",
+    "not_adjusted": "resources\\data\\daily_notAdjusted\\JPM_notAdjusted.csv"
+  }
+}

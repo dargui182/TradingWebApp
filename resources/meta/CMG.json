@@ -1,0 +1,27 @@
+{
+  "ticker": "CMG",
+  "info": {
+    "symbol": "CMG",
+    "name": "Chipotle Mexican Grill",
+    "sector": "Consumer Discretionary",
+    "industry": "Restaurants",
+    "currency": "USD",
+    "exchange": "N/A",
+    "country": "N/A",
+    "source": "CSV"
+  },
+  "last_close_date": null,
+  "first_date": null,
+  "total_records": 0,
+  "last_updated": "2025-06-13T08:59:32.636718",
+  "csv_import": {
+    "imported_at": "2025-06-13T08:59:32.636718",
+    "company": "Chipotle Mexican Grill",
+    "sector": "Consumer Discretionary",
+    "industry": "Restaurants"
+  },
+  "files": {
+    "adjusted": "resources\\data\\daily\\CMG.csv",
+    "not_adjusted": "resources\\data\\daily_notAdjusted\\CMG_notAdjusted.csv"
+  }
+}

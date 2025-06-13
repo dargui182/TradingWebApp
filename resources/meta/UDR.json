@@ -1,0 +1,27 @@
+{
+  "ticker": "UDR",
+  "info": {
+    "symbol": "UDR",
+    "name": "UDR, Inc.",
+    "sector": "Real Estate",
+    "industry": "Multi-Family Residential REITs",
+    "currency": "USD",
+    "exchange": "N/A",
+    "country": "N/A",
+    "source": "CSV"
+  },
+  "last_close_date": null,
+  "first_date": null,
+  "total_records": 0,
+  "last_updated": "2025-06-13T08:59:33.359573",
+  "csv_import": {
+    "imported_at": "2025-06-13T08:59:33.359573",
+    "company": "UDR, Inc.",
+    "sector": "Real Estate",
+    "industry": "Multi-Family Residential REITs"
+  },
+  "files": {
+    "adjusted": "resources\\data\\daily\\UDR.csv",
+    "not_adjusted": "resources\\data\\daily_notAdjusted\\UDR_notAdjusted.csv"
+  }
+}

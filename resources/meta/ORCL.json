@@ -1,0 +1,27 @@
+{
+  "ticker": "ORCL",
+  "info": {
+    "symbol": "ORCL",
+    "name": "Oracle Corporation",
+    "sector": "Information Technology",
+    "industry": "Application Software",
+    "currency": "USD",
+    "exchange": "N/A",
+    "country": "N/A",
+    "source": "CSV"
+  },
+  "last_close_date": null,
+  "first_date": null,
+  "total_records": 0,
+  "last_updated": "2025-06-13T08:59:33.145321",
+  "csv_import": {
+    "imported_at": "2025-06-13T08:59:33.145321",
+    "company": "Oracle Corporation",
+    "sector": "Information Technology",
+    "industry": "Application Software"
+  },
+  "files": {
+    "adjusted": "resources\\data\\daily\\ORCL.csv",
+    "not_adjusted": "resources\\data\\daily_notAdjusted\\ORCL_notAdjusted.csv"
+  }
+}

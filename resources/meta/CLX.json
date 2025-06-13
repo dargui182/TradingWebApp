@@ -1,0 +1,27 @@
+{
+  "ticker": "CLX",
+  "info": {
+    "symbol": "CLX",
+    "name": "Clorox",
+    "sector": "Consumer Staples",
+    "industry": "Household Products",
+    "currency": "USD",
+    "exchange": "N/A",
+    "country": "N/A",
+    "source": "CSV"
+  },
+  "last_close_date": null,
+  "first_date": null,
+  "total_records": 0,
+  "last_updated": "2025-06-13T08:59:32.632615",
+  "csv_import": {
+    "imported_at": "2025-06-13T08:59:32.632615",
+    "company": "Clorox",
+    "sector": "Consumer Staples",
+    "industry": "Household Products"
+  },
+  "files": {
+    "adjusted": "resources\\data\\daily\\CLX.csv",
+    "not_adjusted": "resources\\data\\daily_notAdjusted\\CLX_notAdjusted.csv"
+  }
+}

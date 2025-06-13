@@ -1,0 +1,27 @@
+{
+  "ticker": "GOOG",
+  "info": {
+    "symbol": "GOOG",
+    "name": "Alphabet Inc. (Class C)",
+    "sector": "Communication Services",
+    "industry": "Interactive Media & Services",
+    "currency": "USD",
+    "exchange": "N/A",
+    "country": "N/A",
+    "source": "CSV"
+  },
+  "last_close_date": null,
+  "first_date": null,
+  "total_records": 0,
+  "last_updated": "2025-06-13T08:59:32.927667",
+  "csv_import": {
+    "imported_at": "2025-06-13T08:59:32.927667",
+    "company": "Alphabet Inc. (Class C)",
+    "sector": "Communication Services",
+    "industry": "Interactive Media & Services"
+  },
+  "files": {
+    "adjusted": "resources\\data\\daily\\GOOG.csv",
+    "not_adjusted": "resources\\data\\daily_notAdjusted\\GOOG_notAdjusted.csv"
+  }
+}

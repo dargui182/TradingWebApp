@@ -1,0 +1,27 @@
+{
+  "ticker": "WBD",
+  "info": {
+    "symbol": "WBD",
+    "name": "Warner Bros. Discovery",
+    "sector": "Communication Services",
+    "industry": "Broadcasting",
+    "currency": "USD",
+    "exchange": "N/A",
+    "country": "N/A",
+    "source": "CSV"
+  },
+  "last_close_date": null,
+  "first_date": null,
+  "total_records": 0,
+  "last_updated": "2025-06-13T08:59:33.407968",
+  "csv_import": {
+    "imported_at": "2025-06-13T08:59:33.407968",
+    "company": "Warner Bros. Discovery",
+    "sector": "Communication Services",
+    "industry": "Broadcasting"
+  },
+  "files": {
+    "adjusted": "resources\\data\\daily\\WBD.csv",
+    "not_adjusted": "resources\\data\\daily_notAdjusted\\WBD_notAdjusted.csv"
+  }
+}

@@ -1,0 +1,27 @@
+{
+  "ticker": "KEY",
+  "info": {
+    "symbol": "KEY",
+    "name": "KeyCorp",
+    "sector": "Financials",
+    "industry": "Regional Banks",
+    "currency": "USD",
+    "exchange": "N/A",
+    "country": "N/A",
+    "source": "CSV"
+  },
+  "last_close_date": null,
+  "first_date": null,
+  "total_records": 0,
+  "last_updated": "2025-06-13T08:59:33.004115",
+  "csv_import": {
+    "imported_at": "2025-06-13T08:59:33.004115",
+    "company": "KeyCorp",
+    "sector": "Financials",
+    "industry": "Regional Banks"
+  },
+  "files": {
+    "adjusted": "resources\\data\\daily\\KEY.csv",
+    "not_adjusted": "resources\\data\\daily_notAdjusted\\KEY_notAdjusted.csv"
+  }
+}

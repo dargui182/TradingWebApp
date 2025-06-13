@@ -1,0 +1,27 @@
+{
+  "ticker": "JCI",
+  "info": {
+    "symbol": "JCI",
+    "name": "Johnson Controls",
+    "sector": "Industrials",
+    "industry": "Building Products",
+    "currency": "USD",
+    "exchange": "N/A",
+    "country": "N/A",
+    "source": "CSV"
+  },
+  "last_close_date": null,
+  "first_date": null,
+  "total_records": 0,
+  "last_updated": "2025-06-13T08:59:32.994850",
+  "csv_import": {
+    "imported_at": "2025-06-13T08:59:32.994850",
+    "company": "Johnson Controls",
+    "sector": "Industrials",
+    "industry": "Building Products"
+  },
+  "files": {
+    "adjusted": "resources\\data\\daily\\JCI.csv",
+    "not_adjusted": "resources\\data\\daily_notAdjusted\\JCI_notAdjusted.csv"
+  }
+}

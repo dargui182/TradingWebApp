@@ -1,0 +1,27 @@
+{
+  "ticker": "KMX",
+  "info": {
+    "symbol": "KMX",
+    "name": "CarMax",
+    "sector": "Consumer Discretionary",
+    "industry": "Automotive Retail",
+    "currency": "USD",
+    "exchange": "N/A",
+    "country": "N/A",
+    "source": "CSV"
+  },
+  "last_close_date": null,
+  "first_date": null,
+  "total_records": 0,
+  "last_updated": "2025-06-13T08:59:33.014455",
+  "csv_import": {
+    "imported_at": "2025-06-13T08:59:33.014455",
+    "company": "CarMax",
+    "sector": "Consumer Discretionary",
+    "industry": "Automotive Retail"
+  },
+  "files": {
+    "adjusted": "resources\\data\\daily\\KMX.csv",
+    "not_adjusted": "resources\\data\\daily_notAdjusted\\KMX_notAdjusted.csv"
+  }
+}

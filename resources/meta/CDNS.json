@@ -1,0 +1,27 @@
+{
+  "ticker": "CDNS",
+  "info": {
+    "symbol": "CDNS",
+    "name": "Cadence Design Systems",
+    "sector": "Information Technology",
+    "industry": "Application Software",
+    "currency": "USD",
+    "exchange": "N/A",
+    "country": "N/A",
+    "source": "CSV"
+  },
+  "last_close_date": null,
+  "first_date": null,
+  "total_records": 0,
+  "last_updated": "2025-06-13T08:59:32.615666",
+  "csv_import": {
+    "imported_at": "2025-06-13T08:59:32.615666",
+    "company": "Cadence Design Systems",
+    "sector": "Information Technology",
+    "industry": "Application Software"
+  },
+  "files": {
+    "adjusted": "resources\\data\\daily\\CDNS.csv",
+    "not_adjusted": "resources\\data\\daily_notAdjusted\\CDNS_notAdjusted.csv"
+  }
+}

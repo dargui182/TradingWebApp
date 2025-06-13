@@ -1,0 +1,27 @@
+{
+  "ticker": "EXPE",
+  "info": {
+    "symbol": "EXPE",
+    "name": "Expedia Group",
+    "sector": "Consumer Discretionary",
+    "industry": "Hotels, Resorts & Cruise Lines",
+    "currency": "USD",
+    "exchange": "N/A",
+    "country": "N/A",
+    "source": "CSV"
+  },
+  "last_close_date": null,
+  "first_date": null,
+  "total_records": 0,
+  "last_updated": "2025-06-13T08:59:32.840085",
+  "csv_import": {
+    "imported_at": "2025-06-13T08:59:32.840085",
+    "company": "Expedia Group",
+    "sector": "Consumer Discretionary",
+    "industry": "Hotels, Resorts & Cruise Lines"
+  },
+  "files": {
+    "adjusted": "resources\\data\\daily\\EXPE.csv",
+    "not_adjusted": "resources\\data\\daily_notAdjusted\\EXPE_notAdjusted.csv"
+  }
+}

@@ -1,0 +1,27 @@
+{
+  "ticker": "CAH",
+  "info": {
+    "symbol": "CAH",
+    "name": "Cardinal Health",
+    "sector": "Health Care",
+    "industry": "Health Care Distributors",
+    "currency": "USD",
+    "exchange": "N/A",
+    "country": "N/A",
+    "source": "CSV"
+  },
+  "last_close_date": null,
+  "first_date": null,
+  "total_records": 0,
+  "last_updated": "2025-06-13T08:59:32.604360",
+  "csv_import": {
+    "imported_at": "2025-06-13T08:59:32.604360",
+    "company": "Cardinal Health",
+    "sector": "Health Care",
+    "industry": "Health Care Distributors"
+  },
+  "files": {
+    "adjusted": "resources\\data\\daily\\CAH.csv",
+    "not_adjusted": "resources\\data\\daily_notAdjusted\\CAH_notAdjusted.csv"
+  }
+}

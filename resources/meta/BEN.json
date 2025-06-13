@@ -1,0 +1,27 @@
+{
+  "ticker": "BEN",
+  "info": {
+    "symbol": "BEN",
+    "name": "Franklin Resources",
+    "sector": "Financials",
+    "industry": "Asset Management & Custody Banks",
+    "currency": "USD",
+    "exchange": "N/A",
+    "country": "N/A",
+    "source": "CSV"
+  },
+  "last_close_date": null,
+  "first_date": null,
+  "total_records": 0,
+  "last_updated": "2025-06-13T08:59:32.578620",
+  "csv_import": {
+    "imported_at": "2025-06-13T08:59:32.578620",
+    "company": "Franklin Resources",
+    "sector": "Financials",
+    "industry": "Asset Management & Custody Banks"
+  },
+  "files": {
+    "adjusted": "resources\\data\\daily\\BEN.csv",
+    "not_adjusted": "resources\\data\\daily_notAdjusted\\BEN_notAdjusted.csv"
+  }
+}

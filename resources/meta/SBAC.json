@@ -1,0 +1,27 @@
+{
+  "ticker": "SBAC",
+  "info": {
+    "symbol": "SBAC",
+    "name": "SBA Communications",
+    "sector": "Real Estate",
+    "industry": "Telecom Tower REITs",
+    "currency": "USD",
+    "exchange": "N/A",
+    "country": "N/A",
+    "source": "CSV"
+  },
+  "last_close_date": null,
+  "first_date": null,
+  "total_records": 0,
+  "last_updated": "2025-06-13T08:59:33.270445",
+  "csv_import": {
+    "imported_at": "2025-06-13T08:59:33.270445",
+    "company": "SBA Communications",
+    "sector": "Real Estate",
+    "industry": "Telecom Tower REITs"
+  },
+  "files": {
+    "adjusted": "resources\\data\\daily\\SBAC.csv",
+    "not_adjusted": "resources\\data\\daily_notAdjusted\\SBAC_notAdjusted.csv"
+  }
+}

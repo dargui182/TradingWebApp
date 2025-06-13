@@ -1,0 +1,27 @@
+{
+  "ticker": "CDW",
+  "info": {
+    "symbol": "CDW",
+    "name": "CDW Corporation",
+    "sector": "Information Technology",
+    "industry": "Technology Distributors",
+    "currency": "USD",
+    "exchange": "N/A",
+    "country": "N/A",
+    "source": "CSV"
+  },
+  "last_close_date": null,
+  "first_date": null,
+  "total_records": 0,
+  "last_updated": "2025-06-13T08:59:32.617208",
+  "csv_import": {
+    "imported_at": "2025-06-13T08:59:32.617208",
+    "company": "CDW Corporation",
+    "sector": "Information Technology",
+    "industry": "Technology Distributors"
+  },
+  "files": {
+    "adjusted": "resources\\data\\daily\\CDW.csv",
+    "not_adjusted": "resources\\data\\daily_notAdjusted\\CDW_notAdjusted.csv"
+  }
+}

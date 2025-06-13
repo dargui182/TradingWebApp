@@ -1,0 +1,27 @@
+{
+  "ticker": "JKHY",
+  "info": {
+    "symbol": "JKHY",
+    "name": "Jack Henry & Associates",
+    "sector": "Financials",
+    "industry": "Transaction & Payment Processing Services",
+    "currency": "USD",
+    "exchange": "N/A",
+    "country": "N/A",
+    "source": "CSV"
+  },
+  "last_close_date": null,
+  "first_date": null,
+  "total_records": 0,
+  "last_updated": "2025-06-13T08:59:32.995875",
+  "csv_import": {
+    "imported_at": "2025-06-13T08:59:32.995875",
+    "company": "Jack Henry & Associates",
+    "sector": "Financials",
+    "industry": "Transaction & Payment Processing Services"
+  },
+  "files": {
+    "adjusted": "resources\\data\\daily\\JKHY.csv",
+    "not_adjusted": "resources\\data\\daily_notAdjusted\\JKHY_notAdjusted.csv"
+  }
+}

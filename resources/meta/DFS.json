@@ -1,0 +1,27 @@
+{
+  "ticker": "DFS",
+  "info": {
+    "symbol": "DFS",
+    "name": "Discover Financial",
+    "sector": "Financials",
+    "industry": "Consumer Finance",
+    "currency": "USD",
+    "exchange": "N/A",
+    "country": "N/A",
+    "source": "CSV"
+  },
+  "last_close_date": null,
+  "first_date": null,
+  "total_records": 0,
+  "last_updated": "2025-06-13T08:59:32.763448",
+  "csv_import": {
+    "imported_at": "2025-06-13T08:59:32.763448",
+    "company": "Discover Financial",
+    "sector": "Financials",
+    "industry": "Consumer Finance"
+  },
+  "files": {
+    "adjusted": "resources\\data\\daily\\DFS.csv",
+    "not_adjusted": "resources\\data\\daily_notAdjusted\\DFS_notAdjusted.csv"
+  }
+}

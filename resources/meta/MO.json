@@ -1,0 +1,27 @@
+{
+  "ticker": "MO",
+  "info": {
+    "symbol": "MO",
+    "name": "Altria",
+    "sector": "Consumer Staples",
+    "industry": "Tobacco",
+    "currency": "USD",
+    "exchange": "N/A",
+    "country": "N/A",
+    "source": "CSV"
+  },
+  "last_close_date": null,
+  "first_date": null,
+  "total_records": 0,
+  "last_updated": "2025-06-13T08:59:33.087420",
+  "csv_import": {
+    "imported_at": "2025-06-13T08:59:33.087420",
+    "company": "Altria",
+    "sector": "Consumer Staples",
+    "industry": "Tobacco"
+  },
+  "files": {
+    "adjusted": "resources\\data\\daily\\MO.csv",
+    "not_adjusted": "resources\\data\\daily_notAdjusted\\MO_notAdjusted.csv"
+  }
+}

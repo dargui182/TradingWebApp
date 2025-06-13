@@ -1,0 +1,27 @@
+{
+  "ticker": "URI",
+  "info": {
+    "symbol": "URI",
+    "name": "United Rentals",
+    "sector": "Industrials",
+    "industry": "Trading Companies & Distributors",
+    "currency": "USD",
+    "exchange": "N/A",
+    "country": "N/A",
+    "source": "CSV"
+  },
+  "last_close_date": null,
+  "first_date": null,
+  "total_records": 0,
+  "last_updated": "2025-06-13T08:59:33.368865",
+  "csv_import": {
+    "imported_at": "2025-06-13T08:59:33.368865",
+    "company": "United Rentals",
+    "sector": "Industrials",
+    "industry": "Trading Companies & Distributors"
+  },
+  "files": {
+    "adjusted": "resources\\data\\daily\\URI.csv",
+    "not_adjusted": "resources\\data\\daily_notAdjusted\\URI_notAdjusted.csv"
+  }
+}

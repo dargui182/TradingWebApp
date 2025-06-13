@@ -1,0 +1,27 @@
+{
+  "ticker": "PLD",
+  "info": {
+    "symbol": "PLD",
+    "name": "Prologis",
+    "sector": "Real Estate",
+    "industry": "Industrial REITs",
+    "currency": "USD",
+    "exchange": "N/A",
+    "country": "N/A",
+    "source": "CSV"
+  },
+  "last_close_date": null,
+  "first_date": null,
+  "total_records": 0,
+  "last_updated": "2025-06-13T08:59:33.222873",
+  "csv_import": {
+    "imported_at": "2025-06-13T08:59:33.222873",
+    "company": "Prologis",
+    "sector": "Real Estate",
+    "industry": "Industrial REITs"
+  },
+  "files": {
+    "adjusted": "resources\\data\\daily\\PLD.csv",
+    "not_adjusted": "resources\\data\\daily_notAdjusted\\PLD_notAdjusted.csv"
+  }
+}

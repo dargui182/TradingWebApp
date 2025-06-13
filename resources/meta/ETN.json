@@ -1,0 +1,27 @@
+{
+  "ticker": "ETN",
+  "info": {
+    "symbol": "ETN",
+    "name": "Eaton Corporation",
+    "sector": "Industrials",
+    "industry": "Electrical Components & Equipment",
+    "currency": "USD",
+    "exchange": "N/A",
+    "country": "N/A",
+    "source": "CSV"
+  },
+  "last_close_date": null,
+  "first_date": null,
+  "total_records": 0,
+  "last_updated": "2025-06-13T08:59:32.826604",
+  "csv_import": {
+    "imported_at": "2025-06-13T08:59:32.826604",
+    "company": "Eaton Corporation",
+    "sector": "Industrials",
+    "industry": "Electrical Components & Equipment"
+  },
+  "files": {
+    "adjusted": "resources\\data\\daily\\ETN.csv",
+    "not_adjusted": "resources\\data\\daily_notAdjusted\\ETN_notAdjusted.csv"
+  }
+}

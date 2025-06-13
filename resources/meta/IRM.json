@@ -1,0 +1,27 @@
+{
+  "ticker": "IRM",
+  "info": {
+    "symbol": "IRM",
+    "name": "Iron Mountain",
+    "sector": "Real Estate",
+    "industry": "Other Specialized REITs",
+    "currency": "USD",
+    "exchange": "N/A",
+    "country": "N/A",
+    "source": "CSV"
+  },
+  "last_close_date": null,
+  "first_date": null,
+  "total_records": 0,
+  "last_updated": "2025-06-13T08:59:32.985099",
+  "csv_import": {
+    "imported_at": "2025-06-13T08:59:32.985099",
+    "company": "Iron Mountain",
+    "sector": "Real Estate",
+    "industry": "Other Specialized REITs"
+  },
+  "files": {
+    "adjusted": "resources\\data\\daily\\IRM.csv",
+    "not_adjusted": "resources\\data\\daily_notAdjusted\\IRM_notAdjusted.csv"
+  }
+}

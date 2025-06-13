@@ -1,0 +1,27 @@
+{
+  "ticker": "DPZ",
+  "info": {
+    "symbol": "DPZ",
+    "name": "Domino's",
+    "sector": "Consumer Discretionary",
+    "industry": "Restaurants",
+    "currency": "USD",
+    "exchange": "N/A",
+    "country": "N/A",
+    "source": "CSV"
+  },
+  "last_close_date": null,
+  "first_date": null,
+  "total_records": 0,
+  "last_updated": "2025-06-13T08:59:32.784907",
+  "csv_import": {
+    "imported_at": "2025-06-13T08:59:32.784907",
+    "company": "Domino's",
+    "sector": "Consumer Discretionary",
+    "industry": "Restaurants"
+  },
+  "files": {
+    "adjusted": "resources\\data\\daily\\DPZ.csv",
+    "not_adjusted": "resources\\data\\daily_notAdjusted\\DPZ_notAdjusted.csv"
+  }
+}

@@ -1,0 +1,27 @@
+{
+  "ticker": "CAG",
+  "info": {
+    "symbol": "CAG",
+    "name": "Conagra Brands",
+    "sector": "Consumer Staples",
+    "industry": "Packaged Foods & Meats",
+    "currency": "USD",
+    "exchange": "N/A",
+    "country": "N/A",
+    "source": "CSV"
+  },
+  "last_close_date": null,
+  "first_date": null,
+  "total_records": 0,
+  "last_updated": "2025-06-13T08:59:32.602826",
+  "csv_import": {
+    "imported_at": "2025-06-13T08:59:32.602826",
+    "company": "Conagra Brands",
+    "sector": "Consumer Staples",
+    "industry": "Packaged Foods & Meats"
+  },
+  "files": {
+    "adjusted": "resources\\data\\daily\\CAG.csv",
+    "not_adjusted": "resources\\data\\daily_notAdjusted\\CAG_notAdjusted.csv"
+  }
+}

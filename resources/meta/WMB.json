@@ -1,0 +1,27 @@
+{
+  "ticker": "WMB",
+  "info": {
+    "symbol": "WMB",
+    "name": "Williams Companies",
+    "sector": "Energy",
+    "industry": "Oil & Gas Storage & Transportation",
+    "currency": "USD",
+    "exchange": "N/A",
+    "country": "N/A",
+    "source": "CSV"
+  },
+  "last_close_date": null,
+  "first_date": null,
+  "total_records": 0,
+  "last_updated": "2025-06-13T08:59:33.424209",
+  "csv_import": {
+    "imported_at": "2025-06-13T08:59:33.424209",
+    "company": "Williams Companies",
+    "sector": "Energy",
+    "industry": "Oil & Gas Storage & Transportation"
+  },
+  "files": {
+    "adjusted": "resources\\data\\daily\\WMB.csv",
+    "not_adjusted": "resources\\data\\daily_notAdjusted\\WMB_notAdjusted.csv"
+  }
+}

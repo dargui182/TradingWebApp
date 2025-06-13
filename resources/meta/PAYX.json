@@ -1,0 +1,27 @@
+{
+  "ticker": "PAYX",
+  "info": {
+    "symbol": "PAYX",
+    "name": "Paychex",
+    "sector": "Industrials",
+    "industry": "Human Resource & Employment Services",
+    "currency": "USD",
+    "exchange": "N/A",
+    "country": "N/A",
+    "source": "CSV"
+  },
+  "last_close_date": null,
+  "first_date": null,
+  "total_records": 0,
+  "last_updated": "2025-06-13T08:59:33.169969",
+  "csv_import": {
+    "imported_at": "2025-06-13T08:59:33.169969",
+    "company": "Paychex",
+    "sector": "Industrials",
+    "industry": "Human Resource & Employment Services"
+  },
+  "files": {
+    "adjusted": "resources\\data\\daily\\PAYX.csv",
+    "not_adjusted": "resources\\data\\daily_notAdjusted\\PAYX_notAdjusted.csv"
+  }
+}

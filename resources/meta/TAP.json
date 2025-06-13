@@ -1,0 +1,27 @@
+{
+  "ticker": "TAP",
+  "info": {
+    "symbol": "TAP",
+    "name": "Molson Coors Beverage Company",
+    "sector": "Consumer Staples",
+    "industry": "Brewers",
+    "currency": "USD",
+    "exchange": "N/A",
+    "country": "N/A",
+    "source": "CSV"
+  },
+  "last_close_date": null,
+  "first_date": null,
+  "total_records": 0,
+  "last_updated": "2025-06-13T08:59:33.322329",
+  "csv_import": {
+    "imported_at": "2025-06-13T08:59:33.322329",
+    "company": "Molson Coors Beverage Company",
+    "sector": "Consumer Staples",
+    "industry": "Brewers"
+  },
+  "files": {
+    "adjusted": "resources\\data\\daily\\TAP.csv",
+    "not_adjusted": "resources\\data\\daily_notAdjusted\\TAP_notAdjusted.csv"
+  }
+}

@@ -1,0 +1,27 @@
+{
+  "ticker": "O",
+  "info": {
+    "symbol": "O",
+    "name": "Realty Income",
+    "sector": "Real Estate",
+    "industry": "Retail REITs",
+    "currency": "USD",
+    "exchange": "N/A",
+    "country": "N/A",
+    "source": "CSV"
+  },
+  "last_close_date": null,
+  "first_date": null,
+  "total_records": 0,
+  "last_updated": "2025-06-13T08:59:33.138536",
+  "csv_import": {
+    "imported_at": "2025-06-13T08:59:33.138536",
+    "company": "Realty Income",
+    "sector": "Real Estate",
+    "industry": "Retail REITs"
+  },
+  "files": {
+    "adjusted": "resources\\data\\daily\\O.csv",
+    "not_adjusted": "resources\\data\\daily_notAdjusted\\O_notAdjusted.csv"
+  }
+}

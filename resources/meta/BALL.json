@@ -1,0 +1,27 @@
+{
+  "ticker": "BALL",
+  "info": {
+    "symbol": "BALL",
+    "name": "Ball Corporation",
+    "sector": "Materials",
+    "industry": "Metal, Glass & Plastic Containers",
+    "currency": "USD",
+    "exchange": "N/A",
+    "country": "N/A",
+    "source": "CSV"
+  },
+  "last_close_date": null,
+  "first_date": null,
+  "total_records": 0,
+  "last_updated": "2025-06-13T08:59:32.572981",
+  "csv_import": {
+    "imported_at": "2025-06-13T08:59:32.572981",
+    "company": "Ball Corporation",
+    "sector": "Materials",
+    "industry": "Metal, Glass & Plastic Containers"
+  },
+  "files": {
+    "adjusted": "resources\\data\\daily\\BALL.csv",
+    "not_adjusted": "resources\\data\\daily_notAdjusted\\BALL_notAdjusted.csv"
+  }
+}

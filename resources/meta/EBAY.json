@@ -1,0 +1,27 @@
+{
+  "ticker": "EBAY",
+  "info": {
+    "symbol": "EBAY",
+    "name": "eBay Inc.",
+    "sector": "Consumer Discretionary",
+    "industry": "Broadline Retail",
+    "currency": "USD",
+    "exchange": "N/A",
+    "country": "N/A",
+    "source": "CSV"
+  },
+  "last_close_date": null,
+  "first_date": null,
+  "total_records": 0,
+  "last_updated": "2025-06-13T08:59:32.798272",
+  "csv_import": {
+    "imported_at": "2025-06-13T08:59:32.798272",
+    "company": "eBay Inc.",
+    "sector": "Consumer Discretionary",
+    "industry": "Broadline Retail"
+  },
+  "files": {
+    "adjusted": "resources\\data\\daily\\EBAY.csv",
+    "not_adjusted": "resources\\data\\daily_notAdjusted\\EBAY_notAdjusted.csv"
+  }
+}

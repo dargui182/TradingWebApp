@@ -1,0 +1,27 @@
+{
+  "ticker": "EL",
+  "info": {
+    "symbol": "EL",
+    "name": "Est\u00e9e Lauder Companies (The)",
+    "sector": "Consumer Staples",
+    "industry": "Personal Care Products",
+    "currency": "USD",
+    "exchange": "N/A",
+    "country": "N/A",
+    "source": "CSV"
+  },
+  "last_close_date": null,
+  "first_date": null,
+  "total_records": 0,
+  "last_updated": "2025-06-13T08:59:32.807548",
+  "csv_import": {
+    "imported_at": "2025-06-13T08:59:32.807548",
+    "company": "Est\u00e9e Lauder Companies (The)",
+    "sector": "Consumer Staples",
+    "industry": "Personal Care Products"
+  },
+  "files": {
+    "adjusted": "resources\\data\\daily\\EL.csv",
+    "not_adjusted": "resources\\data\\daily_notAdjusted\\EL_notAdjusted.csv"
+  }
+}

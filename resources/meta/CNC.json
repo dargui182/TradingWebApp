@@ -1,0 +1,27 @@
+{
+  "ticker": "CNC",
+  "info": {
+    "symbol": "CNC",
+    "name": "Centene Corporation",
+    "sector": "Health Care",
+    "industry": "Managed Health Care",
+    "currency": "USD",
+    "exchange": "N/A",
+    "country": "N/A",
+    "source": "CSV"
+  },
+  "last_close_date": null,
+  "first_date": null,
+  "total_records": 0,
+  "last_updated": "2025-06-13T08:59:32.641348",
+  "csv_import": {
+    "imported_at": "2025-06-13T08:59:32.641348",
+    "company": "Centene Corporation",
+    "sector": "Health Care",
+    "industry": "Managed Health Care"
+  },
+  "files": {
+    "adjusted": "resources\\data\\daily\\CNC.csv",
+    "not_adjusted": "resources\\data\\daily_notAdjusted\\CNC_notAdjusted.csv"
+  }
+}

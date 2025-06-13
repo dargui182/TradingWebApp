@@ -1,0 +1,27 @@
+{
+  "ticker": "AMAT",
+  "info": {
+    "symbol": "AMAT",
+    "name": "Applied Materials",
+    "sector": "Information Technology",
+    "industry": "Semiconductor Materials & Equipment",
+    "currency": "USD",
+    "exchange": "N/A",
+    "country": "N/A",
+    "source": "CSV"
+  },
+  "last_close_date": null,
+  "first_date": null,
+  "total_records": 0,
+  "last_updated": "2025-06-13T08:59:32.527659",
+  "csv_import": {
+    "imported_at": "2025-06-13T08:59:32.527659",
+    "company": "Applied Materials",
+    "sector": "Information Technology",
+    "industry": "Semiconductor Materials & Equipment"
+  },
+  "files": {
+    "adjusted": "resources\\data\\daily\\AMAT.csv",
+    "not_adjusted": "resources\\data\\daily_notAdjusted\\AMAT_notAdjusted.csv"
+  }
+}

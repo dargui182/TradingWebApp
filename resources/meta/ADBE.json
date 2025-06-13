@@ -1,0 +1,20 @@
+{
+  "ticker": "ADBE",
+  "info": {
+    "symbol": "ADBE",
+    "name": "Adobe Inc.",
+    "sector": "Technology",
+    "industry": "Software - Application",
+    "currency": "USD",
+    "exchange": "NMS",
+    "country": "United States"
+  },
+  "last_close_date": "2025-06-12",
+  "total_records": 9785,
+  "first_date": "1986-08-13",
+  "last_updated": "2025-06-13T09:03:05.787061",
+  "files": {
+    "adjusted": "resources\\data\\daily\\ADBE.csv",
+    "not_adjusted": "resources\\data\\daily_notAdjusted\\ADBE_notAdjusted.csv"
+  }
+}

@@ -1,0 +1,27 @@
+{
+  "ticker": "MAA",
+  "info": {
+    "symbol": "MAA",
+    "name": "Mid-America Apartment Communities",
+    "sector": "Real Estate",
+    "industry": "Multi-Family Residential REITs",
+    "currency": "USD",
+    "exchange": "N/A",
+    "country": "N/A",
+    "source": "CSV"
+  },
+  "last_close_date": null,
+  "first_date": null,
+  "total_records": 0,
+  "last_updated": "2025-06-13T08:59:33.051320",
+  "csv_import": {
+    "imported_at": "2025-06-13T08:59:33.051320",
+    "company": "Mid-America Apartment Communities",
+    "sector": "Real Estate",
+    "industry": "Multi-Family Residential REITs"
+  },
+  "files": {
+    "adjusted": "resources\\data\\daily\\MAA.csv",
+    "not_adjusted": "resources\\data\\daily_notAdjusted\\MAA_notAdjusted.csv"
+  }
+}

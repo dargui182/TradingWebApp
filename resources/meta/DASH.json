@@ -1,0 +1,27 @@
+{
+  "ticker": "DASH",
+  "info": {
+    "symbol": "DASH",
+    "name": "DoorDash",
+    "sector": "Consumer Discretionary",
+    "industry": "Specialized Consumer Services",
+    "currency": "USD",
+    "exchange": "N/A",
+    "country": "N/A",
+    "source": "CSV"
+  },
+  "last_close_date": null,
+  "first_date": null,
+  "total_records": 0,
+  "last_updated": "2025-06-13T08:59:32.749801",
+  "csv_import": {
+    "imported_at": "2025-06-13T08:59:32.749801",
+    "company": "DoorDash",
+    "sector": "Consumer Discretionary",
+    "industry": "Specialized Consumer Services"
+  },
+  "files": {
+    "adjusted": "resources\\data\\daily\\DASH.csv",
+    "not_adjusted": "resources\\data\\daily_notAdjusted\\DASH_notAdjusted.csv"
+  }
+}

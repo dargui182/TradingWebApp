@@ -1,0 +1,27 @@
+{
+  "ticker": "PGR",
+  "info": {
+    "symbol": "PGR",
+    "name": "Progressive Corporation",
+    "sector": "Financials",
+    "industry": "Property & Casualty Insurance",
+    "currency": "USD",
+    "exchange": "N/A",
+    "country": "N/A",
+    "source": "CSV"
+  },
+  "last_close_date": null,
+  "first_date": null,
+  "total_records": 0,
+  "last_updated": "2025-06-13T08:59:33.209797",
+  "csv_import": {
+    "imported_at": "2025-06-13T08:59:33.209797",
+    "company": "Progressive Corporation",
+    "sector": "Financials",
+    "industry": "Property & Casualty Insurance"
+  },
+  "files": {
+    "adjusted": "resources\\data\\daily\\PGR.csv",
+    "not_adjusted": "resources\\data\\daily_notAdjusted\\PGR_notAdjusted.csv"
+  }
+}

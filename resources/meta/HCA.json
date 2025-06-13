@@ -1,0 +1,27 @@
+{
+  "ticker": "HCA",
+  "info": {
+    "symbol": "HCA",
+    "name": "HCA Healthcare",
+    "sector": "Health Care",
+    "industry": "Health Care Facilities",
+    "currency": "USD",
+    "exchange": "N/A",
+    "country": "N/A",
+    "source": "CSV"
+  },
+  "last_close_date": null,
+  "first_date": null,
+  "total_records": 0,
+  "last_updated": "2025-06-13T08:59:32.942098",
+  "csv_import": {
+    "imported_at": "2025-06-13T08:59:32.942098",
+    "company": "HCA Healthcare",
+    "sector": "Health Care",
+    "industry": "Health Care Facilities"
+  },
+  "files": {
+    "adjusted": "resources\\data\\daily\\HCA.csv",
+    "not_adjusted": "resources\\data\\daily_notAdjusted\\HCA_notAdjusted.csv"
+  }
+}

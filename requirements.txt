@@ -1,0 +1,18 @@
+# requirements.txt
+Flask==2.3.3
+Werkzeug==2.3.7
+Jinja2==3.1.2
+python-dotenv==1.0.0
+
+# Future dependencies (uncomment when needed)
+# Flask-SQLAlchemy==3.0.5
+# Flask-Migrate==4.0.5
+# Flask-Login==0.6.3
+# Flask-WTF==1.1.1
+# WTForms==3.0.1
+# Flask-Mail==0.9.1
+# requests==2.31.0
+# pandas==2.1.0
+# plotly==5.15.0
+
+---

@@ -1,0 +1,27 @@
+{
+  "ticker": "VRSK",
+  "info": {
+    "symbol": "VRSK",
+    "name": "Verisk Analytics",
+    "sector": "Industrials",
+    "industry": "Research & Consulting Services",
+    "currency": "USD",
+    "exchange": "N/A",
+    "country": "N/A",
+    "source": "CSV"
+  },
+  "last_close_date": null,
+  "first_date": null,
+  "total_records": 0,
+  "last_updated": "2025-06-13T08:59:33.390190",
+  "csv_import": {
+    "imported_at": "2025-06-13T08:59:33.390190",
+    "company": "Verisk Analytics",
+    "sector": "Industrials",
+    "industry": "Research & Consulting Services"
+  },
+  "files": {
+    "adjusted": "resources\\data\\daily\\VRSK.csv",
+    "not_adjusted": "resources\\data\\daily_notAdjusted\\VRSK_notAdjusted.csv"
+  }
+}

@@ -1,0 +1,27 @@
+{
+  "ticker": "LIN",
+  "info": {
+    "symbol": "LIN",
+    "name": "Linde plc",
+    "sector": "Materials",
+    "industry": "Industrial Gases",
+    "currency": "USD",
+    "exchange": "N/A",
+    "country": "N/A",
+    "source": "CSV"
+  },
+  "last_close_date": null,
+  "first_date": null,
+  "total_records": 0,
+  "last_updated": "2025-06-13T08:59:33.031655",
+  "csv_import": {
+    "imported_at": "2025-06-13T08:59:33.031655",
+    "company": "Linde plc",
+    "sector": "Materials",
+    "industry": "Industrial Gases"
+  },
+  "files": {
+    "adjusted": "resources\\data\\daily\\LIN.csv",
+    "not_adjusted": "resources\\data\\daily_notAdjusted\\LIN_notAdjusted.csv"
+  }
+}

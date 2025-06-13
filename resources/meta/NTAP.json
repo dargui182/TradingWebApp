@@ -1,0 +1,27 @@
+{
+  "ticker": "NTAP",
+  "info": {
+    "symbol": "NTAP",
+    "name": "NetApp",
+    "sector": "Information Technology",
+    "industry": "Technology Hardware, Storage & Peripherals",
+    "currency": "USD",
+    "exchange": "N/A",
+    "country": "N/A",
+    "source": "CSV"
+  },
+  "last_close_date": null,
+  "first_date": null,
+  "total_records": 0,
+  "last_updated": "2025-06-13T08:59:33.128165",
+  "csv_import": {
+    "imported_at": "2025-06-13T08:59:33.128165",
+    "company": "NetApp",
+    "sector": "Information Technology",
+    "industry": "Technology Hardware, Storage & Peripherals"
+  },
+  "files": {
+    "adjusted": "resources\\data\\daily\\NTAP.csv",
+    "not_adjusted": "resources\\data\\daily_notAdjusted\\NTAP_notAdjusted.csv"
+  }
+}

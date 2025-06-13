@@ -1,0 +1,27 @@
+{
+  "ticker": "BG",
+  "info": {
+    "symbol": "BG",
+    "name": "Bunge Global",
+    "sector": "Consumer Staples",
+    "industry": "Agricultural Products & Services",
+    "currency": "USD",
+    "exchange": "N/A",
+    "country": "N/A",
+    "source": "CSV"
+  },
+  "last_close_date": null,
+  "first_date": null,
+  "total_records": 0,
+  "last_updated": "2025-06-13T08:59:32.581699",
+  "csv_import": {
+    "imported_at": "2025-06-13T08:59:32.581699",
+    "company": "Bunge Global",
+    "sector": "Consumer Staples",
+    "industry": "Agricultural Products & Services"
+  },
+  "files": {
+    "adjusted": "resources\\data\\daily\\BG.csv",
+    "not_adjusted": "resources\\data\\daily_notAdjusted\\BG_notAdjusted.csv"
+  }
+}
