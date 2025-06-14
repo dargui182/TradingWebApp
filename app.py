@@ -749,7 +749,29 @@ def api_technical_set_data_source():  # ✅ NOME CAMBIATO
         })
     except Exception as e:
         logger.error(f"Errore API set data source: {e}")
-        return jsonify({'error': str(e)}), 500        
+        return jsonify({'error': str(e)}), 500
+    
+@app.route('/api/technical-analysis/chart-plotly/<ticker>')
+def api_technical_chart_plotly(ticker):
+    """API per grafico Plotly"""
+    try:
+        days = request.args.get('days', 100, type=int)
+        include_analysis = request.args.get('include_analysis', 'true').lower() == 'true'
+        
+        logger.info(f"Richiesta grafico Plotly per {ticker}, {days} giorni")
+        
+        chart_data = technical_manager.generate_plotly_chart(ticker, days, include_analysis)
+        
+        logger.info(f"Grafico Plotly generato per {ticker}: {chart_data['data_info']}")
+        
+        return jsonify(chart_data)
+        
+    except Exception as e:
+        logger.error(f"Errore API Plotly chart {ticker}: {e}")
+        return jsonify({
+            'error': str(e),
+            'message': f'Errore nella generazione del grafico per {ticker}'
+        }), 500       
 # === MAIN ===
 # ✅ AGGIUNGI anche un test di verifica
 def test_stats_consistency():

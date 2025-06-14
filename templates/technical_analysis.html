@@ -301,8 +301,8 @@
                             </div>
                             
                             <!-- Chart Canvas -->
-                            <div id="chartContainer" style="height: 500px;">
-                                <canvas id="technicalChart"></canvas>
+                            <div id="chartContainer" style="height: 700px;">
+                                <div id="technicalChart" style="height: 600px; width: 100%;"></div>
                             </div>
                             
                             <!-- Chart Info -->
@@ -418,9 +418,24 @@
 {% endblock %}
 
 {% block scripts %}
-<!-- Chart.js per i grafici -->
-<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.9.1/chart.min.js"></script>
+<!-- Plotly.js -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/plotly.js/2.26.0/plotly.min.js"></script>
 
 <!-- Technical Analysis JavaScript -->
 <script src="{{ url_for('static', filename='js/technical-analysis.js') }}"></script>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    if (typeof Plotly !== 'undefined') {
+        console.log('✅ Plotly.js caricato, versione:', Plotly.version);
+        
+        if (document.getElementById('analysisNavTabs')) {
+            console.log('✅ Inizializzazione Technical Analysis...');
+            window.TechnicalAnalysisInstance = new TechnicalAnalysisManager();
+        }
+    } else {
+        console.error('❌ Plotly.js non caricato');
+    }
+});
+</script>
 {% endblock %}
