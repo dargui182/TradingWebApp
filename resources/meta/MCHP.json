@@ -2,24 +2,17 @@
   "ticker": "MCHP",
   "info": {
     "symbol": "MCHP",
-    "name": "Microchip Technology",
-    "sector": "Information Technology",
+    "name": "Microchip Technology Incorporated",
+    "sector": "Technology",
     "industry": "Semiconductors",
     "currency": "USD",
-    "exchange": "N/A",
-    "country": "N/A",
-    "source": "CSV"
+    "exchange": "NMS",
+    "country": "United States"
   },
-  "last_close_date": null,
-  "first_date": null,
-  "total_records": 0,
-  "last_updated": "2025-06-13T08:59:33.057509",
-  "csv_import": {
-    "imported_at": "2025-06-13T08:59:33.057509",
-    "company": "Microchip Technology",
-    "sector": "Information Technology",
-    "industry": "Semiconductors"
-  },
+  "last_close_date": "2025-06-13",
+  "total_records": 8116,
+  "first_date": "1993-03-19",
+  "last_updated": "2025-06-14T09:34:54.750603",
   "files": {
     "adjusted": "resources\\data\\daily\\MCHP.csv",
     "not_adjusted": "resources\\data\\daily_notAdjusted\\MCHP_notAdjusted.csv"

@@ -2,24 +2,17 @@
   "ticker": "MAR",
   "info": {
     "symbol": "MAR",
-    "name": "Marriott International",
-    "sector": "Consumer Discretionary",
-    "industry": "Hotels, Resorts & Cruise Lines",
+    "name": "Marriott International, Inc.",
+    "sector": "Consumer Cyclical",
+    "industry": "Lodging",
     "currency": "USD",
-    "exchange": "N/A",
-    "country": "N/A",
-    "source": "CSV"
+    "exchange": "NMS",
+    "country": "United States"
   },
-  "last_close_date": null,
-  "first_date": null,
-  "total_records": 0,
-  "last_updated": "2025-06-13T08:59:33.052889",
-  "csv_import": {
-    "imported_at": "2025-06-13T08:59:33.052889",
-    "company": "Marriott International",
-    "sector": "Consumer Discretionary",
-    "industry": "Hotels, Resorts & Cruise Lines"
-  },
+  "last_close_date": "2025-06-13",
+  "total_records": 6851,
+  "first_date": "1998-03-23",
+  "last_updated": "2025-06-14T09:34:53.269932",
   "files": {
     "adjusted": "resources\\data\\daily\\MAR.csv",
     "not_adjusted": "resources\\data\\daily_notAdjusted\\MAR_notAdjusted.csv"

@@ -2,24 +2,17 @@
   "ticker": "CHTR",
   "info": {
     "symbol": "CHTR",
-    "name": "Charter Communications",
+    "name": "Charter Communications, Inc.",
     "sector": "Communication Services",
-    "industry": "Cable & Satellite",
+    "industry": "Telecom Services",
     "currency": "USD",
-    "exchange": "N/A",
-    "country": "N/A",
-    "source": "CSV"
+    "exchange": "NMS",
+    "country": "United States"
   },
-  "last_close_date": null,
-  "first_date": null,
-  "total_records": 0,
-  "last_updated": "2025-06-13T08:59:32.626425",
-  "csv_import": {
-    "imported_at": "2025-06-13T08:59:32.626425",
-    "company": "Charter Communications",
-    "sector": "Communication Services",
-    "industry": "Cable & Satellite"
-  },
+  "last_close_date": "2025-06-13",
+  "total_records": 3885,
+  "first_date": "2010-01-05",
+  "last_updated": "2025-06-14T09:34:04.069244",
   "files": {
     "adjusted": "resources\\data\\daily\\CHTR.csv",
     "not_adjusted": "resources\\data\\daily_notAdjusted\\CHTR_notAdjusted.csv"

@@ -2,24 +2,17 @@
   "ticker": "AXON",
   "info": {
     "symbol": "AXON",
-    "name": "Axon Enterprise",
+    "name": "Axon Enterprise, Inc.",
     "sector": "Industrials",
     "industry": "Aerospace & Defense",
     "currency": "USD",
-    "exchange": "N/A",
-    "country": "N/A",
-    "source": "CSV"
+    "exchange": "NMS",
+    "country": "United States"
   },
-  "last_close_date": null,
-  "first_date": null,
-  "total_records": 0,
-  "last_updated": "2025-06-13T08:59:32.565261",
-  "csv_import": {
-    "imported_at": "2025-06-13T08:59:32.565261",
-    "company": "Axon Enterprise",
-    "sector": "Industrials",
-    "industry": "Aerospace & Defense"
-  },
+  "last_close_date": "2025-06-13",
+  "total_records": 6034,
+  "first_date": "2001-06-19",
+  "last_updated": "2025-06-14T09:33:52.895760",
   "files": {
     "adjusted": "resources\\data\\daily\\AXON.csv",
     "not_adjusted": "resources\\data\\daily_notAdjusted\\AXON_notAdjusted.csv"

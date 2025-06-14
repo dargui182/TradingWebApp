@@ -2,24 +2,17 @@
   "ticker": "BKR",
   "info": {
     "symbol": "BKR",
-    "name": "Baker Hughes",
+    "name": "Baker Hughes Company",
     "sector": "Energy",
     "industry": "Oil & Gas Equipment & Services",
     "currency": "USD",
-    "exchange": "N/A",
-    "country": "N/A",
-    "source": "CSV"
+    "exchange": "NMS",
+    "country": "United States"
   },
-  "last_close_date": null,
-  "first_date": null,
-  "total_records": 0,
-  "last_updated": "2025-06-13T08:59:32.587904",
-  "csv_import": {
-    "imported_at": "2025-06-13T08:59:32.587904",
-    "company": "Baker Hughes",
-    "sector": "Energy",
-    "industry": "Oil & Gas Equipment & Services"
-  },
+  "last_close_date": "2025-06-13",
+  "total_records": 9622,
+  "first_date": "1987-04-06",
+  "last_updated": "2025-06-14T09:33:57.482212",
   "files": {
     "adjusted": "resources\\data\\daily\\BKR.csv",
     "not_adjusted": "resources\\data\\daily_notAdjusted\\BKR_notAdjusted.csv"

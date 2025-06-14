@@ -2,24 +2,17 @@
   "ticker": "CSCO",
   "info": {
     "symbol": "CSCO",
-    "name": "Cisco",
-    "sector": "Information Technology",
-    "industry": "Communications Equipment",
+    "name": "Cisco Systems, Inc.",
+    "sector": "Technology",
+    "industry": "Communication Equipment",
     "currency": "USD",
-    "exchange": "N/A",
-    "country": "N/A",
-    "source": "CSV"
+    "exchange": "NMS",
+    "country": "United States"
   },
-  "last_close_date": null,
-  "first_date": null,
-  "total_records": 0,
-  "last_updated": "2025-06-13T08:59:32.728651",
-  "csv_import": {
-    "imported_at": "2025-06-13T08:59:32.728651",
-    "company": "Cisco",
-    "sector": "Information Technology",
-    "industry": "Communications Equipment"
-  },
+  "last_close_date": "2025-06-13",
+  "total_records": 8896,
+  "first_date": "1990-02-16",
+  "last_updated": "2025-06-14T09:34:11.683805",
   "files": {
     "adjusted": "resources\\data\\daily\\CSCO.csv",
     "not_adjusted": "resources\\data\\daily_notAdjusted\\CSCO_notAdjusted.csv"

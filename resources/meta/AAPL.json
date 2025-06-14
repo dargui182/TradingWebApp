@@ -1,0 +1,20 @@
+{
+  "ticker": "AAPL",
+  "info": {
+    "symbol": "AAPL",
+    "name": "Apple Inc.",
+    "sector": "Technology",
+    "industry": "Consumer Electronics",
+    "currency": "USD",
+    "exchange": "NMS",
+    "country": "United States"
+  },
+  "last_close_date": "2025-06-13",
+  "total_records": 11217,
+  "first_date": "1980-12-12",
+  "last_updated": "2025-06-14T09:08:05.343697",
+  "files": {
+    "adjusted": "resources\\data\\daily\\AAPL.csv",
+    "not_adjusted": "resources\\data\\daily_notAdjusted\\AAPL_notAdjusted.csv"
+  }
+}

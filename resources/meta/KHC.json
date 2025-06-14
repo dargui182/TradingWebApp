@@ -2,24 +2,17 @@
   "ticker": "KHC",
   "info": {
     "symbol": "KHC",
-    "name": "Kraft Heinz",
-    "sector": "Consumer Staples",
-    "industry": "Packaged Foods & Meats",
+    "name": "The Kraft Heinz Company",
+    "sector": "Consumer Defensive",
+    "industry": "Packaged Foods",
     "currency": "USD",
-    "exchange": "N/A",
-    "country": "N/A",
-    "source": "CSV"
+    "exchange": "NMS",
+    "country": "United States"
   },
-  "last_close_date": null,
-  "first_date": null,
-  "total_records": 0,
-  "last_updated": "2025-06-13T08:59:33.007237",
-  "csv_import": {
-    "imported_at": "2025-06-13T08:59:33.007237",
-    "company": "Kraft Heinz",
-    "sector": "Consumer Staples",
-    "industry": "Packaged Foods & Meats"
-  },
+  "last_close_date": "2025-06-13",
+  "total_records": 2502,
+  "first_date": "2015-07-06",
+  "last_updated": "2025-06-14T09:34:45.602440",
   "files": {
     "adjusted": "resources\\data\\daily\\KHC.csv",
     "not_adjusted": "resources\\data\\daily_notAdjusted\\KHC_notAdjusted.csv"

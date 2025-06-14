@@ -1,6 +1,6 @@
 /**
- * ticker-api.js
- * Gestione centralizzata delle chiamate API per i ticker
+ * ticker-api-simple.js
+ * Gestione centralizzata delle chiamate API per i ticker - versione semplificata e sincrona
  */
 
 class TickerAPI {
@@ -10,33 +10,47 @@ class TickerAPI {
         console.log('✅ TickerAPI: Costruttore chiamato');
     }
 
-    /**
-     * Utility per fetch con timeout e gestione errori
+/**
+     * Utility per fetch con timeout e gestione errori MIGLIORATA
      */
-    async fetchWithTimeout(url, options = {}) {
-        const controller = new AbortController();
-        const timeout = setTimeout(() => controller.abort(), this.defaultTimeout);
+async fetchWithTimeout(url, options = {}) {
+    const controller = new AbortController();
+    const timeout = setTimeout(() => controller.abort(), this.defaultTimeout);
 
-        try {
-            const response = await fetch(url, {
-                ...options,
-                signal: controller.signal
-            });
-            clearTimeout(timeout);
+    try {
+        const response = await fetch(url, {
+            ...options,
+            signal: controller.signal
+        });
+        clearTimeout(timeout);
 
-            if (!response.ok) {
-                throw new Error(`HTTP error! status: ${response.status}`);
+        // MIGLIORATO: Se la risposta non è OK, leggi comunque il body per il messaggio di errore
+        if (!response.ok) {
+            let errorMessage = `HTTP error! status: ${response.status}`;
+            
+            try {
+                // Prova a leggere il messaggio di errore dal server
+                const errorData = await response.json();
+                if (errorData.message) {
+                    errorMessage = errorData.message;
+                }
+            } catch (parseError) {
+                // Se non riusciamo a parsare il JSON, usa il messaggio di default
+                console.warn('Impossibile parsare errore dal server:', parseError);
             }
-
-            return response;
-        } catch (error) {
-            clearTimeout(timeout);
-            if (error.name === 'AbortError') {
-                throw new Error('Request timeout');
-            }
-            throw error;
+            
+            throw new Error(errorMessage);
         }
+
+        return response;
+    } catch (error) {
+        clearTimeout(timeout);
+        if (error.name === 'AbortError') {
+            throw new Error('Request timeout');
+        }
+        throw error;
     }
+}
 
     /**
      * Ottiene la lista dei ticker configurati
@@ -115,6 +129,8 @@ class TickerAPI {
      */
     async addTicker(ticker) {
         try {
+            console.log(`🌐 TickerAPI.addTicker: aggiungendo ${ticker}`);
+            
             const response = await this.fetchWithTimeout('/api/tickers', {
                 method: 'POST',
                 headers: {
@@ -123,9 +139,11 @@ class TickerAPI {
                 body: JSON.stringify({ ticker: ticker.trim().toUpperCase() })
             });
 
-            return await response.json();
+            const result = await response.json();
+            console.log(`✅ TickerAPI.addTicker: risultato per ${ticker}:`, result);
+            return result;
         } catch (error) {
-            console.error(`Error adding ticker ${ticker}:`, error);
+            console.error(`❌ Error adding ticker ${ticker}:`, error);
             throw error;
         }
     }
@@ -135,13 +153,17 @@ class TickerAPI {
      */
     async removeTicker(ticker) {
         try {
+            console.log(`🌐 TickerAPI.removeTicker: rimuovendo ${ticker}`);
+            
             const response = await this.fetchWithTimeout(`/api/tickers/${ticker}`, {
                 method: 'DELETE'
             });
 
-            return await response.json();
+            const result = await response.json();
+            console.log(`✅ TickerAPI.removeTicker: risultato per ${ticker}:`, result);
+            return result;
         } catch (error) {
-            console.error(`Error removing ticker ${ticker}:`, error);
+            console.error(`❌ Error removing ticker ${ticker}:`, error);
             throw error;
         }
     }
@@ -151,10 +173,15 @@ class TickerAPI {
      */
     async downloadTicker(ticker) {
         try {
+            console.log(`🌐 TickerAPI.downloadTicker: download ${ticker}`);
+            
             const response = await this.fetchWithTimeout(`/api/download/${ticker}`);
-            return await response.json();
+            const result = await response.json();
+            
+            console.log(`✅ TickerAPI.downloadTicker: risultato per ${ticker}:`, result);
+            return result;
         } catch (error) {
-            console.error(`Error downloading ticker ${ticker}:`, error);
+            console.error(`❌ Error downloading ticker ${ticker}:`, error);
             throw error;
         }
     }
@@ -164,10 +191,15 @@ class TickerAPI {
      */
     async downloadAllTickers() {
         try {
+            console.log(`🌐 TickerAPI.downloadAllTickers: download di tutti i ticker`);
+            
             const response = await this.fetchWithTimeout('/api/download/all');
-            return await response.json();
+            const result = await response.json();
+            
+            console.log(`✅ TickerAPI.downloadAllTickers: risultato:`, result);
+            return result;
         } catch (error) {
-            console.error('Error downloading all tickers:', error);
+            console.error('❌ Error downloading all tickers:', error);
             throw error;
         }
     }
@@ -177,10 +209,15 @@ class TickerAPI {
      */
     async testConnection() {
         try {
+            console.log(`🌐 TickerAPI.testConnection: test connessione`);
+            
             const response = await this.fetchWithTimeout('/api/test/connection');
-            return await response.json();
+            const result = await response.json();
+            
+            console.log(`✅ TickerAPI.testConnection: risultato:`, result);
+            return result;
         } catch (error) {
-            console.error('Error testing connection:', error);
+            console.error('❌ Error testing connection:', error);
             throw error;
         }
     }
@@ -190,14 +227,18 @@ class TickerAPI {
      */
     async uploadCsv(formData) {
         try {
+            console.log(`🌐 TickerAPI.uploadCsv: upload CSV`);
+            
             const response = await this.fetchWithTimeout('/api/upload/csv', {
                 method: 'POST',
                 body: formData
             });
 
-            return await response.json();
+            const result = await response.json();
+            console.log(`✅ TickerAPI.uploadCsv: risultato:`, result);
+            return result;
         } catch (error) {
-            console.error('Error uploading CSV:', error);
+            console.error('❌ Error uploading CSV:', error);
             throw error;
         }
     }
@@ -229,18 +270,21 @@ class TickerAPI {
     }
 }
 
-// Crea istanza globale dell'API
+// ===== INIZIALIZZAZIONE SINCRONA =====
+// Crea immediatamente l'istanza globale - NESSUNA COMPLESSITÀ ASINCRONA
 console.log('🔄 Creazione istanza TickerAPI...');
 window.TickerAPI = new TickerAPI();
-console.log('✅ TickerAPI istanza creata:', window.TickerAPI);
+console.log('✅ TickerAPI istanza creata e assegnata a window.TickerAPI:', window.TickerAPI);
 
-// Test metodi disponibili
-console.log('🔍 Metodi TickerAPI disponibili:');
-console.log('- getTickerDetails:', typeof window.TickerAPI.getTickerDetails);
-console.log('- getTickerData:', typeof window.TickerAPI.getTickerData);
-console.log('- getTickers:', typeof window.TickerAPI.getTickers);
+// Test immediato per verificare che tutto funzioni
+console.log('🧪 Test immediato TickerAPI:');
+console.log('- TickerAPI.addTicker è funzione?', typeof window.TickerAPI.addTicker === 'function');
+console.log('- TickerAPI.downloadTicker è funzione?', typeof window.TickerAPI.downloadTicker === 'function');
+console.log('- TickerAPI.testConnection è funzione?', typeof window.TickerAPI.testConnection === 'function');
+console.log('- TickerAPI.uploadCsv è funzione?', typeof window.TickerAPI.uploadCsv === 'function');
+console.log('- TickerAPI.downloadAllTickers è funzione?', typeof window.TickerAPI.downloadAllTickers === 'function');
 
-// Utility functions per l'interfaccia utente
+// ===== UTILITY FUNCTIONS =====
 window.UIUtils = {
     /**
      * Mostra una notifica
@@ -463,11 +507,4 @@ style.textContent = `
 `;
 document.head.appendChild(style);
 
-console.log('✅ TickerAPI e UIUtils caricati completamente');
-
-// Test finale
-setTimeout(() => {
-    console.log('🧪 Test finale TickerAPI:');
-    console.log('TickerAPI.getTickerData è funzione?', typeof window.TickerAPI.getTickerData === 'function');
-    console.log('TickerAPI.getTickerDetails è funzione?', typeof window.TickerAPI.getTickerDetails === 'function');
-}, 100);
+console.log('✅ TickerAPI Simple e UIUtils caricati completamente - READY TO USE!');

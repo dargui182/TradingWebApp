@@ -2,24 +2,17 @@
   "ticker": "BIIB",
   "info": {
     "symbol": "BIIB",
-    "name": "Biogen",
-    "sector": "Health Care",
-    "industry": "Biotechnology",
+    "name": "Biogen Inc.",
+    "sector": "Healthcare",
+    "industry": "Drug Manufacturers - General",
     "currency": "USD",
-    "exchange": "N/A",
-    "country": "N/A",
-    "source": "CSV"
+    "exchange": "NMS",
+    "country": "United States"
   },
-  "last_close_date": null,
-  "first_date": null,
-  "total_records": 0,
-  "last_updated": "2025-06-13T08:59:32.583243",
-  "csv_import": {
-    "imported_at": "2025-06-13T08:59:32.583243",
-    "company": "Biogen",
-    "sector": "Health Care",
-    "industry": "Biotechnology"
-  },
+  "last_close_date": "2025-06-13",
+  "total_records": 8497,
+  "first_date": "1991-09-17",
+  "last_updated": "2025-06-14T09:33:54.485821",
   "files": {
     "adjusted": "resources\\data\\daily\\BIIB.csv",
     "not_adjusted": "resources\\data\\daily_notAdjusted\\BIIB_notAdjusted.csv"

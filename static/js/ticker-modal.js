@@ -1,6 +1,7 @@
 /**
  * ticker-modal.js
  * Gestione del modal per visualizzare i dettagli dei ticker
+ * CORRETTO: Usa sempre window.TickerAPI e window.UIUtils per evitare problemi di scope
  */
 
 class TickerModal {
@@ -271,12 +272,12 @@ class TickerModal {
         this.updateStatusBadge(data);
         
         // Statistiche dati
-        this.setElementText('modalTotalRecords', UIUtils.formatNumber(data.total_records || 0));
-        this.setElementText('modalFirstDate', UIUtils.formatDate(data.first_date));
-        this.setElementText('modalLastDate', UIUtils.formatDate(data.last_close_date));
+        this.setElementText('modalTotalRecords', window.UIUtils.formatNumber(data.total_records || 0));
+        this.setElementText('modalFirstDate', window.UIUtils.formatDate(data.first_date));
+        this.setElementText('modalLastDate', window.UIUtils.formatDate(data.last_close_date));
         
         // Calcola periodo
-        const span = UIUtils.calculateDataSpan(data.first_date, data.last_close_date);
+        const span = window.UIUtils.calculateDataSpan(data.first_date, data.last_close_date);
         this.setElementText('modalDataSpan', span);
         
         // File info
@@ -292,13 +293,13 @@ class TickerModal {
         const importInfo = document.getElementById('modalImportInfo');
         if (data.csv_info && importInfo) {
             importInfo.classList.remove('d-none');
-            this.setElementText('modalImportDate', UIUtils.formatDateTime(data.csv_info.imported_at));
+            this.setElementText('modalImportDate', window.UIUtils.formatDateTime(data.csv_info.imported_at));
         } else if (importInfo) {
             importInfo.classList.add('d-none');
         }
         
         // Last updated
-        this.setElementText('modalLastUpdated', UIUtils.formatDateTime(data.last_updated));
+        this.setElementText('modalLastUpdated', window.UIUtils.formatDateTime(data.last_updated));
     }
 
     setElementText(id, text) {
@@ -360,6 +361,7 @@ class TickerModal {
             const apiUrl = `/api/ticker/${ticker}/data?limit=20&version=${version}`;
             console.log(`🌐 Chiamata API: ${apiUrl}`);
             
+            // CORRETTO: Usa window.TickerAPI
             const data = await window.TickerAPI.getTickerData(ticker, { 
                 limit: 20, 
                 version: version 
@@ -593,24 +595,24 @@ class TickerModal {
             }
             
             // Calcola variazione
-            const changePercent = UIUtils.calculateDayChange(record.open, record.close);
+            const changePercent = window.UIUtils.calculateDayChange(record.open, record.close);
             const changeClass = changePercent > 0 ? 'text-success' : changePercent < 0 ? 'text-danger' : '';
             
             row.innerHTML = `
                 <td>
-                    <strong>${UIUtils.formatDate(record.date)}</strong>
+                    <strong>${window.UIUtils.formatDate(record.date)}</strong>
                     ${index === 0 ? '<span class="badge bg-primary ms-1">Latest</span>' : ''}
                 </td>
-                <td class="text-end font-monospace">${UIUtils.formatPrice(record.open)}</td>
-                <td class="text-end font-monospace text-success">${UIUtils.formatPrice(record.high)}</td>
-                <td class="text-end font-monospace text-danger">${UIUtils.formatPrice(record.low)}</td>
+                <td class="text-end font-monospace">${window.UIUtils.formatPrice(record.open)}</td>
+                <td class="text-end font-monospace text-success">${window.UIUtils.formatPrice(record.high)}</td>
+                <td class="text-end font-monospace text-danger">${window.UIUtils.formatPrice(record.low)}</td>
                 <td class="text-end font-monospace ${changeClass}">
-                    ${UIUtils.formatPrice(record.close)}
+                    ${window.UIUtils.formatPrice(record.close)}
                     ${changePercent !== null ? `<br><small>(${changePercent > 0 ? '+' : ''}${changePercent.toFixed(2)}%)</small>` : ''}
                 </td>
-                ${version === 'adjusted' ? `<td class="text-end font-monospace">${UIUtils.formatPrice(record.adj_close)}</td>` : ''}
+                ${version === 'adjusted' ? `<td class="text-end font-monospace">${window.UIUtils.formatPrice(record.adj_close)}</td>` : ''}
                 <td class="text-end font-monospace text-muted">
-                    ${UIUtils.formatVolume(record.volume)}
+                    ${window.UIUtils.formatVolume(record.volume)}
                 </td>
             `;
             
@@ -629,21 +631,22 @@ class TickerModal {
                         // Controlla che TickerAPI sia disponibile
                         await this.waitForTickerAPI();
                         
-                        UIUtils.addLogEntry(`Inizio download ${ticker}...`, 'info');
+                        window.UIUtils.addLogEntry(`Inizio download ${ticker}...`, 'info');
+                        // CORRETTO: Usa window.TickerAPI
                         const result = await window.TickerAPI.downloadTicker(ticker);
                         
                         if (result.status === 'success') {
-                            UIUtils.addLogEntry(`✅ ${result.message}`, 'success');
-                            UIUtils.showNotification(result.message, 'success');
+                            window.UIUtils.addLogEntry(`✅ ${result.message}`, 'success');
+                            window.UIUtils.showNotification(result.message, 'success');
                             setTimeout(() => location.reload(), 1000);
                         } else {
-                            UIUtils.addLogEntry(`ℹ️ ${result.message}`, 'info');
-                            UIUtils.showNotification(result.message, 'info');
+                            window.UIUtils.addLogEntry(`ℹ️ ${result.message}`, 'info');
+                            window.UIUtils.showNotification(result.message, 'info');
                         }
                     } catch (error) {
                         console.error('❌ Errore download:', error);
-                        UIUtils.addLogEntry(`❌ Errore download ${ticker}`, 'error');
-                        UIUtils.showNotification(`Errore download ${ticker}`, 'danger');
+                        window.UIUtils.addLogEntry(`❌ Errore download ${ticker}`, 'error');
+                        window.UIUtils.showNotification(`Errore download ${ticker}`, 'danger');
                     }
                 }, 300);
             };
@@ -684,18 +687,19 @@ class TickerModal {
                             // Controlla che TickerAPI sia disponibile
                             await this.waitForTickerAPI();
                             
+                            // CORRETTO: Usa window.TickerAPI
                             const result = await window.TickerAPI.removeTicker(ticker);
                             
                             if (result.status === 'success') {
-                                UIUtils.showNotification(result.message, 'success');
-                                UIUtils.addLogEntry(`🗑️ Ticker ${ticker} rimosso`, 'info');
+                                window.UIUtils.showNotification(result.message, 'success');
+                                window.UIUtils.addLogEntry(`🗑️ Ticker ${ticker} rimosso`, 'info');
                                 setTimeout(() => location.reload(), 1000);
                             } else {
-                                UIUtils.showNotification(result.message, 'danger');
+                                window.UIUtils.showNotification(result.message, 'danger');
                             }
                         } catch (error) {
                             console.error('❌ Errore rimozione:', error);
-                            UIUtils.showNotification('Errore durante la rimozione', 'danger');
+                            window.UIUtils.showNotification('Errore durante la rimozione', 'danger');
                         }
                     }
                 }, 300);
@@ -705,20 +709,22 @@ class TickerModal {
 
     async exportTickerInfo(ticker) {
         try {
-            UIUtils.showNotification(`📥 Preparazione export per ${ticker}...`, 'info');
+            window.UIUtils.showNotification(`📥 Preparazione export per ${ticker}...`, 'info');
             
             // Carica dati completi
             let details = {};
             let historicalData = {};
             
             try {
-                details = await TickerAPI.getTickerDetails(ticker);
+                // CORRETTO: Usa window.TickerAPI
+                details = await window.TickerAPI.getTickerDetails(ticker);
             } catch (e) {
                 details = this.extractDataFromTable(ticker) || {};
             }
             
             try {
-                historicalData = await TickerAPI.getTickerData(ticker, { limit: 100 });
+                // CORRETTO: Usa window.TickerAPI
+                historicalData = await window.TickerAPI.getTickerData(ticker, { limit: 100 });
             } catch (e) {
                 historicalData = { data: [] };
             }
@@ -756,11 +762,11 @@ class TickerModal {
             a.click();
             URL.revokeObjectURL(url);
             
-            UIUtils.showNotification(`✅ Export ${ticker} completato!`, 'success');
+            window.UIUtils.showNotification(`✅ Export ${ticker} completato!`, 'success');
             
         } catch (error) {
             console.error('Errore export:', error);
-            UIUtils.showNotification(`❌ Errore export ${ticker}`, 'danger');
+            window.UIUtils.showNotification(`❌ Errore export ${ticker}`, 'danger');
         }
     }
 

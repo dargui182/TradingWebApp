@@ -2,24 +2,17 @@
   "ticker": "ARM",
   "info": {
     "symbol": "ARM",
-    "name": "Arm Holdings",
-    "sector": "Information Technology",
+    "name": "Arm Holdings plc",
+    "sector": "Technology",
     "industry": "Semiconductors",
     "currency": "USD",
-    "exchange": "N/A",
-    "country": "N/A",
-    "source": "CSV"
+    "exchange": "NMS",
+    "country": "United Kingdom"
   },
-  "last_close_date": null,
-  "first_date": null,
-  "total_records": 0,
-  "last_updated": "2025-06-13T08:58:37.157504",
-  "csv_import": {
-    "imported_at": "2025-06-13T08:58:37.157504",
-    "company": "Arm Holdings",
-    "sector": "Information Technology",
-    "industry": "Semiconductors"
-  },
+  "last_close_date": "2025-06-13",
+  "total_records": 439,
+  "first_date": "2023-09-14",
+  "last_updated": "2025-06-14T09:32:42.137355",
   "files": {
     "adjusted": "resources\\data\\daily\\ARM.csv",
     "not_adjusted": "resources\\data\\daily_notAdjusted\\ARM_notAdjusted.csv"

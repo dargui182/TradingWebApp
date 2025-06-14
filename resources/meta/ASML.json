@@ -2,24 +2,17 @@
   "ticker": "ASML",
   "info": {
     "symbol": "ASML",
-    "name": "ASML Holding",
-    "sector": "Information Technology",
-    "industry": "Semiconductor Equipment",
+    "name": "ASML Holding N.V.",
+    "sector": "Technology",
+    "industry": "Semiconductor Equipment & Materials",
     "currency": "USD",
-    "exchange": "N/A",
-    "country": "N/A",
-    "source": "CSV"
+    "exchange": "NMS",
+    "country": "Netherlands"
   },
-  "last_close_date": null,
-  "first_date": null,
-  "total_records": 0,
-  "last_updated": "2025-06-13T08:58:37.159567",
-  "csv_import": {
-    "imported_at": "2025-06-13T08:58:37.159567",
-    "company": "ASML Holding",
-    "sector": "Information Technology",
-    "industry": "Semiconductor Equipment"
-  },
+  "last_close_date": "2025-06-13",
+  "total_records": 7615,
+  "first_date": "1995-03-15",
+  "last_updated": "2025-06-14T09:33:52.520946",
   "files": {
     "adjusted": "resources\\data\\daily\\ASML.csv",
     "not_adjusted": "resources\\data\\daily_notAdjusted\\ASML_notAdjusted.csv"

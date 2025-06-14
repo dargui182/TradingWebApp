@@ -1,6 +1,7 @@
 /**
- * csv-upload.js
- * Gestione dell'upload e preview dei file CSV
+ * csv-upload-simple.js
+ * Gestione dell'upload e preview dei file CSV - versione semplificata
+ * CORRETTO: Usa sempre window.TickerAPI e window.UIUtils per evitare problemi di scope
  */
 
 class CSVUpload {
@@ -10,8 +11,9 @@ class CSVUpload {
     }
 
     init() {
-        console.log('✅ CSVUpload inizializzato');
+        console.log('🔄 Inizializzazione CSVUpload Simple...');
         this.setupEventListeners();
+        console.log('✅ CSVUpload inizializzato');
     }
 
     setupEventListeners() {
@@ -57,14 +59,14 @@ class CSVUpload {
                 this.parseCsvContent(csvContent);
             } catch (error) {
                 console.error('❌ Errore lettura file:', error);
-                UIUtils.showNotification('❌ Errore nella lettura del file', 'danger');
+                window.UIUtils.showNotification('❌ Errore nella lettura del file', 'danger');
                 this.hidePreview();
             }
         };
 
         reader.onerror = () => {
             console.error('❌ Errore lettura file');
-            UIUtils.showNotification('❌ Errore nella lettura del file', 'danger');
+            window.UIUtils.showNotification('❌ Errore nella lettura del file', 'danger');
             this.hidePreview();
         };
 
@@ -76,7 +78,7 @@ class CSVUpload {
             const lines = csvContent.split('\n').filter(line => line.trim());
 
             if (lines.length < 2) {
-                UIUtils.showNotification('❌ File CSV troppo corto (meno di 2 righe)', 'danger');
+                window.UIUtils.showNotification('❌ File CSV troppo corto (meno di 2 righe)', 'danger');
                 this.hidePreview();
                 return;
             }
@@ -94,7 +96,7 @@ class CSVUpload {
             );
 
             if (missingColumns.length > 0) {
-                UIUtils.showNotification(
+                window.UIUtils.showNotification(
                     `❌ Colonne mancanti nel CSV: ${missingColumns.join(', ')}`, 
                     'danger'
                 );
@@ -118,7 +120,7 @@ class CSVUpload {
 
         } catch (error) {
             console.error('❌ Errore parsing CSV:', error);
-            UIUtils.showNotification('❌ Errore nel parsing del CSV', 'danger');
+            window.UIUtils.showNotification('❌ Errore nel parsing del CSV', 'danger');
             this.hidePreview();
         }
     }
@@ -207,7 +209,14 @@ class CSVUpload {
         const file = fileInput?.files[0];
 
         if (!file) {
-            UIUtils.showNotification('❌ Seleziona un file CSV', 'warning');
+            window.UIUtils.showNotification('❌ Seleziona un file CSV', 'warning');
+            return;
+        }
+
+        // Verifica che TickerAPI sia disponibile - CORRETTO!
+        if (!window.TickerAPI || typeof window.TickerAPI.uploadCsv !== 'function') {
+            console.error('❌ TickerAPI non disponibile!');
+            window.UIUtils.showNotification('❌ Sistema non inizializzato correttamente', 'danger');
             return;
         }
 
@@ -230,16 +239,16 @@ class CSVUpload {
 
         try {
             // Show loading state
-            UIUtils.setButtonLoading(btn, true, '<i class="bi bi-upload me-1"></i>Carica CSV');
+            window.UIUtils.setButtonLoading(btn, true, '<i class="bi bi-upload me-1"></i>Carica CSV');
             this.showProgress(true);
 
             if (statusDiv) statusDiv.textContent = 'Caricamento file...';
             if (progressBar) progressBar.style.width = '25%';
 
-            UIUtils.addLogEntry('📁 Inizio upload CSV...', 'info');
+            window.UIUtils.addLogEntry('📁 Inizio upload CSV...', 'info');
 
-            // Upload file
-            const result = await TickerAPI.uploadCsv(formData);
+            // Upload file - CORRETTO: USA window.TickerAPI
+            const result = await window.TickerAPI.uploadCsv(formData);
 
             if (progressBar) progressBar.style.width = '75%';
             if (statusDiv) statusDiv.textContent = 'Elaborazione dati...';
@@ -248,19 +257,19 @@ class CSVUpload {
                 if (progressBar) progressBar.style.width = '100%';
                 if (statusDiv) statusDiv.textContent = 'Upload completato!';
 
-                UIUtils.showNotification(`✅ ${result.message}`, 'success');
+                window.UIUtils.showNotification(`✅ ${result.message}`, 'success');
                 
                 // Log dettagliato
                 const summary = result.summary;
                 if (summary) {
-                    UIUtils.addLogEntry(
+                    window.UIUtils.addLogEntry(
                         `📊 CSV importato: ${summary.total_tickers} ticker processati, ` +
                         `${summary.added_tickers} aggiunti, ${summary.updated_tickers} aggiornati, ` +
                         `${summary.skipped_tickers} saltati, ${summary.error_count} errori`,
                         'success'
                     );
                 } else {
-                    UIUtils.addLogEntry(`📊 ${result.message}`, 'success');
+                    window.UIUtils.addLogEntry(`📊 ${result.message}`, 'success');
                 }
 
                 // Show details if available
@@ -276,17 +285,17 @@ class CSVUpload {
                 }, 3000);
 
             } else {
-                UIUtils.showNotification(`❌ ${result.message}`, 'danger');
-                UIUtils.addLogEntry(`❌ Errore upload CSV: ${result.message}`, 'error');
+                window.UIUtils.showNotification(`❌ ${result.message}`, 'danger');
+                window.UIUtils.addLogEntry(`❌ Errore upload CSV: ${result.message}`, 'error');
             }
 
         } catch (error) {
             console.error('❌ Errore upload:', error);
-            UIUtils.showNotification('❌ Errore durante l\'upload', 'danger');
-            UIUtils.addLogEntry(`❌ Errore upload: ${error.message}`, 'error');
+            window.UIUtils.showNotification(`❌ Errore durante l'upload: ${error.message}`, 'danger');
+            window.UIUtils.addLogEntry(`❌ Errore upload: ${error.message}`, 'error');
         } finally {
             // Restore UI
-            UIUtils.setButtonLoading(btn, false);
+            window.UIUtils.setButtonLoading(btn, false);
             
             setTimeout(() => {
                 this.showProgress(false);
@@ -380,14 +389,16 @@ class CSVUpload {
     }
 }
 
-// Export per uso esterno
-window.CSVUploadInstance = null;
-
-// Inizializza quando il DOM è pronto
+// Inizializza quando il DOM è pronto - SEMPLICE!
 document.addEventListener('DOMContentLoaded', function() {
+    console.log('🔄 DOM pronto, controllo elementi per CSVUpload...');
+    
     if (document.getElementById('uploadCsvModal')) {
+        console.log('✅ Modal CSV trovato, inizializzazione CSVUpload...');
         window.CSVUploadInstance = new CSVUpload();
+    } else {
+        console.log('ℹ️ Modal CSV non trovato, skip inizializzazione');
     }
 });
 
-console.log('✅ CSVUpload module caricato');
+console.log('✅ CSVUpload Simple module caricato');

@@ -2,24 +2,17 @@
   "ticker": "CCEP",
   "info": {
     "symbol": "CCEP",
-    "name": "Coca-Cola Europacific Partners",
-    "sector": "Consumer Staples",
-    "industry": "Soft Drinks & Non-alcoholic Beverages",
+    "name": "Coca-Cola Europacific Partners PLC",
+    "sector": "Consumer Defensive",
+    "industry": "Beverages - Non-Alcoholic",
     "currency": "USD",
-    "exchange": "N/A",
-    "country": "N/A",
-    "source": "CSV"
+    "exchange": "NMS",
+    "country": "United Kingdom"
   },
-  "last_close_date": null,
-  "first_date": null,
-  "total_records": 0,
-  "last_updated": "2025-06-13T08:58:37.173705",
-  "csv_import": {
-    "imported_at": "2025-06-13T08:58:37.173705",
-    "company": "Coca-Cola Europacific Partners",
-    "sector": "Consumer Staples",
-    "industry": "Soft Drinks & Non-alcoholic Beverages"
-  },
+  "last_close_date": "2025-06-13",
+  "total_records": 9713,
+  "first_date": "1986-11-24",
+  "last_updated": "2025-06-14T09:33:59.085847",
   "files": {
     "adjusted": "resources\\data\\daily\\CCEP.csv",
     "not_adjusted": "resources\\data\\daily_notAdjusted\\CCEP_notAdjusted.csv"

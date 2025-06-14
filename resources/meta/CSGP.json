@@ -2,24 +2,17 @@
   "ticker": "CSGP",
   "info": {
     "symbol": "CSGP",
-    "name": "CoStar Group",
+    "name": "CoStar Group, Inc.",
     "sector": "Real Estate",
     "industry": "Real Estate Services",
     "currency": "USD",
-    "exchange": "N/A",
-    "country": "N/A",
-    "source": "CSV"
+    "exchange": "NMS",
+    "country": "United States"
   },
-  "last_close_date": null,
-  "first_date": null,
-  "total_records": 0,
-  "last_updated": "2025-06-13T08:59:32.729670",
-  "csv_import": {
-    "imported_at": "2025-06-13T08:59:32.729670",
-    "company": "CoStar Group",
-    "sector": "Real Estate",
-    "industry": "Real Estate Services"
-  },
+  "last_close_date": "2025-06-13",
+  "total_records": 6781,
+  "first_date": "1998-07-01",
+  "last_updated": "2025-06-14T09:34:13.194734",
   "files": {
     "adjusted": "resources\\data\\daily\\CSGP.csv",
     "not_adjusted": "resources\\data\\daily_notAdjusted\\CSGP_notAdjusted.csv"

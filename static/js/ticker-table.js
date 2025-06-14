@@ -1,6 +1,7 @@
 /**
- * ticker-table.js
- * Gestione della tabella dei ticker con paginazione, ordinamento e ricerca
+ * ticker-table-simple.js
+ * Gestione della tabella dei ticker - versione semplificata e sincrona
+ * CORRETTO: Usa sempre window.TickerAPI per evitare problemi di scope
  */
 
 class TickerTable {
@@ -17,7 +18,7 @@ class TickerTable {
     }
 
     init() {
-        console.log('🔄 Inizializzazione TickerTable...');
+        console.log('🔄 Inizializzazione TickerTable Simple...');
         
         // Aspetta che il DOM sia pronto
         if (document.readyState === 'loading') {
@@ -28,6 +29,8 @@ class TickerTable {
     }
 
     setup() {
+        console.log('⚙️ Setup TickerTable...');
+        
         // Raccogli tutte le righe della tabella
         this.collectTableRows();
         
@@ -57,7 +60,7 @@ class TickerTable {
         // Search input
         const searchInput = document.getElementById('tickerSearchInput');
         if (searchInput) {
-            searchInput.addEventListener('input', UIUtils.debounce((e) => {
+            searchInput.addEventListener('input', window.UIUtils.debounce((e) => {
                 this.searchTerm = e.target.value.toLowerCase();
                 this.filterTableRows();
                 this.currentPage = 1;
@@ -391,32 +394,41 @@ class TickerTable {
         container.appendChild(li);
     }
 
-    // Action handlers
+    // Action handlers - CORRETTO: Usa sempre window.TickerAPI
     async downloadTicker(ticker, button) {
         console.log(`📥 Download ticker: ${ticker}`);
         
-        UIUtils.setButtonLoading(button, true);
-        UIUtils.addLogEntry(`Inizio download ${ticker}...`, 'info');
+        // Verifica che TickerAPI sia disponibile - CORRETTO!
+        if (!window.TickerAPI || typeof window.TickerAPI.downloadTicker !== 'function') {
+            console.error('❌ TickerAPI non disponibile!');
+            window.UIUtils.showNotification('❌ Sistema non inizializzato correttamente', 'danger');
+            return;
+        }
+        
+        window.UIUtils.setButtonLoading(button, true);
+        window.UIUtils.addLogEntry(`Inizio download ${ticker}...`, 'info');
 
         try {
-            const result = await TickerAPI.downloadTicker(ticker);
+            // Usa window.TickerAPI - SEMPRE!
+            const result = await window.TickerAPI.downloadTicker(ticker);
             
             if (result.status === 'success') {
-                UIUtils.addLogEntry(`✅ ${result.message}`, 'success');
-                UIUtils.showNotification(result.message, 'success');
+                window.UIUtils.addLogEntry(`✅ ${result.message}`, 'success');
+                window.UIUtils.showNotification(result.message, 'success');
                 setTimeout(() => location.reload(), 1000);
             } else if (result.status === 'info') {
-                UIUtils.addLogEntry(`ℹ️ ${result.message}`, 'info');
-                UIUtils.showNotification(result.message, 'info');
+                window.UIUtils.addLogEntry(`ℹ️ ${result.message}`, 'info');
+                window.UIUtils.showNotification(result.message, 'info');
             } else {
-                UIUtils.addLogEntry(`❌ ${result.message}`, 'error');
-                UIUtils.showNotification(result.message, 'danger');
+                window.UIUtils.addLogEntry(`❌ ${result.message}`, 'error');
+                window.UIUtils.showNotification(result.message, 'danger');
             }
         } catch (error) {
-            UIUtils.addLogEntry(`❌ Errore download ${ticker}: ${error.message}`, 'error');
-            UIUtils.showNotification(`Errore download ${ticker}`, 'danger');
+            console.error(`❌ Errore download ${ticker}:`, error);
+            window.UIUtils.addLogEntry(`❌ Errore download ${ticker}: ${error.message}`, 'error');
+            window.UIUtils.showNotification(`❌ Errore download ${ticker}`, 'danger');
         } finally {
-            UIUtils.setButtonLoading(button, false);
+            window.UIUtils.setButtonLoading(button, false);
         }
     }
 
@@ -437,18 +449,27 @@ class TickerTable {
             return;
         }
 
+        // Verifica che TickerAPI sia disponibile - CORRETTO!
+        if (!window.TickerAPI || typeof window.TickerAPI.removeTicker !== 'function') {
+            console.error('❌ TickerAPI non disponibile!');
+            window.UIUtils.showNotification('❌ Sistema non inizializzato correttamente', 'danger');
+            return;
+        }
+
         try {
-            const result = await TickerAPI.removeTicker(ticker);
+            // Usa window.TickerAPI - SEMPRE!
+            const result = await window.TickerAPI.removeTicker(ticker);
             
             if (result.status === 'success') {
-                UIUtils.showNotification(result.message, 'success');
-                UIUtils.addLogEntry(`🗑️ Ticker ${ticker} rimosso`, 'info');
+                window.UIUtils.showNotification(result.message, 'success');
+                window.UIUtils.addLogEntry(`🗑️ Ticker ${ticker} rimosso`, 'info');
                 setTimeout(() => location.reload(), 1000);
             } else {
-                UIUtils.showNotification(result.message, 'danger');
+                window.UIUtils.showNotification(result.message, 'danger');
             }
         } catch (error) {
-            UIUtils.showNotification('Errore durante la rimozione del ticker', 'danger');
+            console.error(`❌ Errore rimozione ${ticker}:`, error);
+            window.UIUtils.showNotification(`❌ Errore durante la rimozione del ticker: ${error.message}`, 'danger');
         }
     }
 
@@ -471,15 +492,17 @@ class TickerTable {
     }
 }
 
-// Crea istanza globale
-window.TickerTableInstance = null;
-
-// Inizializza quando il DOM è pronto
+// Inizializza quando il DOM è pronto - SEMPLICE!
 document.addEventListener('DOMContentLoaded', function() {
+    console.log('🔄 DOM pronto, controllo elementi per TickerTable...');
+    
     // Controlla se esiste la tabella ticker
     if (document.getElementById('tickersTable')) {
+        console.log('✅ Tabella ticker trovata, inizializzazione TickerTable...');
         window.TickerTableInstance = new TickerTable();
+    } else {
+        console.log('ℹ️ Tabella ticker non trovata, skip inizializzazione');
     }
 });
 
-console.log('✅ TickerTable module caricato');
+console.log('✅ TickerTable Simple module caricato');

@@ -1,17 +1,11 @@
 {
   "tickers": [
-    "ABNB",
-    "ADI",
-    "ADP",
-    "ADSK",
-    "AEP",
     "AMAT",
     "AMD",
     "AMGN",
     "AMZN",
     "ANSS",
     "APP",
-    "ARM",
     "ASML",
     "AVGO",
     "AXON",
@@ -516,7 +510,16 @@
     "ZBH",
     "ZBRA",
     "ZTS",
-    "ADBE"
+    "ADBE",
+    "AAPL",
+    "SPY",
+    "ARM",
+    "ABNB",
+    "ADI",
+    "ADP",
+    "ADSK",
+    "AEP",
+    "TIT.MI"
   ],
-  "last_updated": "2025-06-13T11:42:01.201518"
+  "last_updated": "2025-06-14T09:50:38.922701"
 }

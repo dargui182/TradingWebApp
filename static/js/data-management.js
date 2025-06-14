@@ -1,7 +1,7 @@
 /**
- * data-management.js
- * File principale per la gestione della pagina dati
- * Coordina tutti i moduli e gestisce le interazioni principali
+ * data-management-simple.js
+ * File principale per la gestione della pagina dati - versione semplificata
+ * CORRETTO: Usa sempre window.TickerAPI per evitare problemi di scope
  */
 
 class DataManagement {
@@ -22,6 +22,15 @@ class DataManagement {
 
     setup() {
         console.log('⚙️ Setup DataManagement...');
+        
+        // Verifica che TickerAPI sia disponibile
+        if (!window.TickerAPI) {
+            console.error('❌ TickerAPI non disponibile!');
+            window.UIUtils.showNotification('❌ Sistema non inizializzato correttamente', 'danger');
+            return;
+        }
+        
+        console.log('✅ TickerAPI disponibile, procedo con setup');
         
         // Setup event listeners principali
         this.setupMainEventListeners();
@@ -96,7 +105,7 @@ class DataManagement {
         const tickers = input?.value.trim().toUpperCase();
         
         if (!tickers) {
-            UIUtils.showNotification('Inserisci almeno un ticker', 'warning');
+            window.UIUtils.showNotification('Inserisci almeno un ticker', 'warning');
             return;
         }
         
@@ -199,29 +208,30 @@ class DataManagement {
     async testConnection() {
         const btn = document.getElementById('testConnectionBtn');
         
-        UIUtils.setButtonLoading(btn, true, '🔧 Test Connessione');
-        UIUtils.addLogEntry('🔧 Test connessione Yahoo Finance...', 'info');
+        window.UIUtils.setButtonLoading(btn, true, '🔧 Test Connessione');
+        window.UIUtils.addLogEntry('🔧 Test connessione Yahoo Finance...', 'info');
         
         try {
-            const result = await TickerAPI.testConnection();
+            // CORRETTO: Usa window.TickerAPI
+            const result = await window.TickerAPI.testConnection();
             
             if (result.status === 'success') {
-                UIUtils.addLogEntry(`✅ Connessione OK: ${result.message}`, 'success');
+                window.UIUtils.addLogEntry(`✅ Connessione OK: ${result.message}`, 'success');
                 if (result.test_data) {
-                    UIUtils.addLogEntry(`📊 Test data: ${result.test_data}`, 'info');
+                    window.UIUtils.addLogEntry(`📊 Test data: ${result.test_data}`, 'info');
                 }
-                UIUtils.showNotification('✅ Connessione Yahoo Finance OK!', 'success');
+                window.UIUtils.showNotification('✅ Connessione Yahoo Finance OK!', 'success');
             } else {
-                UIUtils.addLogEntry(`⚠️ Problemi connessione: ${result.message}`, 'error');
-                UIUtils.showNotification('⚠️ Problemi di connessione rilevati', 'warning');
+                window.UIUtils.addLogEntry(`⚠️ Problemi connessione: ${result.message}`, 'error');
+                window.UIUtils.showNotification('⚠️ Problemi di connessione rilevati', 'warning');
             }
             
         } catch (error) {
             console.error('❌ Errore test connessione:', error);
-            UIUtils.addLogEntry(`❌ Errore test connessione: ${error.message}`, 'error');
-            UIUtils.showNotification('❌ Errore durante il test', 'danger');
+            window.UIUtils.addLogEntry(`❌ Errore test connessione: ${error.message}`, 'error');
+            window.UIUtils.showNotification('❌ Errore durante il test', 'danger');
         } finally {
-            UIUtils.setButtonLoading(btn, false);
+            window.UIUtils.setButtonLoading(btn, false);
         }
     }
 
@@ -272,18 +282,19 @@ class DataManagement {
     async downloadAllTickers() {
         const btn = document.getElementById('downloadAllBtn');
         
-        UIUtils.setButtonLoading(btn, true, '<i class="bi bi-cloud-download me-1"></i>Aggiorna Tutti');
-        UIUtils.addLogEntry('🚀 Inizio aggiornamento di tutti i ticker...', 'info');
+        window.UIUtils.setButtonLoading(btn, true, '<i class="bi bi-cloud-download me-1"></i>Aggiorna Tutti');
+        window.UIUtils.addLogEntry('🚀 Inizio aggiornamento di tutti i ticker...', 'info');
         
         try {
-            const result = await TickerAPI.downloadAllTickers();
+            // CORRETTO: Usa window.TickerAPI
+            const result = await window.TickerAPI.downloadAllTickers();
             
             if (result.status === 'success') {
                 const summary = result.summary;
                 const message = `✅ Completato: ${summary.updated_tickers}/${summary.total_tickers} ticker aggiornati, ${summary.total_new_records} nuovi record`;
                 
-                UIUtils.addLogEntry(message, 'success');
-                UIUtils.showNotification(
+                window.UIUtils.addLogEntry(message, 'success');
+                window.UIUtils.showNotification(
                     `Aggiornati ${summary.updated_tickers} ticker con ${summary.total_new_records} nuovi record`, 
                     'success'
                 );
@@ -295,16 +306,16 @@ class DataManagement {
                 
                 setTimeout(() => location.reload(), 2000);
             } else {
-                UIUtils.addLogEntry(`❌ Errore generale: ${result.message}`, 'error');
-                UIUtils.showNotification('Errore durante l\'aggiornamento', 'danger');
+                window.UIUtils.addLogEntry(`❌ Errore generale: ${result.message}`, 'error');
+                window.UIUtils.showNotification('Errore durante l\'aggiornamento', 'danger');
             }
             
         } catch (error) {
             console.error('❌ Errore download all:', error);
-            UIUtils.addLogEntry(`❌ Errore generale: ${error.message}`, 'error');
-            UIUtils.showNotification('Errore durante l\'aggiornamento', 'danger');
+            window.UIUtils.addLogEntry(`❌ Errore generale: ${error.message}`, 'error');
+            window.UIUtils.showNotification('❌ Errore durante l\'aggiornamento', 'danger');
         } finally {
-            UIUtils.setButtonLoading(btn, false);
+            window.UIUtils.setButtonLoading(btn, false);
         }
     }
 
@@ -314,20 +325,20 @@ class DataManagement {
         
         // Log successi significativi
         successResults.slice(0, 5).forEach(result => {
-            UIUtils.addLogEntry(`📈 ${result.ticker}: ${result.records} nuovi record`, 'success');
+            window.UIUtils.addLogEntry(`📈 ${result.ticker}: ${result.records} nuovi record`, 'success');
         });
         
         if (successResults.length > 5) {
-            UIUtils.addLogEntry(`... e altri ${successResults.length - 5} ticker aggiornati`, 'success');
+            window.UIUtils.addLogEntry(`... e altri ${successResults.length - 5} ticker aggiornati`, 'success');
         }
         
         // Log errori
         errorResults.slice(0, 3).forEach(result => {
-            UIUtils.addLogEntry(`❌ ${result.ticker}: ${result.message}`, 'error');
+            window.UIUtils.addLogEntry(`❌ ${result.ticker}: ${result.message}`, 'error');
         });
         
         if (errorResults.length > 3) {
-            UIUtils.addLogEntry(`... e altri ${errorResults.length - 3} errori`, 'error');
+            window.UIUtils.addLogEntry(`... e altri ${errorResults.length - 3} errori`, 'error');
         }
     }
 
@@ -344,21 +355,22 @@ class DataManagement {
     async refreshStatus() {
         const btn = document.getElementById('refreshStatusBtn');
         
-        UIUtils.setButtonLoading(btn, true, '<i class="bi bi-arrow-clockwise me-1"></i>Aggiorna Stato');
+        window.UIUtils.setButtonLoading(btn, true, '<i class="bi bi-arrow-clockwise me-1"></i>Aggiorna Stato');
         
         try {
-            await TickerAPI.getTickersStatus();
-            UIUtils.addLogEntry('🔄 Status ticker aggiornato', 'info');
-            UIUtils.showNotification('Status aggiornato', 'success');
+            // CORRETTO: Usa window.TickerAPI
+            await window.TickerAPI.getTickersStatus();
+            window.UIUtils.addLogEntry('🔄 Status ticker aggiornato', 'info');
+            window.UIUtils.showNotification('Status aggiornato', 'success');
             
             // Aggiorna statistiche
             setTimeout(() => this.updateStatistics(), 500);
             
         } catch (error) {
             console.error('❌ Errore refresh status:', error);
-            UIUtils.showNotification('Errore aggiornamento status', 'warning');
+            window.UIUtils.showNotification('Errore aggiornamento status', 'warning');
         } finally {
-            UIUtils.setButtonLoading(btn, false);
+            window.UIUtils.setButtonLoading(btn, false);
         }
     }
 
@@ -385,13 +397,14 @@ class DataManagement {
         }
     }
 
-    exportConfiguration() {
-        UIUtils.showNotification('📥 Preparazione export configurazione...', 'info');
+    async exportConfiguration() {
+        window.UIUtils.showNotification('📥 Preparazione export configurazione...', 'info');
         
         setTimeout(async () => {
             try {
-                const config = await TickerAPI.getTickers();
-                const stats = await TickerAPI.getTickersStatus();
+                // CORRETTO: Usa window.TickerAPI
+                const config = await window.TickerAPI.getTickers();
+                const stats = await window.TickerAPI.getTickersStatus();
                 
                 const exportData = {
                     export_info: {
@@ -417,10 +430,11 @@ class DataManagement {
                 a.click();
                 URL.revokeObjectURL(url);
                 
-                UIUtils.showNotification('✅ Configurazione esportata!', 'success');
+                window.UIUtils.showNotification('✅ Configurazione esportata!', 'success');
                 
             } catch (error) {
-                UIUtils.showNotification('❌ Errore export configurazione', 'danger');
+                console.error('❌ Errore export:', error);
+                window.UIUtils.showNotification('❌ Errore export configurazione', 'danger');
             }
         }, 1000);
     }
@@ -444,11 +458,11 @@ class DataManagement {
                     sessionStorage.clear();
                 }
                 
-                UIUtils.showNotification('✅ Cache pulita!', 'success');
-                UIUtils.addLogEntry('🧹 Cache del browser pulita', 'info');
+                window.UIUtils.showNotification('✅ Cache pulita!', 'success');
+                window.UIUtils.addLogEntry('🧹 Cache del browser pulita', 'info');
                 
             } catch (error) {
-                UIUtils.showNotification('⚠️ Impossibile pulire completamente la cache', 'warning');
+                window.UIUtils.showNotification('⚠️ Impossibile pulire completamente la cache', 'warning');
             }
         }
     }
@@ -456,37 +470,38 @@ class DataManagement {
     // Utility methods
     async addSingleTicker(ticker) {
         if (!ticker || ticker.length < 1) {
-            UIUtils.showNotification('Ticker non valido', 'warning');
+            window.UIUtils.showNotification('Ticker non valido', 'warning');
             return;
         }
         
-        UIUtils.showNotification(`Aggiungendo ${ticker}...`, 'info');
+        window.UIUtils.showNotification(`Aggiungendo ${ticker}...`, 'info');
         
         try {
-            const result = await TickerAPI.addTicker(ticker);
+            // CORRETTO: Usa window.TickerAPI
+            const result = await window.TickerAPI.addTicker(ticker);
             
             if (result.status === 'success') {
-                UIUtils.showNotification(`✅ ${result.message}`, 'success');
-                UIUtils.addLogEntry(`➕ Ticker ${ticker} aggiunto alla configurazione`, 'success');
+                window.UIUtils.showNotification(`✅ ${result.message}`, 'success');
+                window.UIUtils.addLogEntry(`➕ Ticker ${ticker} aggiunto alla configurazione`, 'success');
                 
                 // Mostra info ticker se disponibili
                 if (result.ticker_info) {
-                    UIUtils.addLogEntry(`📊 ${ticker}: ${result.ticker_info.name}`, 'info');
+                    window.UIUtils.addLogEntry(`📊 ${ticker}: ${result.ticker_info.name}`, 'info');
                 }
                 
                 setTimeout(() => location.reload(), 1000);
             } else {
-                UIUtils.showNotification(`⚠️ ${result.message}`, result.status === 'warning' ? 'warning' : 'danger');
+                window.UIUtils.showNotification(`⚠️ ${result.message}`, result.status === 'warning' ? 'warning' : 'danger');
             }
             
         } catch (error) {
             console.error(`❌ Errore adding ticker ${ticker}:`, error);
-            UIUtils.showNotification(`❌ Errore aggiungendo ${ticker}`, 'danger');
+            window.UIUtils.showNotification(`❌ Errore aggiungendo ${ticker}: ${error.message}`, 'danger');
         }
     }
 
     async addMultipleTickers(tickerList) {
-        UIUtils.showNotification(`Aggiungendo ${tickerList.length} ticker...`, 'info');
+        window.UIUtils.showNotification(`Aggiungendo ${tickerList.length} ticker...`, 'info');
         
         let successCount = 0;
         let errorCount = 0;
@@ -494,15 +509,16 @@ class DataManagement {
         
         for (const ticker of tickerList) {
             try {
-                const result = await TickerAPI.addTicker(ticker);
+                // CORRETTO: Usa window.TickerAPI
+                const result = await window.TickerAPI.addTicker(ticker);
                 results.push({ ticker, result });
                 
                 if (result.status === 'success') {
                     successCount++;
-                    UIUtils.addLogEntry(`➕ ${ticker} aggiunto`, 'success');
+                    window.UIUtils.addLogEntry(`➕ ${ticker} aggiunto`, 'success');
                 } else {
                     errorCount++;
-                    UIUtils.addLogEntry(`❌ ${ticker}: ${result.message}`, 'error');
+                    window.UIUtils.addLogEntry(`❌ ${ticker}: ${result.message}`, 'error');
                 }
                 
                 // Pausa tra richieste
@@ -511,18 +527,18 @@ class DataManagement {
             } catch (error) {
                 errorCount++;
                 results.push({ ticker, error: error.message });
-                UIUtils.addLogEntry(`❌ ${ticker}: ${error.message}`, 'error');
+                window.UIUtils.addLogEntry(`❌ ${ticker}: ${error.message}`, 'error');
             }
         }
         
         // Risultato finale
         if (successCount > 0) {
             const message = `✅ ${successCount} ticker aggiunti con successo${errorCount > 0 ? `, ${errorCount} errori` : ''}`;
-            UIUtils.showNotification(message, 'success');
-            UIUtils.addLogEntry(`🎉 Completata aggiunta multipla: ${successCount} successi, ${errorCount} errori`, 'success');
+            window.UIUtils.showNotification(message, 'success');
+            window.UIUtils.addLogEntry(`🎉 Completata aggiunta multipla: ${successCount} successi, ${errorCount} errori`, 'success');
             setTimeout(() => location.reload(), 2000);
         } else {
-            UIUtils.showNotification(`❌ Nessun ticker aggiunto (${errorCount} errori)`, 'danger');
+            window.UIUtils.showNotification(`❌ Nessun ticker aggiunto (${errorCount} errori)`, 'danger');
         }
         
         return results;
@@ -541,10 +557,11 @@ class DataManagement {
     startAutoRefresh() {
         // Auto-refresh ogni 5 minuti
         setInterval(async () => {
-            if (!document.hidden) {
+            if (!document.hidden && window.TickerAPI) {
                 console.log('🔄 Auto-refresh dati...');
                 try {
-                    await TickerAPI.getTickersStatus();
+                    // CORRETTO: Usa window.TickerAPI
+                    await window.TickerAPI.getTickersStatus();
                 } catch (error) {
                     console.warn('⚠️ Auto-refresh fallito:', error);
                 }
@@ -553,12 +570,17 @@ class DataManagement {
     }
 }
 
-// Inizializza quando il DOM è pronto
+// Inizializza quando il DOM è pronto - SEMPLICE!
 document.addEventListener('DOMContentLoaded', function() {
+    console.log('🔄 DOM pronto, controllo elementi per DataManagement...');
+    
     // Controlla se siamo nella pagina di gestione dati
     if (document.getElementById('quickAddCard') || document.getElementById('tickersTable')) {
+        console.log('✅ Elementi trovati, inizializzazione DataManagement...');
         window.DataManagementInstance = new DataManagement();
+    } else {
+        console.log('ℹ️ Non siamo nella pagina di gestione dati, skip inizializzazione');
     }
 });
 
-console.log('✅ DataManagement module caricato');
+console.log('✅ DataManagement Simple module caricato');

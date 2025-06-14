@@ -3,23 +3,16 @@
   "info": {
     "symbol": "CDW",
     "name": "CDW Corporation",
-    "sector": "Information Technology",
-    "industry": "Technology Distributors",
+    "sector": "Technology",
+    "industry": "Information Technology Services",
     "currency": "USD",
-    "exchange": "N/A",
-    "country": "N/A",
-    "source": "CSV"
+    "exchange": "NMS",
+    "country": "United States"
   },
-  "last_close_date": null,
-  "first_date": null,
-  "total_records": 0,
-  "last_updated": "2025-06-13T08:59:32.617208",
-  "csv_import": {
-    "imported_at": "2025-06-13T08:59:32.617208",
-    "company": "CDW Corporation",
-    "sector": "Information Technology",
-    "industry": "Technology Distributors"
-  },
+  "last_close_date": "2025-06-13",
+  "total_records": 3010,
+  "first_date": "2013-06-27",
+  "last_updated": "2025-06-14T09:34:01.735941",
   "files": {
     "adjusted": "resources\\data\\daily\\CDW.csv",
     "not_adjusted": "resources\\data\\daily_notAdjusted\\CDW_notAdjusted.csv"

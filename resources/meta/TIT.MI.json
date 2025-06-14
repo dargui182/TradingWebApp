@@ -1,0 +1,20 @@
+{
+  "ticker": "TIT.MI",
+  "info": {
+    "symbol": "TIT.MI",
+    "name": "Telecom Italia S.p.A.",
+    "sector": "Communication Services",
+    "industry": "Telecom Services",
+    "currency": "EUR",
+    "exchange": "MIL",
+    "country": "Italy"
+  },
+  "last_close_date": "2025-06-13",
+  "total_records": 9866,
+  "first_date": "1987-02-12",
+  "last_updated": "2025-06-14T09:51:02.164994",
+  "files": {
+    "adjusted": "resources\\data\\daily\\TIT.MI.csv",
+    "not_adjusted": "resources\\data\\daily_notAdjusted\\TIT.MI_notAdjusted.csv"
+  }
+}

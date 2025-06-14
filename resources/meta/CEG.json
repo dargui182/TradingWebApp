@@ -2,24 +2,17 @@
   "ticker": "CEG",
   "info": {
     "symbol": "CEG",
-    "name": "Constellation Energy",
+    "name": "Constellation Energy Corporation",
     "sector": "Utilities",
-    "industry": "Electric Utilities",
+    "industry": "Utilities - Renewable",
     "currency": "USD",
-    "exchange": "N/A",
-    "country": "N/A",
-    "source": "CSV"
+    "exchange": "NMS",
+    "country": "United States"
   },
-  "last_close_date": null,
-  "first_date": null,
-  "total_records": 0,
-  "last_updated": "2025-06-13T08:59:32.618748",
-  "csv_import": {
-    "imported_at": "2025-06-13T08:59:32.618748",
-    "company": "Constellation Energy",
-    "sector": "Utilities",
-    "industry": "Electric Utilities"
-  },
+  "last_close_date": "2025-06-13",
+  "total_records": 854,
+  "first_date": "2022-01-19",
+  "last_updated": "2025-06-14T09:34:02.892907",
   "files": {
     "adjusted": "resources\\data\\daily\\CEG.csv",
     "not_adjusted": "resources\\data\\daily_notAdjusted\\CEG_notAdjusted.csv"

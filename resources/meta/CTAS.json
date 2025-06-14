@@ -2,24 +2,17 @@
   "ticker": "CTAS",
   "info": {
     "symbol": "CTAS",
-    "name": "Cintas",
+    "name": "Cintas Corporation",
     "sector": "Industrials",
-    "industry": "Diversified Support Services",
+    "industry": "Specialty Business Services",
     "currency": "USD",
-    "exchange": "N/A",
-    "country": "N/A",
-    "source": "CSV"
+    "exchange": "NMS",
+    "country": "United States"
   },
-  "last_close_date": null,
-  "first_date": null,
-  "total_records": 0,
-  "last_updated": "2025-06-13T08:59:32.732809",
-  "csv_import": {
-    "imported_at": "2025-06-13T08:59:32.732809",
-    "company": "Cintas",
-    "sector": "Industrials",
-    "industry": "Diversified Support Services"
-  },
+  "last_close_date": "2025-06-13",
+  "total_records": 10538,
+  "first_date": "1983-08-19",
+  "last_updated": "2025-06-14T09:34:16.770606",
   "files": {
     "adjusted": "resources\\data\\daily\\CTAS.csv",
     "not_adjusted": "resources\\data\\daily_notAdjusted\\CTAS_notAdjusted.csv"

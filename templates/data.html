@@ -726,11 +726,41 @@
 {% endblock %}
 
 {% block scripts %}
-<!-- JavaScript modules for data management -->
+<!-- JavaScript modules for data management - versione SEMPLIFICATA -->
+<!-- IMPORTANTE: l'ordine è importante ma non serve sincronizzazione complessa -->
+
+<script>
+console.log('🔄 Inizio caricamento moduli JavaScript semplificati...');
+</script>
+
+<!-- STEP 1: API Core - deve essere caricato per primo -->
 <script src="{{ url_for('static', filename='js/ticker-api.js') }}"></script>
+
+<!-- STEP 2: Moduli dipendenti da TickerAPI (versioni semplici) -->
 <script src="{{ url_for('static', filename='js/ticker-table.js') }}"></script>
 <script src="{{ url_for('static', filename='js/ticker-modal.js') }}"></script>
 <script src="{{ url_for('static', filename='js/csv-upload.js') }}"></script>
 <script src="{{ url_for('static', filename='js/smart-status.js') }}"></script>
+
+<!-- STEP 3: Manager principale - deve essere caricato per ultimo -->
 <script src="{{ url_for('static', filename='js/data-management.js') }}"></script>
+
+<script>
+// Verifica finale che tutto sia caricato correttamente
+setTimeout(() => {
+    console.log('🧪 Test finale moduli:');
+    console.log('- TickerAPI disponibile:', !!window.TickerAPI);
+    console.log('- TickerAPI.addTicker funzione:', typeof window.TickerAPI?.addTicker === 'function');
+    console.log('- DataManagementInstance:', !!window.DataManagementInstance);
+    console.log('- TickerTableInstance:', !!window.TickerTableInstance);
+    
+    if (window.TickerAPI && typeof window.TickerAPI.addTicker === 'function') {
+        console.log('✅ Tutti i moduli caricati correttamente - Sistema pronto!');
+    } else {
+        console.warn('⚠️ Alcuni moduli potrebbero avere problemi');
+    }
+}, 1000);
+
+console.log('✅ Script di caricamento moduli semplificato completato');
+</script>
 {% endblock %}

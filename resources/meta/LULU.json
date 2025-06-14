@@ -2,24 +2,17 @@
   "ticker": "LULU",
   "info": {
     "symbol": "LULU",
-    "name": "Lululemon Athletica",
-    "sector": "Consumer Discretionary",
-    "industry": "Apparel, Accessories & Luxury Goods",
+    "name": "lululemon athletica inc.",
+    "sector": "Consumer Cyclical",
+    "industry": "Apparel Retail",
     "currency": "USD",
-    "exchange": "N/A",
-    "country": "N/A",
-    "source": "CSV"
+    "exchange": "NMS",
+    "country": "Canada"
   },
-  "last_close_date": null,
-  "first_date": null,
-  "total_records": 0,
-  "last_updated": "2025-06-13T08:59:33.042523",
-  "csv_import": {
-    "imported_at": "2025-06-13T08:59:33.042523",
-    "company": "Lululemon Athletica",
-    "sector": "Consumer Discretionary",
-    "industry": "Apparel, Accessories & Luxury Goods"
-  },
+  "last_close_date": "2025-06-13",
+  "total_records": 4500,
+  "first_date": "2007-07-27",
+  "last_updated": "2025-06-14T09:34:51.691330",
   "files": {
     "adjusted": "resources\\data\\daily\\LULU.csv",
     "not_adjusted": "resources\\data\\daily_notAdjusted\\LULU_notAdjusted.csv"

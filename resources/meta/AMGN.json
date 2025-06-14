@@ -2,24 +2,17 @@
   "ticker": "AMGN",
   "info": {
     "symbol": "AMGN",
-    "name": "Amgen",
-    "sector": "Health Care",
-    "industry": "Biotechnology",
+    "name": "Amgen Inc.",
+    "sector": "Healthcare",
+    "industry": "Drug Manufacturers - General",
     "currency": "USD",
-    "exchange": "N/A",
-    "country": "N/A",
-    "source": "CSV"
+    "exchange": "NMS",
+    "country": "United States"
   },
-  "last_close_date": null,
-  "first_date": null,
-  "total_records": 0,
-  "last_updated": "2025-06-13T08:59:32.535418",
-  "csv_import": {
-    "imported_at": "2025-06-13T08:59:32.535418",
-    "company": "Amgen",
-    "sector": "Health Care",
-    "industry": "Biotechnology"
-  },
+  "last_close_date": "2025-06-13",
+  "total_records": 10583,
+  "first_date": "1983-06-17",
+  "last_updated": "2025-06-14T09:33:51.719414",
   "files": {
     "adjusted": "resources\\data\\daily\\AMGN.csv",
     "not_adjusted": "resources\\data\\daily_notAdjusted\\AMGN_notAdjusted.csv"

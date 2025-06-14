@@ -1,6 +1,7 @@
 /**
  * smart-status.js
  * Fix intelligente per gli status dei ticker basato sui giorni di mercato reali
+ * CORRETTO: Usa sempre window.UIUtils per evitare problemi di scope
  */
 
 class SmartStatus {

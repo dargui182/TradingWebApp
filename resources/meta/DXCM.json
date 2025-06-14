@@ -2,24 +2,17 @@
   "ticker": "DXCM",
   "info": {
     "symbol": "DXCM",
-    "name": "Dexcom",
-    "sector": "Health Care",
-    "industry": "Health Care Equipment",
+    "name": "DexCom, Inc.",
+    "sector": "Healthcare",
+    "industry": "Medical Devices",
     "currency": "USD",
-    "exchange": "N/A",
-    "country": "N/A",
-    "source": "CSV"
+    "exchange": "NMS",
+    "country": "United States"
   },
-  "last_close_date": null,
-  "first_date": null,
-  "total_records": 0,
-  "last_updated": "2025-06-13T08:59:32.794675",
-  "csv_import": {
-    "imported_at": "2025-06-13T08:59:32.794675",
-    "company": "Dexcom",
-    "sector": "Health Care",
-    "industry": "Health Care Equipment"
-  },
+  "last_close_date": "2025-06-13",
+  "total_records": 5075,
+  "first_date": "2005-04-14",
+  "last_updated": "2025-06-14T09:34:21.742035",
   "files": {
     "adjusted": "resources\\data\\daily\\DXCM.csv",
     "not_adjusted": "resources\\data\\daily_notAdjusted\\DXCM_notAdjusted.csv"
