@@ -1,0 +1,20 @@
+{
+  "ticker": "ISP.MI",
+  "info": {
+    "symbol": "ISP.MI",
+    "name": "Intesa Sanpaolo S.p.A.",
+    "sector": "Financial Services",
+    "industry": "Banks - Regional",
+    "currency": "EUR",
+    "exchange": "MIL",
+    "country": "Italy"
+  },
+  "last_close_date": "2025-06-13",
+  "total_records": 7749,
+  "first_date": "1995-03-24",
+  "last_updated": "2025-06-14T17:59:36.410219",
+  "files": {
+    "adjusted": "resources\\data\\daily\\ISP.MI.csv",
+    "not_adjusted": "resources\\data\\daily_notAdjusted\\ISP.MI_notAdjusted.csv"
+  }
+}
