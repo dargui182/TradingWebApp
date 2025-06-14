@@ -3,6 +3,9 @@ from datetime import datetime
 import os
 import logging
 import pandas as pd  # AGGIUNGERE QUESTO IMPORT
+from SmartStatus import SmartStatusPython
+from datetime import datetime, timedelta
+import calendar
 
 # Import del modulo personalizzato per gestione ticker
 from TickerDataManager import TickerDataManager
@@ -18,6 +21,9 @@ logger = logging.getLogger(__name__)
 
 # Inizializza il manager per i dati ticker
 ticker_manager = TickerDataManager()
+smart_status = SmartStatusPython()
+
+
 
 # Dati di esempio per la dashboard principale
 sample_data = {
@@ -380,6 +386,119 @@ def api_ticker_data(ticker):
         logger.error(f"Errore nel recuperare dati per {ticker}: {e}")
         return jsonify({'status': 'error', 'message': str(e)}), 500
 
+# ✅ AGGIUNGI endpoint di debug per verificare
+@app.route('/api/debug/stats')
+def api_debug_stats():
+    """Debug endpoint per verificare calcolo statistiche"""
+    try:
+        config = ticker_manager.load_ticker_config()
+        ticker_status = ticker_manager.get_ticker_status()
+        
+        debug_info = {
+            'config_tickers_count': len(config.get('tickers', [])),
+            'status_tickers_count': len(ticker_status),
+            'tickers_detail': []
+        }
+        
+        for ticker in ticker_status:
+            debug_info['tickers_detail'].append({
+                'ticker': ticker.get('ticker', 'N/A'),
+                'needs_update': ticker.get('needs_update', True),
+                'has_files': ticker.get('files_exist', {}),
+                'total_records': ticker.get('total_records', 0),
+                'last_close_date': ticker.get('last_close_date', 'N/A')
+            })
+        
+        # Calcola statistiche con logica corretta
+        updated_count = sum(1 for t in ticker_status if not t.get('needs_update', True))
+        pending_count = sum(1 for t in ticker_status if t.get('needs_update', True))
+        
+        debug_info['calculated_stats'] = {
+            'updated_tickers': updated_count,
+            'pending_tickers': pending_count
+        }
+        
+        return jsonify(debug_info)
+        
+    except Exception as e:
+        logger.error(f"Errore debug stats: {e}")
+        return jsonify({'error': str(e)}), 500
+
+# ✅ AGGIUNGI endpoint per confrontare i due metodi
+@app.route('/api/debug/smart-comparison')
+def api_debug_smart_comparison():
+    """Confronta metodo statico vs SmartStatus"""
+    try:
+        ticker_status = ticker_manager.get_ticker_status()
+        
+        comparison = {
+            'smart_status_method': {'updated': 0, 'pending': 0},
+            'static_method': {'updated': 0, 'pending': 0},
+            'ticker_details': []
+        }
+        
+        for ticker in ticker_status:
+            ticker_name = ticker.get('ticker', 'N/A')
+            last_close_date = ticker.get('last_close_date')
+            static_needs_update = ticker.get('needs_update', True)
+            
+            # Calcola con SmartStatus
+            smart_result = smart_status.calculate_smart_status(last_close_date)
+            smart_needs_update = smart_result['needs_update']
+            
+            # Conta per metodo statico
+            if static_needs_update:
+                comparison['static_method']['pending'] += 1
+            else:
+                comparison['static_method']['updated'] += 1
+            
+            # Conta per SmartStatus
+            if smart_needs_update:
+                comparison['smart_status_method']['pending'] += 1
+            else:
+                comparison['smart_status_method']['updated'] += 1
+            
+            # Dettagli ticker
+            comparison['ticker_details'].append({
+                'ticker': ticker_name,
+                'last_close_date': last_close_date,
+                'static_needs_update': static_needs_update,
+                'smart_needs_update': smart_needs_update,
+                'smart_status_text': smart_result['status_text'],
+                'match': static_needs_update == smart_needs_update
+            })
+        
+        return jsonify(comparison)
+        
+    except Exception as e:
+        logger.error(f"Errore debug smart comparison: {e}")
+        return jsonify({'error': str(e)}), 500
+
+# ✅ AGGIUNGI endpoint per testare SmartStatus singolo ticker
+@app.route('/api/debug/smart-status/<ticker>')
+def api_debug_smart_status(ticker):
+    """Test SmartStatus per un ticker specifico"""
+    try:
+        meta = ticker_manager.load_ticker_meta(ticker)
+        if not meta:
+            return jsonify({'error': f'Ticker {ticker} non trovato'}), 404
+        
+        last_close_date = meta.get('last_close_date')
+        smart_result = smart_status.calculate_smart_status(last_close_date)
+        
+        return jsonify({
+            'ticker': ticker,
+            'last_close_date': last_close_date,
+            'last_expected_market_day': smart_status.get_last_expected_market_day().strftime('%Y-%m-%d'),
+            'is_today_market_day': smart_status.is_market_day(datetime.now()),
+            'smart_status': smart_result
+        })
+        
+    except Exception as e:
+        logger.error(f"Errore debug smart status {ticker}: {e}")
+        return jsonify({'error': str(e)}), 500
+
+
 # === ERROR HANDLERS ===
 
 @app.errorhandler(404)
@@ -399,32 +518,76 @@ def inject_globals():
         'current_year': datetime.now().year
     }
 
+# ✅ AGGIORNA la funzione get_real_dashboard_stats() per usare SmartStatus
 def get_real_dashboard_stats():
-    """Genera statistiche reali basate sui ticker configurati"""
-    config = ticker_manager.load_ticker_config()
-    ticker_status = ticker_manager.get_ticker_status()
-    
-    total_tickers = len(config.get('tickers', []))
-    updated_tickers = sum(1 for ticker in ticker_status if not ticker.get('needs_update', True))
-    total_records = sum(ticker.get('total_records', 0) for ticker in ticker_status)
-    
-    # Calcola dimensione totale file
-    total_size_mb = 0
-    for ticker in ticker_status:
-        file_sizes = ticker.get('file_sizes', {})
-        for size_str in file_sizes.values():
-            if 'KB' in size_str:
-                total_size_mb += float(size_str.replace(' KB', '').replace(',', '')) / 1024
-            elif 'MB' in size_str:
-                total_size_mb += float(size_str.replace(' MB', '').replace(',', ''))
-    
-    return {
-        'total_tickers': total_tickers,
-        'updated_tickers': updated_tickers,
-        'total_records': total_records,
-        'total_size_mb': round(total_size_mb, 2)
-    }
-
+    """Genera statistiche reali basate sui ticker configurati - CON SMART STATUS"""
+    try:
+        config = ticker_manager.load_ticker_config()
+        ticker_status = ticker_manager.get_ticker_status()
+        
+        total_tickers = len(config.get('tickers', []))
+        
+        # ✅ USA LA STESSA LOGICA SMART DELLA PAGINA DATA
+        updated_tickers = 0
+        pending_tickers = 0
+        total_records = 0
+        total_size_mb = 0
+        
+        for ticker in ticker_status:
+            # Conta record totali
+            total_records += ticker.get('total_records', 0)
+            
+            # Calcola dimensione file
+            file_sizes = ticker.get('file_sizes', {})
+            for size_str in file_sizes.values():
+                if isinstance(size_str, str):
+                    if 'KB' in size_str:
+                        try:
+                            kb_value = float(size_str.replace(' KB', '').replace(',', ''))
+                            total_size_mb += kb_value / 1024
+                        except (ValueError, AttributeError):
+                            pass
+                    elif 'MB' in size_str:
+                        try:
+                            mb_value = float(size_str.replace(' MB', '').replace(',', ''))
+                            total_size_mb += mb_value
+                        except (ValueError, AttributeError):
+                            pass
+            
+            # ✅ USA SMART STATUS invece di needs_update statico
+            last_close_date = ticker.get('last_close_date')
+            smart_result = smart_status.calculate_smart_status(last_close_date)
+            
+            if smart_result['needs_update']:
+                pending_tickers += 1
+            else:
+                updated_tickers += 1
+            
+            # Debug dettagliato
+            logger.debug(f"📊 {ticker.get('ticker', 'N/A')}: {last_close_date} → {smart_result['status_text']} (needs_update: {smart_result['needs_update']})")
+        
+        # Debug riepilogo
+        logger.info(f"📊 Smart Stats: {total_tickers} totali, {updated_tickers} aggiornati, {pending_tickers} da aggiornare")
+        
+        return {
+            'total_tickers': total_tickers,
+            'updated_tickers': updated_tickers,
+            'pending_tickers': pending_tickers,
+            'total_records': total_records,
+            'total_size_mb': round(total_size_mb, 2)
+        }
+        
+    except Exception as e:
+        logger.error(f"Errore calcolo Smart Stats: {e}")
+        # Fallback sicuro
+        return {
+            'total_tickers': 0,
+            'updated_tickers': 0,
+            'pending_tickers': 0,
+            'total_records': 0,
+            'total_size_mb': 0
+        }
+        
 def get_recent_activities():
     """Genera attività recenti basate sui metadati reali"""
     activities = []
@@ -544,7 +707,33 @@ def api_ticker_chart_data():
             }]
         })
 # === MAIN ===
-
+# ✅ AGGIUNGI anche un test di verifica
+def test_stats_consistency():
+    """Test per verificare consistenza tra dashboard e data page"""
+    try:
+        # Get stats come li calcola il dashboard
+        dashboard_stats = get_real_dashboard_stats()
+        
+        # Get stats come li calcola data.html
+        ticker_status = ticker_manager.get_ticker_status()
+        data_page_updated = sum(1 for t in ticker_status if not t.get('needs_update', True))
+        data_page_pending = sum(1 for t in ticker_status if t.get('needs_update', True))
+        
+        print(f"🔍 VERIFICA CONSISTENZA:")
+        print(f"Dashboard - Aggiornati: {dashboard_stats['updated_tickers']}, Da aggiornare: {dashboard_stats.get('pending_tickers', 'N/A')}")
+        print(f"Data Page - Aggiornati: {data_page_updated}, Da aggiornare: {data_page_pending}")
+        
+        if dashboard_stats['updated_tickers'] == data_page_updated:
+            print("✅ CONSISTENZA OK!")
+            return True
+        else:
+            print("❌ DISCREPANZA RILEVATA!")
+            return False
+            
+    except Exception as e:
+        print(f"❌ Errore test: {e}")
+        return False
+    
 if __name__ == '__main__':
     # Crea le directory necessarie se non esistono
     os.makedirs('templates', exist_ok=True)

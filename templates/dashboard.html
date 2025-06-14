@@ -12,89 +12,97 @@
 {% endblock %}
 
 {% block content %}
-    <!-- Statistics Cards - UNA SOLA VOLTA! -->
-    <div class="row mb-4">
-        <div class="col-xl-3 col-md-6 mb-4">
-            <div class="card border-left-primary shadow h-100 py-2">
-                <div class="card-body">
-                    <div class="row no-gutters align-items-center">
-                        <div class="col mr-2">
-                            <div class="text-xs font-weight-bold text-primary text-uppercase mb-1">
-                                Ticker Configurati
-                            </div>
-                            <div class="h5 mb-0 font-weight-bold text-gray-800" id="totalTickersValue">
-                                {{ stats.total_tickers }}
-                            </div>
+<!-- Statistics Cards - CON LOGICA CORRETTA -->
+<div class="row mb-4">
+    <div class="col-xl-3 col-md-6 mb-4">
+        <div class="card border-left-primary shadow h-100 py-2">
+            <div class="card-body">
+                <div class="row no-gutters align-items-center">
+                    <div class="col mr-2">
+                        <div class="text-xs font-weight-bold text-primary text-uppercase mb-1">
+                            Ticker Configurati
                         </div>
-                        <div class="col-auto">
-                            <i class="bi bi-graph-up text-primary" style="font-size: 2rem;"></i>
+                        <div class="h5 mb-0 font-weight-bold text-gray-800" id="totalTickersValue">
+                            {{ stats.total_tickers }}
                         </div>
                     </div>
-                </div>
-            </div>
-        </div>
-
-        <div class="col-xl-3 col-md-6 mb-4">
-            <div class="card border-left-success shadow h-100 py-2">
-                <div class="card-body">
-                    <div class="row no-gutters align-items-center">
-                        <div class="col mr-2">
-                            <div class="text-xs font-weight-bold text-success text-uppercase mb-1">
-                                Ticker Aggiornati
-                            </div>
-                            <div class="h5 mb-0 font-weight-bold text-gray-800" id="updatedTickersValue">
-                                {{ stats.updated_tickers }}
-                            </div>
-                        </div>
-                        <div class="col-auto">
-                            <i class="bi bi-check-circle text-success" style="font-size: 2rem;"></i>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <div class="col-xl-3 col-md-6 mb-4">
-            <div class="card border-left-info shadow h-100 py-2">
-                <div class="card-body">
-                    <div class="row no-gutters align-items-center">
-                        <div class="col mr-2">
-                            <div class="text-xs font-weight-bold text-info text-uppercase mb-1">
-                                Record Totali
-                            </div>
-                            <div class="h5 mb-0 font-weight-bold text-gray-800" id="totalRecordsValue">
-                                {{ "{:,}".format(stats.total_records) }}
-                            </div>
-                        </div>
-                        <div class="col-auto">
-                            <i class="bi bi-database text-info" style="font-size: 2rem;"></i>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <div class="col-xl-3 col-md-6 mb-4">
-            <div class="card border-left-warning shadow h-100 py-2">
-                <div class="card-body">
-                    <div class="row no-gutters align-items-center">
-                        <div class="col mr-2">
-                            <div class="text-xs font-weight-bold text-warning text-uppercase mb-1">
-                                Spazio Utilizzato
-                            </div>
-                            <div class="h5 mb-0 font-weight-bold text-gray-800" id="totalSizeValue">
-                                {{ stats.total_size_mb }} MB
-                            </div>
-                        </div>
-                        <div class="col-auto">
-                            <i class="bi bi-hdd text-warning" style="font-size: 2rem;"></i>
-                        </div>
+                    <div class="col-auto">
+                        <i class="bi bi-graph-up text-primary" style="font-size: 2rem;"></i>
                     </div>
                 </div>
             </div>
         </div>
     </div>
-    <!-- Fine Statistics Cards -->
+
+    <div class="col-xl-3 col-md-6 mb-4">
+        <div class="card border-left-success shadow h-100 py-2">
+            <div class="card-body">
+                <div class="row no-gutters align-items-center">
+                    <div class="col mr-2">
+                        <div class="text-xs font-weight-bold text-success text-uppercase mb-1">
+                            Ticker Aggiornati
+                        </div>
+                        <div class="h5 mb-0 font-weight-bold text-gray-800" id="updatedTickersValue">
+                            {{ stats.updated_tickers }}
+                        </div>
+                        <!-- Debug info (rimuovere in produzione) -->
+                        <div class="small text-muted">
+                            <a href="/api/debug/stats" target="_blank" style="text-decoration: none;">
+                                🔍 Debug stats
+                            </a>
+                        </div>
+                    </div>
+                    <div class="col-auto">
+                        <i class="bi bi-check-circle text-success" style="font-size: 2rem;"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-xl-3 col-md-6 mb-4">
+        <div class="card border-left-warning shadow h-100 py-2">
+            <div class="card-body">
+                <div class="row no-gutters align-items-center">
+                    <div class="col mr-2">
+                        <div class="text-xs font-weight-bold text-warning text-uppercase mb-1">
+                            Da Aggiornare
+                        </div>
+                        <div class="h5 mb-0 font-weight-bold text-gray-800" id="pendingTickersValue">
+                            {{ stats.pending_tickers|default(0) }}
+                        </div>
+                    </div>
+                    <div class="col-auto">
+                        <i class="bi bi-clock text-warning" style="font-size: 2rem;"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-xl-3 col-md-6 mb-4">
+        <div class="card border-left-info shadow h-100 py-2">
+            <div class="card-body">
+                <div class="row no-gutters align-items-center">
+                    <div class="col mr-2">
+                        <div class="text-xs font-weight-bold text-info text-uppercase mb-1">
+                            Record Totali
+                        </div>
+                        <div class="h5 mb-0 font-weight-bold text-gray-800" id="totalRecordsValue">
+                            {{ "{:,}".format(stats.total_records) }}
+                        </div>
+                        <div class="small text-muted">
+                            Spazio: {{ stats.total_size_mb }} MB
+                        </div>
+                    </div>
+                    <div class="col-auto">
+                        <i class="bi bi-database text-info" style="font-size: 2rem;"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
 
     <div class="row">
         <!-- Chart Area -->
@@ -198,6 +206,8 @@
     </div>
 {% endblock %}
 
+<!-- ✅ AGGIUNGI questo JavaScript al dashboard.html per testing SmartStatus -->
+
 {% block scripts %}
 <script>
 // Previeni inizializzazioni multiple
@@ -205,14 +215,140 @@ if (window.dashboardInitialized) {
     console.log('⚠️ Dashboard già inizializzato, skip');
 } else {
     window.dashboardInitialized = true;
-    console.log('🚀 Inizializzazione dashboard...');
+    console.log('🚀 Inizializzazione dashboard con SmartStatus...');
 
-    // Chart.js configuration per andamento ticker reali
-    let tickerChart = null;
+    // ✅ TEST CONSISTENZA SMARTSTATUS
+    async function testSmartStatusConsistency() {
+        try {
+            console.log('🔍 Test consistenza SmartStatus...');
+            
+            // Get stats from dashboard API (ora usa SmartStatus Python)
+            const dashboardResponse = await fetch('/api/stats');
+            const dashboardStats = await dashboardResponse.json();
+            
+            // Get comparison data
+            const comparisonResponse = await fetch('/api/debug/smart-comparison');
+            const comparisonData = await comparisonResponse.json();
+            
+            console.log('📊 Dashboard Stats (SmartStatus Python):', dashboardStats);
+            console.log('🔍 Comparison Data:', comparisonData);
+            
+            // Verifica consistenza
+            const dashboardUpdated = dashboardStats.updated_tickers;
+            const smartMethodUpdated = comparisonData.smart_status_method.updated;
+            const staticMethodUpdated = comparisonData.static_method.updated;
+            
+            console.log(`📈 CONFRONTO METODI:`);
+            console.log(`   Dashboard (Smart): ${dashboardUpdated} aggiornati`);
+            console.log(`   Smart Method: ${smartMethodUpdated} aggiornati`);
+            console.log(`   Static Method: ${staticMethodUpdated} aggiornati`);
+            
+            if (dashboardUpdated === smartMethodUpdated) {
+                console.log('✅ CONSISTENZA SMARTSTATUS OK!');
+                
+                // Mostra differenze con metodo statico
+                if (dashboardUpdated !== staticMethodUpdated) {
+                    console.log(`📊 DIFFERENZA con metodo statico: ${Math.abs(dashboardUpdated - staticMethodUpdated)} ticker`);
+                    
+                    // Mostra dettagli discrepanze
+                    const mismatches = comparisonData.ticker_details.filter(t => !t.match);
+                    if (mismatches.length > 0) {
+                        console.log('🔍 Ticker con status diverso tra metodi:');
+                        mismatches.forEach(ticker => {
+                            console.log(`   ${ticker.ticker}: Static=${ticker.static_needs_update}, Smart=${ticker.smart_needs_update} (${ticker.smart_status_text})`);
+                        });
+                    }
+                }
+                
+                return true;
+            } else {
+                console.error(`❌ DISCREPANZA SMARTSTATUS: Dashboard=${dashboardUpdated}, Smart=${smartMethodUpdated}`);
+                return false;
+            }
+            
+        } catch (error) {
+            console.error('❌ Errore test SmartStatus consistency:', error);
+            return false;
+        }
+    }
+
+    // ✅ TEST DETTAGLIATO SINGOLO TICKER
+    async function testSingleTickerSmartStatus() {
+        try {
+            // Prendi il primo ticker dalla lista
+            const statusResponse = await fetch('/api/tickers/status');
+            const tickerStatus = await statusResponse.json();
+            
+            if (tickerStatus.length > 0) {
+                const firstTicker = tickerStatus[0].ticker;
+                console.log(`🔍 Test dettagliato SmartStatus per: ${firstTicker}`);
+                
+                const detailResponse = await fetch(`/api/debug/smart-status/${firstTicker}`);
+                const tickerDetail = await detailResponse.json();
+                
+                console.log('📊 Dettagli SmartStatus:', tickerDetail);
+                
+                return tickerDetail;
+            }
+        } catch (error) {
+            console.error('❌ Errore test singolo ticker:', error);
+        }
+    }
+
+    // ✅ FUNZIONE PER MOSTRARE INFO SMARTSTATUS NELLA UI
+    function showSmartStatusInfo() {
+        // Aggiungi un piccolo indicatore nell'interfaccia
+        const updatedCard = document.querySelector('.border-left-success .card-body');
+        if (updatedCard) {
+            const infoDiv = document.createElement('div');
+            infoDiv.className = 'small text-muted mt-1';
+            infoDiv.innerHTML = `
+                <i class="bi bi-info-circle"></i> 
+                <span id="smartStatusInfo">Calcolo Smart Status...</span>
+                <a href="/api/debug/smart-comparison" target="_blank" class="ms-2" style="font-size: 0.7rem;">
+                    🔍 Debug
+                </a>
+            `;
+            updatedCard.appendChild(infoDiv);
+            
+            // Aggiorna info dopo test
+            setTimeout(async () => {
+                try {
+                    const response = await fetch('/api/debug/smart-comparison');
+                    const data = await response.json();
+                    
+                    const smartUpdated = data.smart_status_method.updated;
+                    const staticUpdated = data.static_method.updated;
+                    const diff = Math.abs(smartUpdated - staticUpdated);
+                    
+                    const infoSpan = document.getElementById('smartStatusInfo');
+                    if (infoSpan) {
+                        if (diff === 0) {
+                            infoSpan.innerHTML = '<span class="text-success">Smart Status = Metodo Statico</span>';
+                        } else {
+                            infoSpan.innerHTML = `<span class="text-warning">Smart: ${smartUpdated}, Statico: ${staticUpdated} (diff: ${diff})</span>`;
+                        }
+                    }
+                } catch (error) {
+                    console.error('Errore aggiornamento info SmartStatus:', error);
+                }
+            }, 2000);
+        }
+    }
 
     document.addEventListener('DOMContentLoaded', function() {
         initializeDashboard();
+        
+        // Test SmartStatus dopo inizializzazione
+        setTimeout(async () => {
+            await testSmartStatusConsistency();
+            await testSingleTickerSmartStatus();
+            showSmartStatusInfo();
+        }, 1000);
     });
+
+    // Resto del codice dashboard (grafico, event listeners, etc.)
+    let tickerChart = null;
 
     async function initializeDashboard() {
         try {
@@ -222,7 +358,7 @@ if (window.dashboardInitialized) {
             // Setup event listeners
             setupEventListeners();
             
-            console.log('✅ Dashboard inizializzato correttamente');
+            console.log('✅ Dashboard inizializzato correttamente con SmartStatus');
         } catch (error) {
             console.error('❌ Errore inizializzazione dashboard:', error);
         }
@@ -295,12 +431,11 @@ if (window.dashboardInitialized) {
             console.error('Errore caricamento dati grafico:', error);
         }
         
-        // Fallback: grafico semplice con numero ticker per mese
+        // Fallback
         const months = ['Gen', 'Feb', 'Mar', 'Apr', 'Mag', 'Giu', 'Lug', 'Ago', 'Set', 'Ott', 'Nov', 'Dic'];
         const currentMonth = new Date().getMonth();
         const tickerCount = {{ stats.total_tickers }};
         
-        // Simula crescita graduale dei ticker nel tempo
         const data = months.map((month, index) => {
             if (index <= currentMonth) {
                 return Math.max(0, tickerCount - (currentMonth - index) * 5);
@@ -323,14 +458,17 @@ if (window.dashboardInitialized) {
 
     // Refresh dashboard
     async function refreshDashboard() {
-        console.log('🔄 Refresh dashboard...');
+        console.log('🔄 Refresh dashboard con SmartStatus...');
         
         try {
             const response = await fetch('/api/stats');
             if (response.ok) {
                 const stats = await response.json();
                 updateStatisticsValues(stats);
-                console.log('✅ Statistiche aggiornate');
+                console.log('✅ Statistiche SmartStatus aggiornate');
+                
+                // Re-test consistenza dopo refresh
+                setTimeout(testSmartStatusConsistency, 500);
             }
         } catch (error) {
             console.error('❌ Errore refresh:', error);
@@ -342,14 +480,15 @@ if (window.dashboardInitialized) {
         const elements = {
             'totalTickersValue': stats.total_tickers,
             'updatedTickersValue': stats.updated_tickers,
-            'totalRecordsValue': stats.total_records.toLocaleString(),
-            'totalSizeValue': stats.total_size_mb + ' MB'
+            'pendingTickersValue': stats.pending_tickers || 0,
+            'totalRecordsValue': stats.total_records.toLocaleString()
         };
         
         Object.entries(elements).forEach(([id, value]) => {
             const element = document.getElementById(id);
             if (element) {
                 element.textContent = value;
+                console.log(`📊 Aggiornato ${id}: ${value}`);
             }
         });
     }
@@ -364,14 +503,15 @@ if (window.dashboardInitialized) {
             
             const exportData = {
                 timestamp: new Date().toISOString(),
-                dashboard_stats: stats
+                dashboard_stats: stats,
+                smart_status_method: 'Python SmartStatus implementation'
             };
             
             const blob = new Blob([JSON.stringify(exportData, null, 2)], { type: 'application/json' });
             const url = URL.createObjectURL(blob);
             const a = document.createElement('a');
             a.href = url;
-            a.download = `dashboard-export-${new Date().toISOString().split('T')[0]}.json`;
+            a.download = `dashboard-export-smartstatus-${new Date().toISOString().split('T')[0]}.json`;
             a.click();
             URL.revokeObjectURL(url);
             
@@ -413,6 +553,7 @@ if (window.dashboardInitialized) {
     window.exportChartData = exportChartData;
     window.refreshDashboard = refreshDashboard;
     window.exportData = exportData;
+    window.testSmartStatusConsistency = testSmartStatusConsistency;
 }
 </script>
 {% endblock %}
