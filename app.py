@@ -5,6 +5,7 @@ import logging
 import pandas as pd  # AGGIUNGERE QUESTO IMPORT
 from SmartStatus import SmartStatusPython
 from datetime import datetime, timedelta
+from moduls.TechnicalAnalysis.TechnicalAnalysisManager import TechnicalAnalysisManager
 import calendar
 
 # Import del modulo personalizzato per gestione ticker
@@ -23,6 +24,8 @@ logger = logging.getLogger(__name__)
 ticker_manager = TickerDataManager()
 smart_status = SmartStatusPython()
 
+# Inizializza il manager per l'analisi tecnica
+technical_manager = TechnicalAnalysisManager()
 
 
 # Dati di esempio per la dashboard principale
@@ -642,70 +645,111 @@ def get_recent_activities():
 
 # ✅ AGGIUNGERE questo endpoint a app.py:
 
-@app.route('/api/ticker-chart-data')
-def api_ticker_chart_data():
-    """API endpoint per dati del grafico ticker"""
+     
+@app.route('/technical-analysis')
+def technical_analysis():
+    """Pagina principale dell'analisi tecnica"""
     try:
-        ticker_status = ticker_manager.get_ticker_status()
+        # Ottieni riassunto delle analisi
+        summary = technical_manager.get_analysis_summary()
         
-        # Organizza i dati per mese basandosi su last_updated
-        from collections import defaultdict
-        import calendar
+        # Carica ticker configurati
+        config = ticker_manager.load_ticker_config()
+        tickers = config.get('tickers', [])
         
-        monthly_data = defaultdict(int)
-        
-        for ticker in ticker_status:
-            last_updated = ticker.get('last_updated')
-            if last_updated:
-                try:
-                    update_date = datetime.fromisoformat(last_updated.replace('Z', '+00:00'))
-                    month_key = update_date.strftime('%Y-%m')
-                    monthly_data[month_key] += 1
-                except:
-                    continue
-        
-        # Prepara dati per gli ultimi 12 mesi
-        current_date = datetime.now()
-        chart_data = {
-            'labels': [],
-            'datasets': [{
-                'label': 'Ticker Aggiornati',
-                'data': [],
-                'borderColor': 'rgb(54, 162, 235)',
-                'backgroundColor': 'rgba(54, 162, 235, 0.1)',
-                'tension': 0.4,
-                'fill': True
-            }]
-        }
-        
-        for i in range(11, -1, -1):  # Ultimi 12 mesi
-            target_date = current_date.replace(day=1) - timedelta(days=i*30)
-            month_key = target_date.strftime('%Y-%m')
-            month_name = calendar.month_name[target_date.month][:3]  # Gen, Feb, etc.
-            
-            chart_data['labels'].append(month_name)
-            chart_data['datasets'][0]['data'].append(monthly_data.get(month_key, 0))
-        
-        return jsonify(chart_data)
-        
+        return render_template('technical_analysis.html', 
+                             title='Analisi Tecnica',
+                             summary=summary,
+                             tickers=tickers)
     except Exception as e:
-        logger.error(f"Errore API ticker chart: {e}")
+        logger.error(f"Errore pagina analisi tecnica: {e}")
+        flash(f'Errore nel caricamento dell\'analisi tecnica: {str(e)}', 'error')
+        return redirect(url_for('dashboard'))
+
+# === API ENDPOINTS PER ANALISI TECNICA ===
+
+@app.route('/api/technical-analysis/run', methods=['POST'])
+def api_run_technical_analysis():
+    """API per eseguire l'analisi tecnica completa"""
+    try:
+        data = request.get_json() or {}
+        use_adjusted = data.get('use_adjusted', True)
+        analysis_type = data.get('analysis_type', 'both')  # 'sr', 'skorupinski', 'both'
         
-        # Fallback con dati base
-        months = ['Gen', 'Feb', 'Mar', 'Apr', 'Mag', 'Giu', 'Lug', 'Ago', 'Set', 'Ott', 'Nov', 'Dic']
-        current_month = datetime.now().month - 1
+        results = {}
+        
+        if analysis_type in ['sr', 'both']:
+            technical_manager.set_data_source(use_adjusted)
+            results['support_resistance'] = technical_manager.run_support_resistance_analysis()
+        
+        if analysis_type in ['skorupinski', 'both']:
+            technical_manager.set_data_source(use_adjusted)
+            results['skorupinski_zones'] = technical_manager.run_skorupinski_analysis()
         
         return jsonify({
-            'labels': months,
-            'datasets': [{
-                'label': 'Ticker Configurati',
-                'data': [0] * current_month + [len(ticker_manager.load_ticker_config().get('tickers', []))] + [0] * (11 - current_month),
-                'borderColor': 'rgb(54, 162, 235)',
-                'backgroundColor': 'rgba(54, 162, 235, 0.1)',
-                'tension': 0.4,
-                'fill': True
-            }]
+            'status': 'success',
+            'message': 'Analisi tecnica completata',
+            'results': results
         })
+        
+    except Exception as e:
+        logger.error(f"Errore API analisi tecnica: {e}")
+        return jsonify({
+            'status': 'error',
+            'message': f'Errore durante l\'analisi: {str(e)}'
+        }), 500
+
+@app.route('/api/technical-analysis/summary')
+def api_technical_analysis_summary():
+    """API per ottenere riassunto analisi tecnica"""
+    try:
+        summary = technical_manager.get_analysis_summary()
+        return jsonify(summary)
+    except Exception as e:
+        logger.error(f"Errore API summary analisi tecnica: {e}")
+        return jsonify({'error': str(e)}), 500
+
+@app.route('/api/technical-analysis/ticker/<ticker>')
+def api_technical_ticker_analysis(ticker):  # ✅ NOME CAMBIATO
+    """API per ottenere analisi tecnica di un ticker specifico"""
+    try:
+        analysis_type = request.args.get('type', 'both')
+        data = technical_manager.get_ticker_analysis_data(ticker, analysis_type)
+        return jsonify(data)
+    except Exception as e:
+        logger.error(f"Errore API analisi ticker {ticker}: {e}")
+        return jsonify({'error': str(e)}), 500
+
+@app.route('/api/technical-analysis/chart/<ticker>')
+def api_technical_chart_data(ticker):  # ✅ NOME CAMBIATO
+    """API per dati grafico con analisi tecnica"""
+    try:
+        days = request.args.get('days', 100, type=int)
+        include_analysis = request.args.get('include_analysis', 'true').lower() == 'true'
+        
+        data = technical_manager.get_ticker_chart_data(ticker, days, include_analysis)
+        return jsonify(data)
+    except Exception as e:
+        logger.error(f"Errore API chart data {ticker}: {e}")
+        return jsonify({'error': str(e)}), 500
+
+@app.route('/api/technical-analysis/set-data-source', methods=['POST'])
+def api_technical_set_data_source():  # ✅ NOME CAMBIATO
+    """API per cambiare fonte dati (adjusted vs notAdjusted)"""
+    try:
+        data = request.get_json()
+        use_adjusted = data.get('use_adjusted', True)
+        
+        technical_manager.set_data_source(use_adjusted)
+        
+        return jsonify({
+            'status': 'success',
+            'message': f'Fonte dati impostata: {"ADJUSTED" if use_adjusted else "NOT ADJUSTED"}',
+            'use_adjusted': use_adjusted
+        })
+    except Exception as e:
+        logger.error(f"Errore API set data source: {e}")
+        return jsonify({'error': str(e)}), 500        
 # === MAIN ===
 # ✅ AGGIUNGI anche un test di verifica
 def test_stats_consistency():

@@ -2,24 +2,17 @@
   "ticker": "ABNB",
   "info": {
     "symbol": "ABNB",
-    "name": "Airbnb",
-    "sector": "Consumer Discretionary",
-    "industry": "Hotels, Resorts & Cruise Lines",
+    "name": "Airbnb, Inc.",
+    "sector": "Consumer Cyclical",
+    "industry": "Travel Services",
     "currency": "USD",
-    "exchange": "N/A",
-    "country": "N/A",
-    "source": "CSV"
+    "exchange": "NMS",
+    "country": "United States"
   },
-  "last_close_date": null,
-  "first_date": null,
-  "total_records": 0,
-  "last_updated": "2025-06-14T17:18:49.008275",
-  "csv_import": {
-    "imported_at": "2025-06-14T17:18:49.008275",
-    "company": "Airbnb",
-    "sector": "Consumer Discretionary",
-    "industry": "Hotels, Resorts & Cruise Lines"
-  },
+  "last_close_date": "2025-06-13",
+  "total_records": 1132,
+  "first_date": "2020-12-10",
+  "last_updated": "2025-06-14T23:17:34.577631",
   "files": {
     "adjusted": "resources\\data\\daily\\ABNB.csv",
     "not_adjusted": "resources\\data\\daily_notAdjusted\\ABNB_notAdjusted.csv"

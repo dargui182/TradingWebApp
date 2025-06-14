@@ -1,0 +1,426 @@
+<!-- ===== FILE: templates/technical_analysis.html ===== -->
+{% extends "base.html" %}
+
+{% block header_actions %}
+    <div class="btn-group" role="group">
+        <button type="button" class="btn btn-success btn-sm" id="runAnalysisBtn">
+            <i class="bi bi-play-circle me-1"></i>Esegui Analisi
+        </button>
+        <div class="btn-group" role="group">
+            <button type="button" class="btn btn-outline-secondary btn-sm dropdown-toggle" data-bs-toggle="dropdown">
+                <i class="bi bi-gear me-1"></i>Opzioni
+            </button>
+            <ul class="dropdown-menu">
+                <li><h6 class="dropdown-header">Fonte Dati</h6></li>
+                <li><a class="dropdown-item" href="#" data-source="adjusted">📊 Adjusted (raccomandato)</a></li>
+                <li><a class="dropdown-item" href="#" data-source="notadjusted">📋 Not Adjusted</a></li>
+                <li><hr class="dropdown-divider"></li>
+                <li><h6 class="dropdown-header">Tipo Analisi</h6></li>
+                <li><a class="dropdown-item" href="#" data-analysis="both">🎯 Completa</a></li>
+                <li><a class="dropdown-item" href="#" data-analysis="sr">📏 Solo S/R</a></li>
+                <li><a class="dropdown-item" href="#" data-analysis="skorupinski">🎢 Solo Skorupinski</a></li>
+            </ul>
+        </div>
+        <button type="button" class="btn btn-outline-secondary btn-sm" id="refreshSummaryBtn">
+            <i class="bi bi-arrow-clockwise me-1"></i>Aggiorna
+        </button>
+    </div>
+{% endblock %}
+
+{% block content %}
+    <!-- Statistics Cards -->
+    <div class="row mb-4">
+        <div class="col-xl-3 col-md-6 mb-4">
+            <div class="card border-left-primary shadow h-100 py-2">
+                <div class="card-body">
+                    <div class="row no-gutters align-items-center">
+                        <div class="col mr-2">
+                            <div class="text-xs font-weight-bold text-primary text-uppercase mb-1">
+                                Ticker Analizzati
+                            </div>
+                            <div class="h5 mb-0 font-weight-bold text-gray-800" id="totalAnalyzedTickers">
+                                {{ summary.support_resistance.analyzed + summary.skorupinski_zones.analyzed }}
+                            </div>
+                        </div>
+                        <div class="col-auto">
+                            <i class="bi bi-graph-up text-primary" style="font-size: 2rem;"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-xl-3 col-md-6 mb-4">
+            <div class="card border-left-success shadow h-100 py-2">
+                <div class="card-body">
+                    <div class="row no-gutters align-items-center">
+                        <div class="col mr-2">
+                            <div class="text-xs font-weight-bold text-success text-uppercase mb-1">
+                                Supporti/Resistenze
+                            </div>
+                            <div class="h5 mb-0 font-weight-bold text-gray-800" id="totalSRLevels">
+                                {{ summary.support_resistance.total_levels }}
+                            </div>
+                            <div class="small text-muted">{{ summary.support_resistance.analyzed }} ticker</div>
+                        </div>
+                        <div class="col-auto">
+                            <i class="bi bi-diagram-3 text-success" style="font-size: 2rem;"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-xl-3 col-md-6 mb-4">
+            <div class="card border-left-info shadow h-100 py-2">
+                <div class="card-body">
+                    <div class="row no-gutters align-items-center">
+                        <div class="col mr-2">
+                            <div class="text-xs font-weight-bold text-info text-uppercase mb-1">
+                                Zone Supply
+                            </div>
+                            <div class="h5 mb-0 font-weight-bold text-gray-800" id="totalSupplyZones">
+                                {{ summary.skorupinski_zones.supply_zones }}
+                            </div>
+                            <div class="small text-muted">🔴 RBD, DBD</div>
+                        </div>
+                        <div class="col-auto">
+                            <i class="bi bi-arrow-down-circle text-info" style="font-size: 2rem;"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-xl-3 col-md-6 mb-4">
+            <div class="card border-left-warning shadow h-100 py-2">
+                <div class="card-body">
+                    <div class="row no-gutters align-items-center">
+                        <div class="col mr-2">
+                            <div class="text-xs font-weight-bold text-warning text-uppercase mb-1">
+                                Zone Demand
+                            </div>
+                            <div class="h5 mb-0 font-weight-bold text-gray-800" id="totalDemandZones">
+                                {{ summary.skorupinski_zones.demand_zones }}
+                            </div>
+                            <div class="small text-muted">🟢 DBR, RBR</div>
+                        </div>
+                        <div class="col-auto">
+                            <i class="bi bi-arrow-up-circle text-warning" style="font-size: 2rem;"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Current Data Source Indicator -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="alert alert-info d-flex align-items-center" role="alert">
+                <i class="bi bi-info-circle-fill me-2"></i>
+                <div>
+                    <strong>Fonte Dati Attuale:</strong> 
+                    <span id="currentDataSource">ADJUSTED</span> - 
+                    <span id="dataSourceDescription">Prezzi aggiustati per splits e dividendi (raccomandato per analisi tecnica)</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Main Content Tabs -->
+    <div class="card shadow mb-4">
+        <div class="card-header">
+            <ul class="nav nav-tabs card-header-tabs" id="analysisNavTabs" role="tablist">
+                <li class="nav-item" role="presentation">
+                    <button class="nav-link active" id="overview-tab" data-bs-toggle="tab" data-bs-target="#overview" type="button" role="tab">
+                        <i class="bi bi-speedometer2 me-1"></i>Panoramica
+                    </button>
+                </li>
+                <li class="nav-item" role="presentation">
+                    <button class="nav-link" id="chart-tab" data-bs-toggle="tab" data-bs-target="#chart" type="button" role="tab">
+                        <i class="bi bi-graph-up me-1"></i>Grafico Interattivo
+                    </button>
+                </li>
+                <li class="nav-item" role="presentation">
+                    <button class="nav-link" id="zones-tab" data-bs-toggle="tab" data-bs-target="#zones" type="button" role="tab">
+                        <i class="bi bi-layers me-1"></i>Zone Skorupinski
+                    </button>
+                </li>
+                <li class="nav-item" role="presentation">
+                    <button class="nav-link" id="levels-tab" data-bs-toggle="tab" data-bs-target="#levels" type="button" role="tab">
+                        <i class="bi bi-diagram-3 me-1"></i>Supporti/Resistenze
+                    </button>
+                </li>
+            </ul>
+        </div>
+        <div class="card-body">
+            <div class="tab-content" id="analysisTabContent">
+                
+                <!-- Overview Tab -->
+                <div class="tab-pane fade show active" id="overview" role="tabpanel">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <h5 class="text-primary mb-3">🎯 Metodologia Skorupinski</h5>
+                            <p class="text-muted">
+                                Identificazione di zone Supply/Demand basata sui pattern di Bernd Skorupinski:
+                            </p>
+                            <div class="row">
+                                <div class="col-sm-6">
+                                    <div class="card bg-light mb-3">
+                                        <div class="card-body text-center">
+                                            <h6 class="card-title text-danger">🔴 SUPPLY ZONES</h6>
+                                            <div class="mb-2">
+                                                <span class="badge bg-danger me-1">RBD</span>
+                                                <span class="badge bg-dark">DBD</span>
+                                            </div>
+                                            <small class="text-muted">Rise-Base-Drop<br>Drop-Base-Drop</small>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-sm-6">
+                                    <div class="card bg-light mb-3">
+                                        <div class="card-body text-center">
+                                            <h6 class="card-title text-success">🟢 DEMAND ZONES</h6>
+                                            <div class="mb-2">
+                                                <span class="badge bg-success me-1">DBR</span>
+                                                <span class="badge bg-primary">RBR</span>
+                                            </div>
+                                            <small class="text-muted">Drop-Base-Rise<br>Rise-Base-Rise</small>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <h5 class="text-primary mb-3">📏 Supporti e Resistenze</h5>
+                            <p class="text-muted">
+                                Analisi classica di supporti e resistenze basata su:
+                            </p>
+                            <ul class="list-unstyled">
+                                <li><i class="bi bi-check-circle text-success me-2"></i>Pattern di minimi/massimi locali</li>
+                                <li><i class="bi bi-check-circle text-success me-2"></i>Conteggio tocchi e forza livelli</li>
+                                <li><i class="bi bi-check-circle text-success me-2"></i>Distanza dinamica tra livelli</li>
+                                <li><i class="bi bi-check-circle text-success me-2"></i>Analisi volume (se disponibile)</li>
+                            </ul>
+                            
+                            <div class="card bg-light mt-3">
+                                <div class="card-body">
+                                    <h6 class="card-title">⚙️ Parametri Analisi</h6>
+                                    <div class="small">
+                                        <div>📅 Periodo: Ultimi {{ summary.get('max_years_lookback', 5) }} anni</div>
+                                        <div>🎯 Forza minima: {{ summary.get('min_zone_strength', 1) }} tocchi</div>
+                                        <div>📊 Impulso minimo: {{ summary.get('min_impulse_pct', 1.2) }}%</div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Quick Actions -->
+                    <div class="row mt-4">
+                        <div class="col-12">
+                            <h5 class="text-primary mb-3">⚡ Azioni Rapide</h5>
+                            <div class="d-grid gap-2 d-md-flex">
+                                <button class="btn btn-primary" id="runFullAnalysisBtn">
+                                    <i class="bi bi-play-circle me-1"></i>Analisi Completa
+                                </button>
+                                <button class="btn btn-outline-success" id="runSROnlyBtn">
+                                    <i class="bi bi-diagram-3 me-1"></i>Solo S/R
+                                </button>
+                                <button class="btn btn-outline-info" id="runSkorupinkiOnlyBtn">
+                                    <i class="bi bi-layers me-1"></i>Solo Skorupinski
+                                </button>
+                                <button class="btn btn-outline-warning" id="exportAnalysisBtn">
+                                    <i class="bi bi-download me-1"></i>Esporta Risultati
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Interactive Chart Tab -->
+                <div class="tab-pane fade" id="chart" role="tabpanel">
+                    <div class="row mb-3">
+                        <div class="col-md-6">
+                            <label for="chartTickerSelect" class="form-label">Seleziona Ticker</label>
+                            <select class="form-select" id="chartTickerSelect">
+                                <option value="">-- Seleziona un ticker --</option>
+                                {% for ticker in tickers %}
+                                <option value="{{ ticker }}">{{ ticker }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                        <div class="col-md-3">
+                            <label for="chartDaysSelect" class="form-label">Giorni di Storico</label>
+                            <select class="form-select" id="chartDaysSelect">
+                                <option value="30">30 giorni</option>
+                                <option value="60">60 giorni</option>
+                                <option value="100" selected>100 giorni</option>
+                                <option value="200">200 giorni</option>
+                                <option value="365">1 anno</option>
+                            </select>
+                        </div>
+                        <div class="col-md-3">
+                            <label class="form-label">Opzioni Grafico</label>
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" id="showSRLevels" checked>
+                                <label class="form-check-label" for="showSRLevels">
+                                    Supporti/Resistenze
+                                </label>
+                            </div>
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" id="showZones" checked>
+                                <label class="form-check-label" for="showZones">
+                                    Zone Skorupinski
+                                </label>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Chart Container -->
+                    <div class="card">
+                        <div class="card-header d-flex justify-content-between align-items-center">
+                            <h6 class="mb-0" id="chartTitle">Seleziona un ticker per visualizzare il grafico</h6>
+                            <div class="btn-group btn-group-sm" role="group">
+                                <button type="button" class="btn btn-outline-secondary" id="loadChartBtn">
+                                    <i class="bi bi-arrow-clockwise"></i> Aggiorna
+                                </button>
+                                <button type="button" class="btn btn-outline-secondary" id="exportChartBtn">
+                                    <i class="bi bi-download"></i> Esporta
+                                </button>
+                            </div>
+                        </div>
+                        <div class="card-body">
+                            <!-- Chart Loading -->
+                            <div id="chartLoading" class="text-center py-5 d-none">
+                                <div class="spinner-border text-primary" role="status">
+                                    <span class="visually-hidden">Caricamento...</span>
+                                </div>
+                                <p class="mt-2 text-muted">Caricamento dati grafico...</p>
+                            </div>
+                            
+                            <!-- Chart Canvas -->
+                            <div id="chartContainer" style="height: 500px;">
+                                <canvas id="technicalChart"></canvas>
+                            </div>
+                            
+                            <!-- Chart Info -->
+                            <div id="chartInfo" class="mt-3 d-none">
+                                <div class="row">
+                                    <div class="col-md-4">
+                                        <h6 class="text-primary">📊 Dati Prezzo</h6>
+                                        <div class="small" id="priceInfo">
+                                            <!-- Price info will be populated by JavaScript -->
+                                        </div>
+                                    </div>
+                                    <div class="col-md-4">
+                                        <h6 class="text-success">📏 Supporti/Resistenze</h6>
+                                        <div class="small" id="srInfo">
+                                            <!-- S/R info will be populated by JavaScript -->
+                                        </div>
+                                    </div>
+                                    <div class="col-md-4">
+                                        <h6 class="text-info">🎯 Zone Skorupinski</h6>
+                                        <div class="small" id="zonesInfo">
+                                            <!-- Zones info will be populated by JavaScript -->
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Skorupinski Zones Tab -->
+                <div class="tab-pane fade" id="zones" role="tabpanel">
+                    <div class="d-flex justify-content-between align-items-center mb-3">
+                        <h5 class="mb-0">🎯 Zone Supply/Demand Skorupinski</h5>
+                        <button class="btn btn-sm btn-outline-primary" id="refreshZonesBtn">
+                            <i class="bi bi-arrow-clockwise me-1"></i>Aggiorna
+                        </button>
+                    </div>
+                    
+                    <!-- Zones Table -->
+                    <div class="table-responsive">
+                        <table class="table table-hover" id="zonesTable">
+                            <thead class="table-light">
+                                <tr>
+                                    <th>Ticker</th>
+                                    <th>Data</th>
+                                    <th>Pattern</th>
+                                    <th>Tipo</th>
+                                    <th>Zona (Bottom-Top)</th>
+                                    <th>Centro</th>
+                                    <th>Spessore</th>
+                                    <th>Forza</th>
+                                    <th>Distanza %</th>
+                                    <th>Azioni</th>
+                                </tr>
+                            </thead>
+                            <tbody id="zonesTableBody">
+                                <!-- Populated by JavaScript -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+                
+                <!-- Support/Resistance Tab -->
+                <div class="tab-pane fade" id="levels" role="tabpanel">
+                    <div class="d-flex justify-content-between align-items-center mb-3">
+                        <h5 class="mb-0">📏 Livelli Supporti e Resistenze</h5>
+                        <button class="btn btn-sm btn-outline-primary" id="refreshLevelsBtn">
+                            <i class="bi bi-arrow-clockwise me-1"></i>Aggiorna
+                        </button>
+                    </div>
+                    
+                    <!-- S/R Table -->
+                    <div class="table-responsive">
+                        <table class="table table-hover" id="levelsTable">
+                            <thead class="table-light">
+                                <tr>
+                                    <th>Ticker</th>
+                                    <th>Data</th>
+                                    <th>Tipo</th>
+                                    <th>Livello</th>
+                                    <th>Forza</th>
+                                    <th>Tocchi</th>
+                                    <th>Giorni Formazione</th>
+                                    <th>Range Medio</th>
+                                    <th>Azioni</th>
+                                </tr>
+                            </thead>
+                            <tbody id="levelsTableBody">
+                                <!-- Populated by JavaScript -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Activity Log -->
+    <div class="card shadow">
+        <div class="card-header py-3">
+            <h6 class="m-0 font-weight-bold text-primary">Log Attività Analisi</h6>
+        </div>
+        <div class="card-body">
+            <div id="analysisLog" class="activity-log" style="max-height: 300px; overflow-y: auto;">
+                <div class="text-center text-muted py-3">
+                    <i class="bi bi-clock-history"></i>
+                    <p class="mb-0">Le attività di analisi verranno mostrate qui...</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+{% endblock %}
+
+{% block scripts %}
+<!-- Chart.js per i grafici -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.9.1/chart.min.js"></script>
+
+<!-- Technical Analysis JavaScript -->
+<script src="{{ url_for('static', filename='js/technical-analysis.js') }}"></script>
+{% endblock %}
