@@ -389,110 +389,430 @@ class SkorupinkiZoneManager:
         })
         return enhanced_zone
     
+    
     def _find_skorupinski_zones(self, df: pd.DataFrame, ticker: str, custom_params: Dict[str, float] = None) -> List[Dict]:
-        """Trova zone Skorupinski con parametri personalizzabili."""
-        # Implementazione semplificata - sostituisci con la tua logica completa
+        """
+        🔧 FIX: Implementazione REALE per trovare zone Skorupinski.
+        Sostituisce il placeholder vuoto.
+        """
+        from moduls.TechnicalAnalysis.ImprovedSkorupinkiPatterns import ImprovedSkorupinkiPatterns
+        
+        print(f"    🎯 Analisi zone Skorupinski REALE per {ticker}")
         zones = []
         
-        print(f"    🎯 Analisi zone Skorupinski per {ticker}")
-        print(f"    📊 Dati: {len(df)} righe")
+        if len(df) < 6:
+            print(f"    ⚠️ {ticker}: dati insufficienti per l'analisi")
+            return zones
         
-        # Qui dovresti implementare la logica di ricerca delle zone
-        # Questo è solo un placeholder
+        # Inizializza l'analyzer migliorato
+        improved_analyzer = ImprovedSkorupinkiPatterns(
+            min_impulse_pct=self.min_impulse_pct,
+            max_base_bars=self.max_base_bars
+        )
         
+        current_price = df.iloc[-1]['Close']
+        current_idx = len(df) - 1
+        start_idx = max(0, current_idx - self.max_lookback_bars)
+        
+        print(f"    💰 Prezzo attuale: {current_price:.4f}")
+        print(f"    📊 Analisi da indice {start_idx} a {current_idx}")
+        
+        # Cerca tutti i pattern usando l'implementazione reale
+        pattern_methods = [
+            ('RBD', improved_analyzer._find_rbd_pattern),  # Supply
+            ('DBD', improved_analyzer._find_dbd_pattern),  # Supply  
+            ('DBR', improved_analyzer._find_dbr_pattern),  # Demand
+            ('RBR', improved_analyzer._find_rbr_pattern)   # Demand
+        ]
+        
+        # Scansiona tutto il range di dati
+        for i in range(start_idx + 6, len(df)):
+            for pattern_name, method in pattern_methods:
+                try:
+                    pattern = method(df, i)
+                    if pattern:
+                        print(f"    🔍 PATTERN {pattern['pattern']} ({pattern['type']}) trovato @ index {i}")
+                        
+                        # Converti nel formato compatibile
+                        zone = {
+                            'pattern': pattern['pattern'],
+                            'type': pattern['type'],
+                            'zone_bottom': pattern['zone_low'],
+                            'zone_top': pattern['zone_high'],
+                            'zone_center': pattern['zone_center'],
+                            'date': pattern['formation_date'],
+                            'index': pattern['base_start_idx'],
+                            'leg_in_idx': pattern.get('leg_in_idx'),
+                            'leg_out_idx': pattern.get('leg_out_idx'),
+                            'base_candle_count': pattern.get('base_candle_count', 1),
+                            'formation_candles': []
+                        }
+                        
+                        # Applica validazioni esistenti
+                        if not self._is_zone_valid(df, zone, zone['index'], current_price):
+                            print(f"    ❌ Zona {zone['pattern']} invalidata (zona non valida)")
+                            continue
+                        
+                        pullback_info = self._has_pullback(df, zone, zone['index'])
+                        if not pullback_info['has_pullback']:
+                            print(f"    ❌ Zona {zone['pattern']} invalidata (pullback insufficiente)")
+                            continue
+                        
+                        test_count = self._count_zone_tests(df, zone, zone['index'])
+                        if test_count < self.min_zone_strength:
+                            print(f"    ❌ Zona {zone['pattern']} invalidata (forza insufficiente)")
+                            continue
+                        
+                        # Calcola metriche finali
+                        days_ago = current_idx - zone['index']
+                        distance_from_current = (
+                            ((current_price - zone['zone_center']) / current_price * 100) 
+                            if zone['type'] == 'Demand' 
+                            else ((zone['zone_center'] - current_price) / current_price * 100)
+                        )
+                        
+                        # Crea zona finale con tutte le info
+                        final_zone = {
+                            'ticker': ticker,
+                            'date': zone['date'],
+                            'pattern': zone['pattern'],
+                            'type': zone['type'],
+                            'zone_bottom': round(zone['zone_bottom'], 4),
+                            'zone_top': round(zone['zone_top'], 4),
+                            'zone_center': round(zone['zone_center'], 4),
+                            'index': zone['index'],
+                            'distance_from_current': round(distance_from_current, 2),
+                            'pullback_strength': round(pullback_info['pullback_strength'], 2),
+                            'pullback_direction': pullback_info['pullback_direction'],
+                            'test_count': test_count,
+                            'days_ago': days_ago,
+                            'strength_score': self._calculate_zone_strength(zone, pullback_info, test_count, days_ago),
+                            'virgin_zone': test_count == 1,
+                            'zone_thickness': round(zone['zone_top'] - zone['zone_bottom'], 4),
+                            'zone_thickness_pct': round((zone['zone_top'] - zone['zone_bottom']) / zone['zone_center'] * 100, 2),
+                            'leg_in_idx': zone.get('leg_in_idx'),
+                            'leg_out_idx': zone.get('leg_out_idx'),
+                            'base_candle_count': zone.get('base_candle_count', 1),
+                            'formation_type': 'improved_skorupinski'
+                        }
+                        
+                        print(f"    ✅ {zone['pattern']} ({zone['type']}): "
+                            f"{zone['date']} | "
+                            f"{zone['zone_bottom']:.4f}-{zone['zone_top']:.4f} | "
+                            f"Base: {zone.get('base_candle_count', 1)} candele | "
+                            f"Score: {final_zone['strength_score']:.2f}")
+                        
+                        zones.append(final_zone)
+                        
+                except Exception as e:
+                    print(f"    ⚠️ Errore nella ricerca pattern {pattern_name}: {str(e)}")
+        
+        print(f"    📊 Trovate {len(zones)} zone Skorupinski per {ticker}")
         return zones
-    
-    def process_ticker(self, ticker: str) -> bool:
-        """🔧 FIX: Elabora un ticker con parametri personalizzati."""
+
+
+    # Aggiungi anche questi metodi mancanti se non esistono già:
+
+    def _is_zone_valid(self, df: pd.DataFrame, zone: Dict, zone_index: int, current_price: float) -> bool:
+        """Verifica se una zona è valida."""
         try:
-            print(f"  🎯 Elaborazione {ticker}...")
+            # Verifica che la zona non sia troppo vicina al prezzo attuale
+            zone_center = zone['zone_center']
+            distance_pct = abs(current_price - zone_center) / current_price * 100
             
-            # Ottieni parametri specifici per questo ticker
-            ticker_params = self._get_ticker_parameters(ticker)
-            
-            # Carica dati prezzi usando il metodo corretto
-            df = self._load_price_data(ticker)
-            
-            # Filtra per periodo massimo usando il metodo corretto
-            df_filtered = self._filter_data_by_timeframe(df, ticker)
-            
-            if df_filtered.empty:
-                print(f"    ⚠️ {ticker}: nessun dato nel periodo richiesto")
-                return False
-            
-            # Controlla se serve ricalcolare
-            if not self._needs_recalculation(ticker, df_filtered):
-                return True
-            
-            # Carica zone esistenti PRIMA di calcolare quelle nuove
-            existing_zones = self._load_existing_zones(ticker)
-            
-            # Trova nuove zone con parametri personalizzati
-            new_zones_data = self._find_skorupinski_zones(df_filtered, ticker, ticker_params)
-            
-            if new_zones_data:
-                # Filtra nuove zone per evitare overlap con esistenti
-                if not existing_zones.empty:
-                    print(f"    🔄 Filtro {len(new_zones_data)} nuove zone contro {len(existing_zones)} esistenti...")
-                    new_zones_data = self._filter_new_zones_against_existing(new_zones_data, existing_zones)
-                
-                # Prepara nuove zone per il salvataggio
-                enhanced_new_zones = [self._prepare_zone_for_save(zone, 'auto') for zone in new_zones_data]
-                
-                # Combina zone esistenti e nuove
-                if not existing_zones.empty:
-                    existing_zones_list = existing_zones.to_dict('records')
-                    all_zones = existing_zones_list + enhanced_new_zones
-                    print(f"    🔗 Combinate {len(existing_zones)} zone esistenti + {len(enhanced_new_zones)} nuove = {len(all_zones)} totali")
-                else:
-                    all_zones = enhanced_new_zones
-                    print(f"    ✨ Prime {len(enhanced_new_zones)} zone per {ticker}")
-                
-                # Crea DataFrame e salva
-                df_zones = pd.DataFrame(all_zones)
-                
-                # Assicura che tutte le colonne siano presenti
-                df_zones = self._ensure_all_columns_in_dataframe(df_zones)
-                
-                # Ordina per forza decrescente
-                df_zones = df_zones.sort_values('strength_score', ascending=False)
-                
-                output_file = self.output_folder / f"{ticker}_SkorupinkiZones.csv"
-                df_zones.to_csv(output_file, index=False, date_format='%Y-%m-%d')
-                
-                # Aggiorna timestamp nel file JSON
-                latest_date = df_filtered['Date'].max()
-                if hasattr(latest_date, 'to_pydatetime'):
-                    latest_date = latest_date.to_pydatetime()
-                self._update_ticker_timestamp(ticker, latest_date)
-                
-                print(f"    ✅ {ticker}: {len(all_zones)} zone totali salvate")
-                return True
-            else:
-                print(f"    ⚠️ {ticker}: nessuna nuova zona trovata")
-                # Anche se non ci sono nuove zone, aggiorna il timestamp
-                latest_date = df_filtered['Date'].max()
-                if hasattr(latest_date, 'to_pydatetime'):
-                    latest_date = latest_date.to_pydatetime()
-                self._update_ticker_timestamp(ticker, latest_date)
-                return True
-                
-        except Exception as e:
-            print(f"    ❌ Errore per {ticker}: {str(e)}")
+            # Deve essere almeno 0.5% distante dal prezzo attuale
+            return distance_pct >= 0.5
+        except:
             return False
-    
+
+    def _has_pullback(self, df: pd.DataFrame, zone: Dict, zone_index: int) -> Dict:
+        """Verifica se c'è stato un pullback dalla zona."""
+        try:
+            zone_center = zone['zone_center']
+            zone_type = zone['type']
+            
+            # Cerca pullback nelle candele successive
+            pullback_strength = 0.0
+            pullback_direction = 'none'
+            
+            for i in range(zone_index + 1, min(zone_index + 20, len(df))):
+                current_close = df.iloc[i]['Close']
+                
+                if zone_type == 'Demand':
+                    # Per zone demand, cerco movimento verso l'alto
+                    move_pct = (current_close - zone_center) / zone_center * 100
+                    if move_pct > pullback_strength:
+                        pullback_strength = move_pct
+                        pullback_direction = 'up'
+                else:  # Supply
+                    # Per zone supply, cerco movimento verso il basso  
+                    move_pct = (zone_center - current_close) / zone_center * 100
+                    if move_pct > pullback_strength:
+                        pullback_strength = move_pct
+                        pullback_direction = 'down'
+            
+            has_pullback = pullback_strength >= self.min_pullback_pct
+            
+            return {
+                'has_pullback': has_pullback,
+                'pullback_strength': pullback_strength,
+                'pullback_direction': pullback_direction
+            }
+        except:
+            return {'has_pullback': False, 'pullback_strength': 0.0, 'pullback_direction': 'none'}
+
+    def _count_zone_tests(self, df: pd.DataFrame, zone: Dict, zone_index: int) -> int:
+        """Conta quante volte il prezzo ha testato la zona."""
+        try:
+            zone_bottom = zone['zone_bottom']
+            zone_top = zone['zone_top']
+            tests = 0
+            
+            # Conta i test nelle candele successive alla formazione
+            for i in range(zone_index + 1, len(df)):
+                candle_low = df.iloc[i]['Low']
+                candle_high = df.iloc[i]['High']
+                
+                # Verifica se il prezzo ha toccato la zona
+                if (candle_low <= zone_top and candle_high >= zone_bottom):
+                    tests += 1
+            
+            return max(1, tests)  # Almeno 1 test (la formazione stessa)
+        except:
+            return 1
+
+    def _calculate_zone_strength(self, zone: Dict, pullback_info: Dict, test_count: int, days_ago: int) -> float:
+        """Calcola il punteggio di forza della zona."""
+        try:
+            # Punteggio base dal pullback
+            pullback_score = min(pullback_info['pullback_strength'] / 5.0, 2.0)
+            
+            # Punteggio dai test (più test = più forte)
+            test_score = min(test_count * 0.5, 2.0)
+            
+            # Punteggio temporale (zone più recenti sono più rilevanti)
+            recency_score = max(0.1, 2.0 - (days_ago / 100.0))
+            
+            # Punteggio spessore zona (zone più sottili sono migliori)
+            thickness_pct = zone.get('zone_thickness_pct', 1.0)
+            thickness_score = max(0.1, 2.0 - thickness_pct)
+            
+            total_score = pullback_score + test_score + recency_score + thickness_score
+            return round(total_score, 2)
+        except:
+            return 1.0
+        """
+        🔧 FIX: Implementazione REALE per trovare zone Skorupinski.
+        Sostituisce il placeholder vuoto.
+        """
+        from moduls.TechnicalAnalysis.ImprovedSkorupinkiPatterns import ImprovedSkorupinkiPatterns
+        
+        print(f"    🎯 Analisi zone Skorupinski REALE per {ticker}")
+        zones = []
+        
+        if len(df) < 6:
+            print(f"    ⚠️ {ticker}: dati insufficienti per l'analisi")
+            return zones
+        
+        # Inizializza l'analyzer migliorato
+        improved_analyzer = ImprovedSkorupinkiPatterns(
+            min_impulse_pct=self.min_impulse_pct,
+            max_base_bars=self.max_base_bars
+        )
+        
+        current_price = df.iloc[-1]['Close']
+        current_idx = len(df) - 1
+        start_idx = max(0, current_idx - self.max_lookback_bars)
+        
+        print(f"    💰 Prezzo attuale: {current_price:.4f}")
+        print(f"    📊 Analisi da indice {start_idx} a {current_idx}")
+        
+        # Cerca tutti i pattern usando l'implementazione reale
+        pattern_methods = [
+            ('RBD', improved_analyzer._find_rbd_pattern),  # Supply
+            ('DBD', improved_analyzer._find_dbd_pattern),  # Supply  
+            ('DBR', improved_analyzer._find_dbr_pattern),  # Demand
+            ('RBR', improved_analyzer._find_rbr_pattern)   # Demand
+        ]
+        
+        # Scansiona tutto il range di dati
+        for i in range(start_idx + 6, len(df)):
+            for pattern_name, method in pattern_methods:
+                try:
+                    pattern = method(df, i)
+                    if pattern:
+                        print(f"    🔍 PATTERN {pattern['pattern']} ({pattern['type']}) trovato @ index {i}")
+                        
+                        # Converti nel formato compatibile
+                        zone = {
+                            'pattern': pattern['pattern'],
+                            'type': pattern['type'],
+                            'zone_bottom': pattern['zone_low'],
+                            'zone_top': pattern['zone_high'],
+                            'zone_center': pattern['zone_center'],
+                            'date': pattern['formation_date'],
+                            'index': pattern['base_start_idx'],
+                            'leg_in_idx': pattern.get('leg_in_idx'),
+                            'leg_out_idx': pattern.get('leg_out_idx'),
+                            'base_candle_count': pattern.get('base_candle_count', 1),
+                            'formation_candles': []
+                        }
+                        
+                        # Applica validazioni esistenti
+                        if not self._is_zone_valid(df, zone, zone['index'], current_price):
+                            print(f"    ❌ Zona {zone['pattern']} invalidata (zona non valida)")
+                            continue
+                        
+                        pullback_info = self._has_pullback(df, zone, zone['index'])
+                        if not pullback_info['has_pullback']:
+                            print(f"    ❌ Zona {zone['pattern']} invalidata (pullback insufficiente)")
+                            continue
+                        
+                        test_count = self._count_zone_tests(df, zone, zone['index'])
+                        if test_count < self.min_zone_strength:
+                            print(f"    ❌ Zona {zone['pattern']} invalidata (forza insufficiente)")
+                            continue
+                        
+                        # Calcola metriche finali
+                        days_ago = current_idx - zone['index']
+                        distance_from_current = (
+                            ((current_price - zone['zone_center']) / current_price * 100) 
+                            if zone['type'] == 'Demand' 
+                            else ((zone['zone_center'] - current_price) / current_price * 100)
+                        )
+                        
+                        # Crea zona finale con tutte le info
+                        final_zone = {
+                            'ticker': ticker,
+                            'date': zone['date'],
+                            'pattern': zone['pattern'],
+                            'type': zone['type'],
+                            'zone_bottom': round(zone['zone_bottom'], 4),
+                            'zone_top': round(zone['zone_top'], 4),
+                            'zone_center': round(zone['zone_center'], 4),
+                            'index': zone['index'],
+                            'distance_from_current': round(distance_from_current, 2),
+                            'pullback_strength': round(pullback_info['pullback_strength'], 2),
+                            'pullback_direction': pullback_info['pullback_direction'],
+                            'test_count': test_count,
+                            'days_ago': days_ago,
+                            'strength_score': self._calculate_zone_strength(zone, pullback_info, test_count, days_ago),
+                            'virgin_zone': test_count == 1,
+                            'zone_thickness': round(zone['zone_top'] - zone['zone_bottom'], 4),
+                            'zone_thickness_pct': round((zone['zone_top'] - zone['zone_bottom']) / zone['zone_center'] * 100, 2),
+                            'leg_in_idx': zone.get('leg_in_idx'),
+                            'leg_out_idx': zone.get('leg_out_idx'),
+                            'base_candle_count': zone.get('base_candle_count', 1),
+                            'formation_type': 'improved_skorupinski'
+                        }
+                        
+                        print(f"    ✅ {zone['pattern']} ({zone['type']}): "
+                            f"{zone['date']} | "
+                            f"{zone['zone_bottom']:.4f}-{zone['zone_top']:.4f} | "
+                            f"Base: {zone.get('base_candle_count', 1)} candele | "
+                            f"Score: {final_zone['strength_score']:.2f}")
+                        
+                        zones.append(final_zone)
+                        
+                except Exception as e:
+                    print(f"    ⚠️ Errore nella ricerca pattern {pattern_name}: {str(e)}")
+        
+        print(f"    📊 Trovate {len(zones)} zone Skorupinski per {ticker}")
+        return zones
+
+
+        
+    def process_ticker(self, ticker: str) -> bool:
+            """🔧 FIX: Elabora un ticker con parametri personalizzati."""
+            try:
+                print(f"  🎯 Elaborazione {ticker}...")
+                
+                # Ottieni parametri specifici per questo ticker
+                ticker_params = self._get_ticker_parameters(ticker)
+                
+                # Carica dati prezzi usando il metodo corretto
+                df = self._load_price_data(ticker)
+                
+                # Filtra per periodo massimo usando il metodo corretto
+                df_filtered = self._filter_data_by_timeframe(df, ticker)
+                
+                if df_filtered.empty:
+                    print(f"    ⚠️ {ticker}: nessun dato nel periodo richiesto")
+                    return False
+                
+                # Controlla se serve ricalcolare
+                if not self._needs_recalculation(ticker, df_filtered):
+                    return True
+                
+                # Carica zone esistenti PRIMA di calcolare quelle nuove
+                existing_zones = self._load_existing_zones(ticker)
+                
+                # Trova nuove zone con parametri personalizzati
+                new_zones_data = self._find_skorupinski_zones(df_filtered, ticker, ticker_params)
+                
+                if new_zones_data:
+                    # Filtra nuove zone per evitare overlap con esistenti
+                    if not existing_zones.empty:
+                        print(f"    🔄 Filtro {len(new_zones_data)} nuove zone contro {len(existing_zones)} esistenti...")
+                        new_zones_data = self._filter_new_zones_against_existing(new_zones_data, existing_zones)
+                    
+                    # Prepara nuove zone per il salvataggio
+                    enhanced_new_zones = [self._prepare_zone_for_save(zone, 'auto') for zone in new_zones_data]
+                    
+                    # Combina zone esistenti e nuove
+                    if not existing_zones.empty:
+                        existing_zones_list = existing_zones.to_dict('records')
+                        all_zones = existing_zones_list + enhanced_new_zones
+                        print(f"    🔗 Combinate {len(existing_zones)} zone esistenti + {len(enhanced_new_zones)} nuove = {len(all_zones)} totali")
+                    else:
+                        all_zones = enhanced_new_zones
+                        print(f"    ✨ Prime {len(enhanced_new_zones)} zone per {ticker}")
+                    
+                    # Crea DataFrame e salva
+                    df_zones = pd.DataFrame(all_zones)
+                    
+                    # Assicura che tutte le colonne siano presenti
+                    df_zones = self._ensure_all_columns_in_dataframe(df_zones)
+                    
+                    # Ordina per forza decrescente
+                    df_zones = df_zones.sort_values('strength_score', ascending=False)
+                    
+                    output_file = self.output_folder / f"{ticker}_SkorupinkiZones.csv"
+                    df_zones.to_csv(output_file, index=False, date_format='%Y-%m-%d')
+                    
+                    # Aggiorna timestamp nel file JSON
+                    latest_date = df_filtered['Date'].max()
+                    if hasattr(latest_date, 'to_pydatetime'):
+                        latest_date = latest_date.to_pydatetime()
+                    self._update_ticker_timestamp(ticker, latest_date)
+                    
+                    print(f"    ✅ {ticker}: {len(all_zones)} zone totali salvate")
+                    return True
+                else:
+                    print(f"    ⚠️ {ticker}: nessuna nuova zona trovata")
+                    # Anche se non ci sono nuove zone, aggiorna il timestamp
+                    latest_date = df_filtered['Date'].max()
+                    if hasattr(latest_date, 'to_pydatetime'):
+                        latest_date = latest_date.to_pydatetime()
+                    self._update_ticker_timestamp(ticker, latest_date)
+                    return True
+                    
+            except Exception as e:
+                print(f"    ❌ Errore per {ticker}: {str(e)}")
+                return False
+        
     def run(self) -> Dict[str, bool]:
-        """Esegue il calcolo con parametri personalizzati per ticker."""
-        print("🔧▶️ START CALCOLO ZONE SKORUPINSKI - VERSIONE CORRETTA")
-        
-        results = {}
-        
-        for ticker in self.tickers.keys():
-            results[ticker] = self.process_ticker(ticker)
-        
-        successful = sum(results.values())
-        total = len(results)
-        
-        print(f"🔧✅ END CALCOLO ZONE SKORUPINSKI: {successful}/{total} ticker elaborati")
-        
-        return results
+            """Esegue il calcolo con parametri personalizzati per ticker."""
+            print("🔧▶️ START CALCOLO ZONE SKORUPINSKI - VERSIONE CORRETTA")
+            
+            results = {}
+            
+            for ticker in self.tickers.keys():
+                results[ticker] = self.process_ticker(ticker)
+            
+            successful = sum(results.values())
+            total = len(results)
+            
+            print(f"🔧✅ END CALCOLO ZONE SKORUPINSKI: {successful}/{total} ticker elaborati")
+            
+            return results

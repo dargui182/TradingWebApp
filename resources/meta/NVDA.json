@@ -2,24 +2,17 @@
   "ticker": "NVDA",
   "info": {
     "symbol": "NVDA",
-    "name": "Nvidia",
-    "sector": "Information Technology",
+    "name": "NVIDIA Corporation",
+    "sector": "Technology",
     "industry": "Semiconductors",
     "currency": "USD",
-    "exchange": "N/A",
-    "country": "N/A",
-    "source": "CSV"
+    "exchange": "NMS",
+    "country": "United States"
   },
-  "last_close_date": null,
-  "first_date": null,
-  "total_records": 0,
-  "last_updated": "2025-06-14T17:18:49.121113",
-  "csv_import": {
-    "imported_at": "2025-06-14T17:18:49.121113",
-    "company": "Nvidia",
-    "sector": "Information Technology",
-    "industry": "Semiconductors"
-  },
+  "last_close_date": "2025-06-13",
+  "total_records": 6640,
+  "first_date": "1999-01-22",
+  "last_updated": "2025-06-15T00:41:10.565084",
   "files": {
     "adjusted": "resources\\data\\daily\\NVDA.csv",
     "not_adjusted": "resources\\data\\daily_notAdjusted\\NVDA_notAdjusted.csv"
