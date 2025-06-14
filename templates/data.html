@@ -285,7 +285,7 @@
                                     </td>
                                     <td>
                                         {% if ticker.needs_update %}
-                                            <span class="badge bg-warning status-badge">Da aggiornare</span>
+                                            <span class="badge bg-warning status-badge">⏰ Da aggiornare</span>
                                         {% elif ticker.files_exist.adjusted and ticker.files_exist.not_adjusted %}
                                             <span class="badge bg-success status-badge">✅ 2 Versioni</span>
                                         {% elif ticker.files_exist.adjusted or ticker.files_exist.not_adjusted %}
