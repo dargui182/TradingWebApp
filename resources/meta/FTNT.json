@@ -2,17 +2,24 @@
   "ticker": "FTNT",
   "info": {
     "symbol": "FTNT",
-    "name": "Fortinet, Inc.",
-    "sector": "Technology",
-    "industry": "Software - Infrastructure",
+    "name": "Fortinet",
+    "sector": "Information Technology",
+    "industry": "Systems Software",
     "currency": "USD",
-    "exchange": "NMS",
-    "country": "United States"
+    "exchange": "N/A",
+    "country": "N/A",
+    "source": "CSV"
   },
-  "last_close_date": "2025-06-13",
-  "total_records": 3916,
-  "first_date": "2009-11-18",
-  "last_updated": "2025-06-14T09:34:29.377914",
+  "last_close_date": null,
+  "first_date": null,
+  "total_records": 0,
+  "last_updated": "2025-06-14T17:18:49.093676",
+  "csv_import": {
+    "imported_at": "2025-06-14T17:18:49.093676",
+    "company": "Fortinet",
+    "sector": "Information Technology",
+    "industry": "Systems Software"
+  },
   "files": {
     "adjusted": "resources\\data\\daily\\FTNT.csv",
     "not_adjusted": "resources\\data\\daily_notAdjusted\\FTNT_notAdjusted.csv"

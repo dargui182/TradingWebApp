@@ -3,16 +3,23 @@
   "info": {
     "symbol": "AAPL",
     "name": "Apple Inc.",
-    "sector": "Technology",
-    "industry": "Consumer Electronics",
+    "sector": "Information Technology",
+    "industry": "Technology Hardware, Storage & Peripherals",
     "currency": "USD",
-    "exchange": "NMS",
-    "country": "United States"
+    "exchange": "N/A",
+    "country": "N/A",
+    "source": "CSV"
   },
-  "last_close_date": "2025-06-13",
-  "total_records": 11217,
-  "first_date": "1980-12-12",
-  "last_updated": "2025-06-14T09:08:05.343697",
+  "last_close_date": null,
+  "first_date": null,
+  "total_records": 0,
+  "last_updated": "2025-06-14T17:18:49.007240",
+  "csv_import": {
+    "imported_at": "2025-06-14T17:18:49.007240",
+    "company": "Apple Inc.",
+    "sector": "Information Technology",
+    "industry": "Technology Hardware, Storage & Peripherals"
+  },
   "files": {
     "adjusted": "resources\\data\\daily\\AAPL.csv",
     "not_adjusted": "resources\\data\\daily_notAdjusted\\AAPL_notAdjusted.csv"

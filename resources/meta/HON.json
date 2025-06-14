@@ -2,17 +2,24 @@
   "ticker": "HON",
   "info": {
     "symbol": "HON",
-    "name": "Honeywell International Inc.",
+    "name": "Honeywell",
     "sector": "Industrials",
-    "industry": "Conglomerates",
+    "industry": "Industrial Conglomerates",
     "currency": "USD",
-    "exchange": "NMS",
-    "country": "United States"
+    "exchange": "N/A",
+    "country": "N/A",
+    "source": "CSV"
   },
-  "last_close_date": "2025-06-13",
-  "total_records": 15970,
-  "first_date": "1962-01-02",
-  "last_updated": "2025-06-14T09:34:37.639561",
+  "last_close_date": null,
+  "first_date": null,
+  "total_records": 0,
+  "last_updated": "2025-06-14T17:18:49.099327",
+  "csv_import": {
+    "imported_at": "2025-06-14T17:18:49.099327",
+    "company": "Honeywell",
+    "sector": "Industrials",
+    "industry": "Industrial Conglomerates"
+  },
   "files": {
     "adjusted": "resources\\data\\daily\\HON.csv",
     "not_adjusted": "resources\\data\\daily_notAdjusted\\HON_notAdjusted.csv"

@@ -2,17 +2,24 @@
   "ticker": "AMD",
   "info": {
     "symbol": "AMD",
-    "name": "Advanced Micro Devices, Inc.",
-    "sector": "Technology",
+    "name": "Advanced Micro Devices",
+    "sector": "Information Technology",
     "industry": "Semiconductors",
     "currency": "USD",
-    "exchange": "NMS",
-    "country": "United States"
+    "exchange": "N/A",
+    "country": "N/A",
+    "source": "CSV"
   },
-  "last_close_date": "2025-06-13",
-  "total_records": 11406,
-  "first_date": "1980-03-17",
-  "last_updated": "2025-06-14T09:33:51.531688",
+  "last_close_date": null,
+  "first_date": null,
+  "total_records": 0,
+  "last_updated": "2025-06-14T17:18:49.045615",
+  "csv_import": {
+    "imported_at": "2025-06-14T17:18:49.045615",
+    "company": "Advanced Micro Devices",
+    "sector": "Information Technology",
+    "industry": "Semiconductors"
+  },
   "files": {
     "adjusted": "resources\\data\\daily\\AMD.csv",
     "not_adjusted": "resources\\data\\daily_notAdjusted\\AMD_notAdjusted.csv"

@@ -36,14 +36,40 @@ recent_activities = [
 
 # === ROUTES PRINCIPALI ===
 
+# ✅ AGGIORNARE la route dashboard:
 @app.route('/')
 def dashboard():
-    """Dashboard principale"""
-    return render_template('dashboard.html', 
-                         title='Dashboard',
-                         stats=sample_data,
-                         activities=recent_activities,
-                         current_time=datetime.now())
+    """Dashboard principale con dati reali"""
+    try:
+        real_stats = get_real_dashboard_stats()
+        real_activities = get_recent_activities()
+        
+        return render_template('dashboard.html', 
+                             title='Dashboard',
+                             stats=real_stats,
+                             activities=real_activities,
+                             current_time=datetime.now())
+    except Exception as e:
+        logger.error(f"Errore dashboard: {e}")
+        # Fallback per errori
+        fallback_stats = {
+            'total_tickers': 0,
+            'updated_tickers': 0,
+            'total_records': 0,
+            'total_size_mb': 0
+        }
+        fallback_activities = [{
+            'action': 'Sistema avviato',
+            'time': 'Ora',
+            'type': 'info'
+        }]
+        
+        return render_template('dashboard.html', 
+                             title='Dashboard',
+                             stats=fallback_stats,
+                             activities=fallback_activities,
+                             current_time=datetime.now())
+
 
 @app.route('/analytics')
 def analytics():
@@ -74,15 +100,24 @@ def data_management():
 
 # === API ENDPOINTS PER GESTIONE DATI ===
 
+# ✅ AGGIORNARE gli endpoint API:
 @app.route('/api/stats')
 def api_stats():
-    """API endpoint per statistiche dashboard"""
-    return jsonify(sample_data)
+    """API endpoint per statistiche dashboard reali"""
+    try:
+        return jsonify(get_real_dashboard_stats())
+    except Exception as e:
+        logger.error(f"Errore API stats: {e}")
+        return jsonify({'error': 'Errore nel recuperare statistiche'}), 500
 
 @app.route('/api/activities')
 def api_activities():
-    """API endpoint per attività recenti"""
-    return jsonify(recent_activities)
+    """API endpoint per attività recenti reali"""
+    try:
+        return jsonify(get_recent_activities())
+    except Exception as e:
+        logger.error(f"Errore API activities: {e}")
+        return jsonify([]), 500
 
 @app.route('/api/tickers', methods=['GET'])
 def api_get_tickers():
@@ -364,6 +399,150 @@ def inject_globals():
         'current_year': datetime.now().year
     }
 
+def get_real_dashboard_stats():
+    """Genera statistiche reali basate sui ticker configurati"""
+    config = ticker_manager.load_ticker_config()
+    ticker_status = ticker_manager.get_ticker_status()
+    
+    total_tickers = len(config.get('tickers', []))
+    updated_tickers = sum(1 for ticker in ticker_status if not ticker.get('needs_update', True))
+    total_records = sum(ticker.get('total_records', 0) for ticker in ticker_status)
+    
+    # Calcola dimensione totale file
+    total_size_mb = 0
+    for ticker in ticker_status:
+        file_sizes = ticker.get('file_sizes', {})
+        for size_str in file_sizes.values():
+            if 'KB' in size_str:
+                total_size_mb += float(size_str.replace(' KB', '').replace(',', '')) / 1024
+            elif 'MB' in size_str:
+                total_size_mb += float(size_str.replace(' MB', '').replace(',', ''))
+    
+    return {
+        'total_tickers': total_tickers,
+        'updated_tickers': updated_tickers,
+        'total_records': total_records,
+        'total_size_mb': round(total_size_mb, 2)
+    }
+
+def get_recent_activities():
+    """Genera attività recenti basate sui metadati reali"""
+    activities = []
+    
+    try:
+        # Leggi i file meta più recenti
+        meta_files = list(ticker_manager.meta_dir.glob('*.json'))
+        meta_files.sort(key=lambda x: x.stat().st_mtime, reverse=True)
+        
+        for meta_file in meta_files[:10]:  # Ultimi 10
+            meta_data = ticker_manager.load_ticker_meta(meta_file.stem)
+            if meta_data:
+                last_updated = meta_data.get('last_updated', '')
+                if last_updated:
+                    from datetime import datetime
+                    try:
+                        update_time = datetime.fromisoformat(last_updated.replace('Z', '+00:00'))
+                        time_diff = datetime.now() - update_time.replace(tzinfo=None)
+                        
+                        if time_diff.days == 0:
+                            if time_diff.seconds < 3600:
+                                time_str = f"{time_diff.seconds // 60} minuti fa"
+                            else:
+                                time_str = f"{time_diff.seconds // 3600} ore fa"
+                        else:
+                            time_str = f"{time_diff.days} giorni fa"
+                        
+                        activities.append({
+                            'action': f'Ticker {meta_data["ticker"]} aggiornato - {meta_data.get("total_records", 0)} record',
+                            'time': time_str,
+                            'type': 'success'
+                        })
+                    except:
+                        continue
+        
+        if not activities:
+            activities = [{
+                'action': 'Sistema inizializzato correttamente',
+                'time': 'Ora',
+                'type': 'info'
+            }]
+                        
+    except Exception as e:
+        logger.error(f"Errore nel recuperare attività recenti: {e}")
+        activities = [{
+            'action': 'Sistema in funzione',
+            'time': 'Ora',
+            'type': 'info'
+        }]
+    
+    return activities
+
+# ✅ AGGIUNGERE questo endpoint a app.py:
+
+@app.route('/api/ticker-chart-data')
+def api_ticker_chart_data():
+    """API endpoint per dati del grafico ticker"""
+    try:
+        ticker_status = ticker_manager.get_ticker_status()
+        
+        # Organizza i dati per mese basandosi su last_updated
+        from collections import defaultdict
+        import calendar
+        
+        monthly_data = defaultdict(int)
+        
+        for ticker in ticker_status:
+            last_updated = ticker.get('last_updated')
+            if last_updated:
+                try:
+                    update_date = datetime.fromisoformat(last_updated.replace('Z', '+00:00'))
+                    month_key = update_date.strftime('%Y-%m')
+                    monthly_data[month_key] += 1
+                except:
+                    continue
+        
+        # Prepara dati per gli ultimi 12 mesi
+        current_date = datetime.now()
+        chart_data = {
+            'labels': [],
+            'datasets': [{
+                'label': 'Ticker Aggiornati',
+                'data': [],
+                'borderColor': 'rgb(54, 162, 235)',
+                'backgroundColor': 'rgba(54, 162, 235, 0.1)',
+                'tension': 0.4,
+                'fill': True
+            }]
+        }
+        
+        for i in range(11, -1, -1):  # Ultimi 12 mesi
+            target_date = current_date.replace(day=1) - timedelta(days=i*30)
+            month_key = target_date.strftime('%Y-%m')
+            month_name = calendar.month_name[target_date.month][:3]  # Gen, Feb, etc.
+            
+            chart_data['labels'].append(month_name)
+            chart_data['datasets'][0]['data'].append(monthly_data.get(month_key, 0))
+        
+        return jsonify(chart_data)
+        
+    except Exception as e:
+        logger.error(f"Errore API ticker chart: {e}")
+        
+        # Fallback con dati base
+        months = ['Gen', 'Feb', 'Mar', 'Apr', 'Mag', 'Giu', 'Lug', 'Ago', 'Set', 'Ott', 'Nov', 'Dic']
+        current_month = datetime.now().month - 1
+        
+        return jsonify({
+            'labels': months,
+            'datasets': [{
+                'label': 'Ticker Configurati',
+                'data': [0] * current_month + [len(ticker_manager.load_ticker_config().get('tickers', []))] + [0] * (11 - current_month),
+                'borderColor': 'rgb(54, 162, 235)',
+                'backgroundColor': 'rgba(54, 162, 235, 0.1)',
+                'tension': 0.4,
+                'fill': True
+            }]
+        })
 # === MAIN ===
 
 if __name__ == '__main__':

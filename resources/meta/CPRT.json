@@ -2,17 +2,24 @@
   "ticker": "CPRT",
   "info": {
     "symbol": "CPRT",
-    "name": "Copart, Inc.",
+    "name": "Copart",
     "sector": "Industrials",
-    "industry": "Specialty Business Services",
+    "industry": "Diversified Support Services",
     "currency": "USD",
-    "exchange": "NMS",
-    "country": "United States"
+    "exchange": "N/A",
+    "country": "N/A",
+    "source": "CSV"
   },
-  "last_close_date": "2025-06-13",
-  "total_records": 7864,
-  "first_date": "1994-03-17",
-  "last_updated": "2025-06-14T09:34:09.012530",
+  "last_close_date": null,
+  "first_date": null,
+  "total_records": 0,
+  "last_updated": "2025-06-14T17:18:49.073319",
+  "csv_import": {
+    "imported_at": "2025-06-14T17:18:49.073319",
+    "company": "Copart",
+    "sector": "Industrials",
+    "industry": "Diversified Support Services"
+  },
   "files": {
     "adjusted": "resources\\data\\daily\\CPRT.csv",
     "not_adjusted": "resources\\data\\daily_notAdjusted\\CPRT_notAdjusted.csv"

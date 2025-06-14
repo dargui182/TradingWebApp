@@ -2,17 +2,24 @@
   "ticker": "EXC",
   "info": {
     "symbol": "EXC",
-    "name": "Exelon Corporation",
+    "name": "Exelon",
     "sector": "Utilities",
-    "industry": "Utilities - Regulated Electric",
+    "industry": "Electric Utilities",
     "currency": "USD",
-    "exchange": "NMS",
-    "country": "United States"
+    "exchange": "N/A",
+    "country": "N/A",
+    "source": "CSV"
   },
-  "last_close_date": "2025-06-13",
-  "total_records": 13142,
-  "first_date": "1973-05-02",
-  "last_updated": "2025-06-14T09:34:25.265942",
+  "last_close_date": null,
+  "first_date": null,
+  "total_records": 0,
+  "last_updated": "2025-06-14T17:18:49.088930",
+  "csv_import": {
+    "imported_at": "2025-06-14T17:18:49.088930",
+    "company": "Exelon",
+    "sector": "Utilities",
+    "industry": "Electric Utilities"
+  },
   "files": {
     "adjusted": "resources\\data\\daily\\EXC.csv",
     "not_adjusted": "resources\\data\\daily_notAdjusted\\EXC_notAdjusted.csv"

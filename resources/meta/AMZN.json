@@ -2,17 +2,24 @@
   "ticker": "AMZN",
   "info": {
     "symbol": "AMZN",
-    "name": "Amazon.com, Inc.",
-    "sector": "Consumer Cyclical",
-    "industry": "Internet Retail",
+    "name": "Amazon",
+    "sector": "Consumer Discretionary",
+    "industry": "Broadline Retail",
     "currency": "USD",
-    "exchange": "NMS",
-    "country": "United States"
+    "exchange": "N/A",
+    "country": "N/A",
+    "source": "CSV"
   },
-  "last_close_date": "2025-06-13",
-  "total_records": 7066,
-  "first_date": "1997-05-15",
-  "last_updated": "2025-06-14T09:33:51.904289",
+  "last_close_date": null,
+  "first_date": null,
+  "total_records": 0,
+  "last_updated": "2025-06-14T17:18:49.048250",
+  "csv_import": {
+    "imported_at": "2025-06-14T17:18:49.048250",
+    "company": "Amazon",
+    "sector": "Consumer Discretionary",
+    "industry": "Broadline Retail"
+  },
   "files": {
     "adjusted": "resources\\data\\daily\\AMZN.csv",
     "not_adjusted": "resources\\data\\daily_notAdjusted\\AMZN_notAdjusted.csv"

@@ -2,17 +2,24 @@
   "ticker": "CRWD",
   "info": {
     "symbol": "CRWD",
-    "name": "CrowdStrike Holdings, Inc.",
-    "sector": "Technology",
-    "industry": "Software - Infrastructure",
+    "name": "CrowdStrike",
+    "sector": "Information Technology",
+    "industry": "Systems Software",
     "currency": "USD",
-    "exchange": "NMS",
-    "country": "United States"
+    "exchange": "N/A",
+    "country": "N/A",
+    "source": "CSV"
   },
-  "last_close_date": "2025-06-13",
-  "total_records": 1511,
-  "first_date": "2019-06-12",
-  "last_updated": "2025-06-14T09:34:10.074030",
+  "last_close_date": null,
+  "first_date": null,
+  "total_records": 0,
+  "last_updated": "2025-06-14T17:18:49.074869",
+  "csv_import": {
+    "imported_at": "2025-06-14T17:18:49.074869",
+    "company": "CrowdStrike",
+    "sector": "Information Technology",
+    "industry": "Systems Software"
+  },
   "files": {
     "adjusted": "resources\\data\\daily\\CRWD.csv",
     "not_adjusted": "resources\\data\\daily_notAdjusted\\CRWD_notAdjusted.csv"

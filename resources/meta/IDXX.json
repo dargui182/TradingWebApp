@@ -2,17 +2,24 @@
   "ticker": "IDXX",
   "info": {
     "symbol": "IDXX",
-    "name": "IDEXX Laboratories, Inc.",
-    "sector": "Healthcare",
-    "industry": "Diagnostics & Research",
+    "name": "Idexx Laboratories",
+    "sector": "Health Care",
+    "industry": "Health Care Equipment",
     "currency": "USD",
-    "exchange": "NMS",
-    "country": "United States"
+    "exchange": "N/A",
+    "country": "N/A",
+    "source": "CSV"
   },
-  "last_close_date": "2025-06-13",
-  "total_records": 8557,
-  "first_date": "1991-06-21",
-  "last_updated": "2025-06-14T09:34:38.912364",
+  "last_close_date": null,
+  "first_date": null,
+  "total_records": 0,
+  "last_updated": "2025-06-14T17:18:49.099839",
+  "csv_import": {
+    "imported_at": "2025-06-14T17:18:49.099839",
+    "company": "Idexx Laboratories",
+    "sector": "Health Care",
+    "industry": "Health Care Equipment"
+  },
   "files": {
     "adjusted": "resources\\data\\daily\\IDXX.csv",
     "not_adjusted": "resources\\data\\daily_notAdjusted\\IDXX_notAdjusted.csv"

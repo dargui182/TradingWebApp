@@ -2,17 +2,24 @@
   "ticker": "EA",
   "info": {
     "symbol": "EA",
-    "name": "Electronic Arts Inc.",
+    "name": "Electronic Arts",
     "sector": "Communication Services",
-    "industry": "Electronic Gaming & Multimedia",
+    "industry": "Interactive Home Entertainment",
     "currency": "USD",
-    "exchange": "NMS",
-    "country": "United States"
+    "exchange": "N/A",
+    "country": "N/A",
+    "source": "CSV"
   },
-  "last_close_date": "2025-06-13",
-  "total_records": 9000,
-  "first_date": "1989-09-20",
-  "last_updated": "2025-06-14T09:34:23.320171",
+  "last_close_date": null,
+  "first_date": null,
+  "total_records": 0,
+  "last_updated": "2025-06-14T17:18:49.087377",
+  "csv_import": {
+    "imported_at": "2025-06-14T17:18:49.087377",
+    "company": "Electronic Arts",
+    "sector": "Communication Services",
+    "industry": "Interactive Home Entertainment"
+  },
   "files": {
     "adjusted": "resources\\data\\daily\\EA.csv",
     "not_adjusted": "resources\\data\\daily_notAdjusted\\EA_notAdjusted.csv"

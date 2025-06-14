@@ -2,17 +2,24 @@
   "ticker": "AZN",
   "info": {
     "symbol": "AZN",
-    "name": "AstraZeneca PLC",
-    "sector": "Healthcare",
-    "industry": "Drug Manufacturers - General",
+    "name": "AstraZeneca",
+    "sector": "Health Care",
+    "industry": "Pharmaceuticals",
     "currency": "USD",
-    "exchange": "NMS",
-    "country": "United Kingdom"
+    "exchange": "N/A",
+    "country": "N/A",
+    "source": "CSV"
   },
-  "last_close_date": "2025-06-13",
-  "total_records": 8080,
-  "first_date": "1993-05-12",
-  "last_updated": "2025-06-14T09:33:53.121145",
+  "last_close_date": null,
+  "first_date": null,
+  "total_records": 0,
+  "last_updated": "2025-06-14T17:18:49.058715",
+  "csv_import": {
+    "imported_at": "2025-06-14T17:18:49.058715",
+    "company": "AstraZeneca",
+    "sector": "Health Care",
+    "industry": "Pharmaceuticals"
+  },
   "files": {
     "adjusted": "resources\\data\\daily\\AZN.csv",
     "not_adjusted": "resources\\data\\daily_notAdjusted\\AZN_notAdjusted.csv"

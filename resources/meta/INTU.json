@@ -2,17 +2,24 @@
   "ticker": "INTU",
   "info": {
     "symbol": "INTU",
-    "name": "Intuit Inc.",
-    "sector": "Technology",
-    "industry": "Software - Application",
+    "name": "Intuit",
+    "sector": "Information Technology",
+    "industry": "Application Software",
     "currency": "USD",
-    "exchange": "NMS",
-    "country": "United States"
+    "exchange": "N/A",
+    "country": "N/A",
+    "source": "CSV"
   },
-  "last_close_date": "2025-06-13",
-  "total_records": 8121,
-  "first_date": "1993-03-12",
-  "last_updated": "2025-06-14T09:34:41.912548",
+  "last_close_date": null,
+  "first_date": null,
+  "total_records": 0,
+  "last_updated": "2025-06-14T17:18:49.101379",
+  "csv_import": {
+    "imported_at": "2025-06-14T17:18:49.101379",
+    "company": "Intuit",
+    "sector": "Information Technology",
+    "industry": "Application Software"
+  },
   "files": {
     "adjusted": "resources\\data\\daily\\INTU.csv",
     "not_adjusted": "resources\\data\\daily_notAdjusted\\INTU_notAdjusted.csv"

@@ -2,17 +2,24 @@
   "ticker": "INTC",
   "info": {
     "symbol": "INTC",
-    "name": "Intel Corporation",
-    "sector": "Technology",
+    "name": "Intel",
+    "sector": "Information Technology",
     "industry": "Semiconductors",
     "currency": "USD",
-    "exchange": "NMS",
-    "country": "United States"
+    "exchange": "N/A",
+    "country": "N/A",
+    "source": "CSV"
   },
-  "last_close_date": "2025-06-13",
-  "total_records": 11405,
-  "first_date": "1980-03-17",
-  "last_updated": "2025-06-14T09:34:40.483374",
+  "last_close_date": null,
+  "first_date": null,
+  "total_records": 0,
+  "last_updated": "2025-06-14T17:18:49.100863",
+  "csv_import": {
+    "imported_at": "2025-06-14T17:18:49.100863",
+    "company": "Intel",
+    "sector": "Information Technology",
+    "industry": "Semiconductors"
+  },
   "files": {
     "adjusted": "resources\\data\\daily\\INTC.csv",
     "not_adjusted": "resources\\data\\daily_notAdjusted\\INTC_notAdjusted.csv"

@@ -2,17 +2,24 @@
   "ticker": "GILD",
   "info": {
     "symbol": "GILD",
-    "name": "Gilead Sciences, Inc.",
-    "sector": "Healthcare",
-    "industry": "Drug Manufacturers - General",
+    "name": "Gilead Sciences",
+    "sector": "Health Care",
+    "industry": "Biotechnology",
     "currency": "USD",
-    "exchange": "NMS",
-    "country": "United States"
+    "exchange": "N/A",
+    "country": "N/A",
+    "source": "CSV"
   },
-  "last_close_date": "2025-06-13",
-  "total_records": 8409,
-  "first_date": "1992-01-22",
-  "last_updated": "2025-06-14T09:34:32.814799",
+  "last_close_date": null,
+  "first_date": null,
+  "total_records": 0,
+  "last_updated": "2025-06-14T17:18:49.096762",
+  "csv_import": {
+    "imported_at": "2025-06-14T17:18:49.096762",
+    "company": "Gilead Sciences",
+    "sector": "Health Care",
+    "industry": "Biotechnology"
+  },
   "files": {
     "adjusted": "resources\\data\\daily\\GILD.csv",
     "not_adjusted": "resources\\data\\daily_notAdjusted\\GILD_notAdjusted.csv"

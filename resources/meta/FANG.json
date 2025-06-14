@@ -2,17 +2,24 @@
   "ticker": "FANG",
   "info": {
     "symbol": "FANG",
-    "name": "Diamondback Energy, Inc.",
+    "name": "Diamondback Energy",
     "sector": "Energy",
-    "industry": "Oil & Gas E&P",
+    "industry": "Oil & Gas Exploration & Production",
     "currency": "USD",
-    "exchange": "NMS",
-    "country": "United States"
+    "exchange": "N/A",
+    "country": "N/A",
+    "source": "CSV"
   },
-  "last_close_date": "2025-06-13",
-  "total_records": 3185,
-  "first_date": "2012-10-12",
-  "last_updated": "2025-06-14T09:34:26.607226",
+  "last_close_date": null,
+  "first_date": null,
+  "total_records": 0,
+  "last_updated": "2025-06-14T17:18:49.090485",
+  "csv_import": {
+    "imported_at": "2025-06-14T17:18:49.090485",
+    "company": "Diamondback Energy",
+    "sector": "Energy",
+    "industry": "Oil & Gas Exploration & Production"
+  },
   "files": {
     "adjusted": "resources\\data\\daily\\FANG.csv",
     "not_adjusted": "resources\\data\\daily_notAdjusted\\FANG_notAdjusted.csv"

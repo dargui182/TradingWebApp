@@ -2,7 +2,7 @@
   "ticker": "ON",
   "info": {
     "symbol": "ON",
-    "name": "ON Semiconductor",
+    "name": "Onsemi",
     "sector": "Information Technology",
     "industry": "Semiconductors",
     "currency": "USD",
@@ -13,10 +13,10 @@
   "last_close_date": null,
   "first_date": null,
   "total_records": 0,
-  "last_updated": "2025-06-13T08:59:33.144290",
+  "last_updated": "2025-06-14T17:18:49.125342",
   "csv_import": {
-    "imported_at": "2025-06-13T08:59:33.144290",
-    "company": "ON Semiconductor",
+    "imported_at": "2025-06-14T17:18:49.125342",
+    "company": "Onsemi",
     "sector": "Information Technology",
     "industry": "Semiconductors"
   },

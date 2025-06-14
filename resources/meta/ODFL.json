@@ -2,7 +2,7 @@
   "ticker": "ODFL",
   "info": {
     "symbol": "ODFL",
-    "name": "Old Dominion",
+    "name": "Old Dominion Freight Line",
     "sector": "Industrials",
     "industry": "Cargo Ground Transportation",
     "currency": "USD",
@@ -13,10 +13,10 @@
   "last_close_date": null,
   "first_date": null,
   "total_records": 0,
-  "last_updated": "2025-06-13T08:59:33.140076",
+  "last_updated": "2025-06-14T17:18:49.123763",
   "csv_import": {
-    "imported_at": "2025-06-13T08:59:33.140076",
-    "company": "Old Dominion",
+    "imported_at": "2025-06-14T17:18:49.123763",
+    "company": "Old Dominion Freight Line",
     "sector": "Industrials",
     "industry": "Cargo Ground Transportation"
   },

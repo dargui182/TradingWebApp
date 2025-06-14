@@ -2,17 +2,24 @@
   "ticker": "KDP",
   "info": {
     "symbol": "KDP",
-    "name": "Keurig Dr Pepper Inc.",
-    "sector": "Consumer Defensive",
-    "industry": "Beverages - Non-Alcoholic",
+    "name": "Keurig Dr Pepper",
+    "sector": "Consumer Staples",
+    "industry": "Soft Drinks & Non-alcoholic Beverages",
     "currency": "USD",
-    "exchange": "NMS",
-    "country": "United States"
+    "exchange": "N/A",
+    "country": "N/A",
+    "source": "CSV"
   },
-  "last_close_date": "2025-06-13",
-  "total_records": 4304,
-  "first_date": "2008-05-07",
-  "last_updated": "2025-06-14T09:34:44.458082",
+  "last_close_date": null,
+  "first_date": null,
+  "total_records": 0,
+  "last_updated": "2025-06-14T17:18:49.103461",
+  "csv_import": {
+    "imported_at": "2025-06-14T17:18:49.103461",
+    "company": "Keurig Dr Pepper",
+    "sector": "Consumer Staples",
+    "industry": "Soft Drinks & Non-alcoholic Beverages"
+  },
   "files": {
     "adjusted": "resources\\data\\daily\\KDP.csv",
     "not_adjusted": "resources\\data\\daily_notAdjusted\\KDP_notAdjusted.csv"

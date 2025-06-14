@@ -2,17 +2,24 @@
   "ticker": "ANSS",
   "info": {
     "symbol": "ANSS",
-    "name": "ANSYS, Inc.",
-    "sector": "Technology",
-    "industry": "Software - Application",
+    "name": "Ansys",
+    "sector": "Information Technology",
+    "industry": "Application Software",
     "currency": "USD",
-    "exchange": "NMS",
-    "country": "United States"
+    "exchange": "N/A",
+    "country": "N/A",
+    "source": "CSV"
   },
-  "last_close_date": "2025-06-13",
-  "total_records": 7294,
-  "first_date": "1996-06-20",
-  "last_updated": "2025-06-14T09:33:52.109818",
+  "last_close_date": null,
+  "first_date": null,
+  "total_records": 0,
+  "last_updated": "2025-06-14T17:18:49.048768",
+  "csv_import": {
+    "imported_at": "2025-06-14T17:18:49.048768",
+    "company": "Ansys",
+    "sector": "Information Technology",
+    "industry": "Application Software"
+  },
   "files": {
     "adjusted": "resources\\data\\daily\\ANSS.csv",
     "not_adjusted": "resources\\data\\daily_notAdjusted\\ANSS_notAdjusted.csv"

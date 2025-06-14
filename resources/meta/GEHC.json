@@ -2,17 +2,24 @@
   "ticker": "GEHC",
   "info": {
     "symbol": "GEHC",
-    "name": "GE HealthCare Technologies Inc.",
-    "sector": "Healthcare",
-    "industry": "Health Information Services",
+    "name": "GE HealthCare",
+    "sector": "Health Care",
+    "industry": "Health Care Equipment",
     "currency": "USD",
-    "exchange": "NMS",
-    "country": "United States"
+    "exchange": "N/A",
+    "country": "N/A",
+    "source": "CSV"
   },
-  "last_close_date": "2025-06-13",
-  "total_records": 625,
-  "first_date": "2022-12-15",
-  "last_updated": "2025-06-14T09:34:30.412032",
+  "last_close_date": null,
+  "first_date": null,
+  "total_records": 0,
+  "last_updated": "2025-06-14T17:18:49.094708",
+  "csv_import": {
+    "imported_at": "2025-06-14T17:18:49.094708",
+    "company": "GE HealthCare",
+    "sector": "Health Care",
+    "industry": "Health Care Equipment"
+  },
   "files": {
     "adjusted": "resources\\data\\daily\\GEHC.csv",
     "not_adjusted": "resources\\data\\daily_notAdjusted\\GEHC_notAdjusted.csv"

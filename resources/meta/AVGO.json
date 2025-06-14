@@ -2,17 +2,24 @@
   "ticker": "AVGO",
   "info": {
     "symbol": "AVGO",
-    "name": "Broadcom Inc.",
-    "sector": "Technology",
+    "name": "Broadcom",
+    "sector": "Information Technology",
     "industry": "Semiconductors",
     "currency": "USD",
-    "exchange": "NMS",
-    "country": "United States"
+    "exchange": "N/A",
+    "country": "N/A",
+    "source": "CSV"
   },
-  "last_close_date": "2025-06-13",
-  "total_records": 3990,
-  "first_date": "2009-08-06",
-  "last_updated": "2025-06-14T09:33:52.714871",
+  "last_close_date": null,
+  "first_date": null,
+  "total_records": 0,
+  "last_updated": "2025-06-14T17:18:49.052417",
+  "csv_import": {
+    "imported_at": "2025-06-14T17:18:49.052417",
+    "company": "Broadcom",
+    "sector": "Information Technology",
+    "industry": "Semiconductors"
+  },
   "files": {
     "adjusted": "resources\\data\\daily\\AVGO.csv",
     "not_adjusted": "resources\\data\\daily_notAdjusted\\AVGO_notAdjusted.csv"

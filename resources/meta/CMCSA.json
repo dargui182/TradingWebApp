@@ -2,17 +2,24 @@
   "ticker": "CMCSA",
   "info": {
     "symbol": "CMCSA",
-    "name": "Comcast Corporation",
+    "name": "Comcast",
     "sector": "Communication Services",
-    "industry": "Telecom Services",
+    "industry": "Cable & Satellite",
     "currency": "USD",
-    "exchange": "NMS",
-    "country": "United States"
+    "exchange": "N/A",
+    "country": "N/A",
+    "source": "CSV"
   },
-  "last_close_date": "2025-06-13",
-  "total_records": 11405,
-  "first_date": "1980-03-17",
-  "last_updated": "2025-06-14T09:34:05.869221",
+  "last_close_date": null,
+  "first_date": null,
+  "total_records": 0,
+  "last_updated": "2025-06-14T17:18:49.070190",
+  "csv_import": {
+    "imported_at": "2025-06-14T17:18:49.070190",
+    "company": "Comcast",
+    "sector": "Communication Services",
+    "industry": "Cable & Satellite"
+  },
   "files": {
     "adjusted": "resources\\data\\daily\\CMCSA.csv",
     "not_adjusted": "resources\\data\\daily_notAdjusted\\CMCSA_notAdjusted.csv"

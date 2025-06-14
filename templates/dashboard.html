@@ -2,17 +2,17 @@
 
 {% block header_actions %}
     <div class="btn-group" role="group">
-        <button type="button" class="btn btn-sm btn-outline-secondary">
+        <button type="button" class="btn btn-sm btn-outline-secondary" data-action="export">
             <i class="bi bi-download me-1"></i>Esporta
         </button>
-        <button type="button" class="btn btn-sm btn-outline-secondary">
+        <button type="button" class="btn btn-sm btn-outline-secondary" data-action="refresh">
             <i class="bi bi-arrow-clockwise me-1"></i>Aggiorna
         </button>
     </div>
 {% endblock %}
 
 {% block content %}
-    <!-- Statistics Cards -->
+    <!-- Statistics Cards - UNA SOLA VOLTA! -->
     <div class="row mb-4">
         <div class="col-xl-3 col-md-6 mb-4">
             <div class="card border-left-primary shadow h-100 py-2">
@@ -20,14 +20,14 @@
                     <div class="row no-gutters align-items-center">
                         <div class="col mr-2">
                             <div class="text-xs font-weight-bold text-primary text-uppercase mb-1">
-                                Totale Utenti
+                                Ticker Configurati
                             </div>
-                            <div class="h5 mb-0 font-weight-bold text-gray-800">
-                                {{ "{:,}".format(stats.total_users) }}
+                            <div class="h5 mb-0 font-weight-bold text-gray-800" id="totalTickersValue">
+                                {{ stats.total_tickers }}
                             </div>
                         </div>
                         <div class="col-auto">
-                            <i class="bi bi-people text-primary" style="font-size: 2rem;"></i>
+                            <i class="bi bi-graph-up text-primary" style="font-size: 2rem;"></i>
                         </div>
                     </div>
                 </div>
@@ -40,14 +40,14 @@
                     <div class="row no-gutters align-items-center">
                         <div class="col mr-2">
                             <div class="text-xs font-weight-bold text-success text-uppercase mb-1">
-                                Vendite Totali
+                                Ticker Aggiornati
                             </div>
-                            <div class="h5 mb-0 font-weight-bold text-gray-800">
-                                €{{ "{:,.2f}".format(stats.total_sales) }}
+                            <div class="h5 mb-0 font-weight-bold text-gray-800" id="updatedTickersValue">
+                                {{ stats.updated_tickers }}
                             </div>
                         </div>
                         <div class="col-auto">
-                            <i class="bi bi-currency-euro text-success" style="font-size: 2rem;"></i>
+                            <i class="bi bi-check-circle text-success" style="font-size: 2rem;"></i>
                         </div>
                     </div>
                 </div>
@@ -60,14 +60,14 @@
                     <div class="row no-gutters align-items-center">
                         <div class="col mr-2">
                             <div class="text-xs font-weight-bold text-info text-uppercase mb-1">
-                                Sessioni Attive
+                                Record Totali
                             </div>
-                            <div class="h5 mb-0 font-weight-bold text-gray-800">
-                                {{ stats.active_sessions }}
+                            <div class="h5 mb-0 font-weight-bold text-gray-800" id="totalRecordsValue">
+                                {{ "{:,}".format(stats.total_records) }}
                             </div>
                         </div>
                         <div class="col-auto">
-                            <i class="bi bi-activity text-info" style="font-size: 2rem;"></i>
+                            <i class="bi bi-database text-info" style="font-size: 2rem;"></i>
                         </div>
                     </div>
                 </div>
@@ -80,41 +80,42 @@
                     <div class="row no-gutters align-items-center">
                         <div class="col mr-2">
                             <div class="text-xs font-weight-bold text-warning text-uppercase mb-1">
-                                Tasso di Conversione
+                                Spazio Utilizzato
                             </div>
-                            <div class="h5 mb-0 font-weight-bold text-gray-800">
-                                {{ stats.conversion_rate }}%
+                            <div class="h5 mb-0 font-weight-bold text-gray-800" id="totalSizeValue">
+                                {{ stats.total_size_mb }} MB
                             </div>
                         </div>
                         <div class="col-auto">
-                            <i class="bi bi-graph-up text-warning" style="font-size: 2rem;"></i>
+                            <i class="bi bi-hdd text-warning" style="font-size: 2rem;"></i>
                         </div>
                     </div>
                 </div>
             </div>
         </div>
     </div>
+    <!-- Fine Statistics Cards -->
 
     <div class="row">
         <!-- Chart Area -->
         <div class="col-xl-8 col-lg-7">
             <div class="card shadow mb-4">
                 <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
-                    <h6 class="m-0 font-weight-bold text-primary">Panoramica Vendite</h6>
+                    <h6 class="m-0 font-weight-bold text-primary">Andamento Ticker nel Tempo</h6>
                     <div class="dropdown no-arrow">
                         <a class="dropdown-toggle" href="#" role="button" id="dropdownMenuLink" data-bs-toggle="dropdown">
                             <i class="bi bi-three-dots-vertical text-gray-400"></i>
                         </a>
                         <div class="dropdown-menu dropdown-menu-right shadow">
                             <div class="dropdown-header">Azioni:</div>
-                            <a class="dropdown-item" href="#">Visualizza dettagli</a>
-                            <a class="dropdown-item" href="#">Esporta dati</a>
+                            <a class="dropdown-item" href="{{ url_for('data_management') }}">Visualizza ticker</a>
+                            <a class="dropdown-item" href="#" onclick="exportChartData()">Esporta dati</a>
                         </div>
                     </div>
                 </div>
                 <div class="card-body">
                     <div class="chart-area">
-                        <canvas id="salesChart"></canvas>
+                        <canvas id="tickerChart"></canvas>
                     </div>
                 </div>
             </div>
@@ -152,8 +153,8 @@
                     {% endfor %}
                     
                     <div class="text-center mt-3">
-                        <a href="#" class="btn btn-outline-primary btn-sm">
-                            <i class="bi bi-arrow-right me-1"></i>Vedi tutte le attività
+                        <a href="{{ url_for('data_management') }}" class="btn btn-outline-primary btn-sm">
+                            <i class="bi bi-arrow-right me-1"></i>Gestisci Ticker
                         </a>
                     </div>
                 </div>
@@ -171,24 +172,24 @@
                 <div class="card-body">
                     <div class="row">
                         <div class="col-md-3 col-sm-6 mb-3">
-                            <button class="btn btn-outline-primary w-100">
-                                <i class="bi bi-plus-circle me-2"></i>Nuovo Utente
+                            <a href="{{ url_for('data_management') }}" class="btn btn-outline-primary w-100">
+                                <i class="bi bi-plus-circle me-2"></i>Aggiungi Ticker
+                            </a>
+                        </div>
+                        <div class="col-md-3 col-sm-6 mb-3">
+                            <button class="btn btn-outline-success w-100" onclick="downloadAllTickers()">
+                                <i class="bi bi-cloud-download me-2"></i>Aggiorna Tutto
                             </button>
                         </div>
                         <div class="col-md-3 col-sm-6 mb-3">
-                            <button class="btn btn-outline-success w-100">
-                                <i class="bi bi-file-earmark-plus me-2"></i>Nuovo Report
+                            <button class="btn btn-outline-info w-100" onclick="testConnection()">
+                                <i class="bi bi-wifi me-2"></i>Test Connessione
                             </button>
                         </div>
                         <div class="col-md-3 col-sm-6 mb-3">
-                            <button class="btn btn-outline-info w-100">
-                                <i class="bi bi-envelope me-2"></i>Invia Newsletter
-                            </button>
-                        </div>
-                        <div class="col-md-3 col-sm-6 mb-3">
-                            <button class="btn btn-outline-warning w-100">
-                                <i class="bi bi-gear me-2"></i>Configurazioni
-                            </button>
+                            <a href="{{ url_for('settings') }}" class="btn btn-outline-warning w-100">
+                                <i class="bi bi-gear me-2"></i>Impostazioni
+                            </a>
                         </div>
                     </div>
                 </div>
@@ -199,36 +200,219 @@
 
 {% block scripts %}
 <script>
-// Chart.js configuration for sales overview
-const ctx = document.getElementById('salesChart').getContext('2d');
-const salesChart = new Chart(ctx, {
-    type: 'line',
-    data: {
-        labels: ['Gen', 'Feb', 'Mar', 'Apr', 'Mag', 'Giu', 'Lug', 'Ago', 'Set', 'Ott', 'Nov', 'Dic'],
-        datasets: [{
-            label: 'Vendite 2024',
-            data: [12, 19, 15, 17, 20, 25, 28, 30, 25, 22, 18, 15],
-            borderColor: 'rgb(75, 192, 192)',
-            backgroundColor: 'rgba(75, 192, 192, 0.1)',
-            tension: 0.4,
-            fill: true
-        }]
-    },
-    options: {
-        responsive: true,
-        maintainAspectRatio: false,
-        scales: {
-            y: {
-                beginAtZero: true
-            }
-        },
-        plugins: {
-            legend: {
-                display: true,
-                position: 'top'
-            }
+// Previeni inizializzazioni multiple
+if (window.dashboardInitialized) {
+    console.log('⚠️ Dashboard già inizializzato, skip');
+} else {
+    window.dashboardInitialized = true;
+    console.log('🚀 Inizializzazione dashboard...');
+
+    // Chart.js configuration per andamento ticker reali
+    let tickerChart = null;
+
+    document.addEventListener('DOMContentLoaded', function() {
+        initializeDashboard();
+    });
+
+    async function initializeDashboard() {
+        try {
+            // Inizializza grafico
+            await loadChart();
+            
+            // Setup event listeners
+            setupEventListeners();
+            
+            console.log('✅ Dashboard inizializzato correttamente');
+        } catch (error) {
+            console.error('❌ Errore inizializzazione dashboard:', error);
         }
     }
-});
+
+    function setupEventListeners() {
+        // Event listeners per i bottoni header
+        document.querySelectorAll('[data-action="refresh"]').forEach(btn => {
+            btn.addEventListener('click', refreshDashboard);
+        });
+        
+        document.querySelectorAll('[data-action="export"]').forEach(btn => {
+            btn.addEventListener('click', exportData);
+        });
+    }
+
+    async function loadChart() {
+        const ctx = document.getElementById('tickerChart');
+        if (!ctx) {
+            console.warn('⚠️ Canvas grafico non trovato');
+            return;
+        }
+
+        // Distruggi grafico esistente se presente
+        if (tickerChart) {
+            tickerChart.destroy();
+        }
+
+        try {
+            const chartData = await loadRealChartData();
+            
+            tickerChart = new Chart(ctx, {
+                type: 'line',
+                data: chartData,
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            ticks: {
+                                stepSize: 1
+                            }
+                        }
+                    },
+                    plugins: {
+                        legend: {
+                            display: true,
+                            position: 'top'
+                        }
+                    }
+                }
+            });
+            
+            console.log('✅ Grafico caricato');
+        } catch (error) {
+            console.error('❌ Errore caricamento grafico:', error);
+        }
+    }
+
+    // Funzione per caricare dati reali del grafico
+    async function loadRealChartData() {
+        try {
+            const response = await fetch('/api/ticker-chart-data');
+            if (response.ok) {
+                const data = await response.json();
+                return data;
+            }
+        } catch (error) {
+            console.error('Errore caricamento dati grafico:', error);
+        }
+        
+        // Fallback: grafico semplice con numero ticker per mese
+        const months = ['Gen', 'Feb', 'Mar', 'Apr', 'Mag', 'Giu', 'Lug', 'Ago', 'Set', 'Ott', 'Nov', 'Dic'];
+        const currentMonth = new Date().getMonth();
+        const tickerCount = {{ stats.total_tickers }};
+        
+        // Simula crescita graduale dei ticker nel tempo
+        const data = months.map((month, index) => {
+            if (index <= currentMonth) {
+                return Math.max(0, tickerCount - (currentMonth - index) * 5);
+            }
+            return 0;
+        });
+        
+        return {
+            labels: months,
+            datasets: [{
+                label: 'Numero Ticker Configurati',
+                data: data,
+                borderColor: 'rgb(54, 162, 235)',
+                backgroundColor: 'rgba(54, 162, 235, 0.1)',
+                tension: 0.4,
+                fill: true
+            }]
+        };
+    }
+
+    // Refresh dashboard
+    async function refreshDashboard() {
+        console.log('🔄 Refresh dashboard...');
+        
+        try {
+            const response = await fetch('/api/stats');
+            if (response.ok) {
+                const stats = await response.json();
+                updateStatisticsValues(stats);
+                console.log('✅ Statistiche aggiornate');
+            }
+        } catch (error) {
+            console.error('❌ Errore refresh:', error);
+        }
+    }
+
+    function updateStatisticsValues(stats) {
+        // Aggiorna i valori esistenti senza duplicare
+        const elements = {
+            'totalTickersValue': stats.total_tickers,
+            'updatedTickersValue': stats.updated_tickers,
+            'totalRecordsValue': stats.total_records.toLocaleString(),
+            'totalSizeValue': stats.total_size_mb + ' MB'
+        };
+        
+        Object.entries(elements).forEach(([id, value]) => {
+            const element = document.getElementById(id);
+            if (element) {
+                element.textContent = value;
+            }
+        });
+    }
+
+    // Export data
+    async function exportData() {
+        console.log('📤 Export dati...');
+        
+        try {
+            const response = await fetch('/api/stats');
+            const stats = await response.json();
+            
+            const exportData = {
+                timestamp: new Date().toISOString(),
+                dashboard_stats: stats
+            };
+            
+            const blob = new Blob([JSON.stringify(exportData, null, 2)], { type: 'application/json' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `dashboard-export-${new Date().toISOString().split('T')[0]}.json`;
+            a.click();
+            URL.revokeObjectURL(url);
+            
+            console.log('✅ Export completato');
+        } catch (error) {
+            console.error('❌ Errore export:', error);
+        }
+    }
+
+    // Funzioni per le azioni rapide
+    async function downloadAllTickers() {
+        if (confirm('Aggiornare tutti i ticker configurati?')) {
+            window.location.href = '{{ url_for("data_management") }}';
+        }
+    }
+
+    async function testConnection() {
+        try {
+            const response = await fetch('/api/test/connection');
+            const result = await response.json();
+            
+            if (result.status === 'success') {
+                alert('✅ Connessione Yahoo Finance OK!');
+            } else {
+                alert('⚠️ Problemi di connessione rilevati');
+            }
+        } catch (error) {
+            alert('❌ Errore durante il test di connessione');
+        }
+    }
+
+    function exportChartData() {
+        alert('Funzione di export in sviluppo');
+    }
+
+    // Rendi le funzioni disponibili globalmente per onclick
+    window.downloadAllTickers = downloadAllTickers;
+    window.testConnection = testConnection;
+    window.exportChartData = exportChartData;
+    window.refreshDashboard = refreshDashboard;
+    window.exportData = exportData;
+}
 </script>
 {% endblock %}

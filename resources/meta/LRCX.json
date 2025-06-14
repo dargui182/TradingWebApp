@@ -2,17 +2,24 @@
   "ticker": "LRCX",
   "info": {
     "symbol": "LRCX",
-    "name": "Lam Research Corporation",
-    "sector": "Technology",
-    "industry": "Semiconductor Equipment & Materials",
+    "name": "Lam Research",
+    "sector": "Information Technology",
+    "industry": "Semiconductor Equipment",
     "currency": "USD",
-    "exchange": "NMS",
-    "country": "United States"
+    "exchange": "N/A",
+    "country": "N/A",
+    "source": "CSV"
   },
-  "last_close_date": "2025-06-13",
-  "total_records": 10359,
-  "first_date": "1984-05-04",
-  "last_updated": "2025-06-14T09:34:50.528000",
+  "last_close_date": null,
+  "first_date": null,
+  "total_records": 0,
+  "last_updated": "2025-06-14T17:18:49.108681",
+  "csv_import": {
+    "imported_at": "2025-06-14T17:18:49.108681",
+    "company": "Lam Research",
+    "sector": "Information Technology",
+    "industry": "Semiconductor Equipment"
+  },
   "files": {
     "adjusted": "resources\\data\\daily\\LRCX.csv",
     "not_adjusted": "resources\\data\\daily_notAdjusted\\LRCX_notAdjusted.csv"

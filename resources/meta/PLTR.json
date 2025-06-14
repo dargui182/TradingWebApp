@@ -4,7 +4,7 @@
     "symbol": "PLTR",
     "name": "Palantir Technologies",
     "sector": "Information Technology",
-    "industry": "Application Software",
+    "industry": "Internet Services & Infrastructure",
     "currency": "USD",
     "exchange": "N/A",
     "country": "N/A",
@@ -13,12 +13,12 @@
   "last_close_date": null,
   "first_date": null,
   "total_records": 0,
-  "last_updated": "2025-06-13T08:59:33.223912",
+  "last_updated": "2025-06-14T17:18:49.132101",
   "csv_import": {
-    "imported_at": "2025-06-13T08:59:33.223912",
+    "imported_at": "2025-06-14T17:18:49.132101",
     "company": "Palantir Technologies",
     "sector": "Information Technology",
-    "industry": "Application Software"
+    "industry": "Internet Services & Infrastructure"
   },
   "files": {
     "adjusted": "resources\\data\\daily\\PLTR.csv",

@@ -2,17 +2,24 @@
   "ticker": "BKNG",
   "info": {
     "symbol": "BKNG",
-    "name": "Booking Holdings Inc.",
-    "sector": "Consumer Cyclical",
-    "industry": "Travel Services",
+    "name": "Booking Holdings",
+    "sector": "Consumer Discretionary",
+    "industry": "Hotels, Resorts & Cruise Lines",
     "currency": "USD",
-    "exchange": "NMS",
-    "country": "United States"
+    "exchange": "N/A",
+    "country": "N/A",
+    "source": "CSV"
   },
-  "last_close_date": "2025-06-13",
-  "total_records": 6593,
-  "first_date": "1999-03-31",
-  "last_updated": "2025-06-14T09:33:55.821863",
+  "last_close_date": null,
+  "first_date": null,
+  "total_records": 0,
+  "last_updated": "2025-06-14T17:18:49.062397",
+  "csv_import": {
+    "imported_at": "2025-06-14T17:18:49.062397",
+    "company": "Booking Holdings",
+    "sector": "Consumer Discretionary",
+    "industry": "Hotels, Resorts & Cruise Lines"
+  },
   "files": {
     "adjusted": "resources\\data\\daily\\BKNG.csv",
     "not_adjusted": "resources\\data\\daily_notAdjusted\\BKNG_notAdjusted.csv"

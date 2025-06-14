@@ -2,17 +2,24 @@
   "ticker": "DASH",
   "info": {
     "symbol": "DASH",
-    "name": "DoorDash, Inc.",
-    "sector": "Consumer Cyclical",
-    "industry": "Internet Retail",
+    "name": "DoorDash",
+    "sector": "Consumer Discretionary",
+    "industry": "Specialized Consumer Services",
     "currency": "USD",
-    "exchange": "NMS",
-    "country": "United States"
+    "exchange": "N/A",
+    "country": "N/A",
+    "source": "CSV"
   },
-  "last_close_date": "2025-06-13",
-  "total_records": 1133,
-  "first_date": "2020-12-09",
-  "last_updated": "2025-06-14T09:34:19.373637",
+  "last_close_date": null,
+  "first_date": null,
+  "total_records": 0,
+  "last_updated": "2025-06-14T17:18:49.083243",
+  "csv_import": {
+    "imported_at": "2025-06-14T17:18:49.083751",
+    "company": "DoorDash",
+    "sector": "Consumer Discretionary",
+    "industry": "Specialized Consumer Services"
+  },
   "files": {
     "adjusted": "resources\\data\\daily\\DASH.csv",
     "not_adjusted": "resources\\data\\daily_notAdjusted\\DASH_notAdjusted.csv"

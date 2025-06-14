@@ -2,17 +2,24 @@
   "ticker": "DDOG",
   "info": {
     "symbol": "DDOG",
-    "name": "Datadog, Inc.",
-    "sector": "Technology",
-    "industry": "Software - Application",
+    "name": "Datadog",
+    "sector": "Information Technology",
+    "industry": "Application Software",
     "currency": "USD",
-    "exchange": "NMS",
-    "country": "United States"
+    "exchange": "N/A",
+    "country": "N/A",
+    "source": "CSV"
   },
-  "last_close_date": "2025-06-13",
-  "total_records": 1442,
-  "first_date": "2019-09-19",
-  "last_updated": "2025-06-14T09:34:20.479948",
+  "last_close_date": null,
+  "first_date": null,
+  "total_records": 0,
+  "last_updated": "2025-06-14T17:18:49.084796",
+  "csv_import": {
+    "imported_at": "2025-06-14T17:18:49.084796",
+    "company": "Datadog",
+    "sector": "Information Technology",
+    "industry": "Application Software"
+  },
   "files": {
     "adjusted": "resources\\data\\daily\\DDOG.csv",
     "not_adjusted": "resources\\data\\daily_notAdjusted\\DDOG_notAdjusted.csv"

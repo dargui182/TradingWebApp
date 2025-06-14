@@ -2,17 +2,24 @@
   "ticker": "MDLZ",
   "info": {
     "symbol": "MDLZ",
-    "name": "Mondelez International, Inc.",
-    "sector": "Consumer Defensive",
-    "industry": "Confectioners",
+    "name": "Mondelez International",
+    "sector": "Consumer Staples",
+    "industry": "Packaged Foods & Meats",
     "currency": "USD",
-    "exchange": "NMS",
-    "country": "United States"
+    "exchange": "N/A",
+    "country": "N/A",
+    "source": "CSV"
   },
-  "last_close_date": "2025-06-13",
-  "total_records": 6037,
-  "first_date": "2001-06-13",
-  "last_updated": "2025-06-14T09:34:57.341240",
+  "last_close_date": null,
+  "first_date": null,
+  "total_records": 0,
+  "last_updated": "2025-06-14T17:18:49.113334",
+  "csv_import": {
+    "imported_at": "2025-06-14T17:18:49.113334",
+    "company": "Mondelez International",
+    "sector": "Consumer Staples",
+    "industry": "Packaged Foods & Meats"
+  },
   "files": {
     "adjusted": "resources\\data\\daily\\MDLZ.csv",
     "not_adjusted": "resources\\data\\daily_notAdjusted\\MDLZ_notAdjusted.csv"

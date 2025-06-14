@@ -2,17 +2,24 @@
   "ticker": "CTSH",
   "info": {
     "symbol": "CTSH",
-    "name": "Cognizant Technology Solutions Corporation",
-    "sector": "Technology",
-    "industry": "Information Technology Services",
+    "name": "Cognizant",
+    "sector": "Information Technology",
+    "industry": "IT Consulting & Other Services",
     "currency": "USD",
-    "exchange": "NMS",
-    "country": "United States"
+    "exchange": "N/A",
+    "country": "N/A",
+    "source": "CSV"
   },
-  "last_close_date": "2025-06-13",
-  "total_records": 6789,
-  "first_date": "1998-06-19",
-  "last_updated": "2025-06-14T09:34:18.224941",
+  "last_close_date": null,
+  "first_date": null,
+  "total_records": 0,
+  "last_updated": "2025-06-14T17:18:49.081138",
+  "csv_import": {
+    "imported_at": "2025-06-14T17:18:49.081644",
+    "company": "Cognizant",
+    "sector": "Information Technology",
+    "industry": "IT Consulting & Other Services"
+  },
   "files": {
     "adjusted": "resources\\data\\daily\\CTSH.csv",
     "not_adjusted": "resources\\data\\daily_notAdjusted\\CTSH_notAdjusted.csv"

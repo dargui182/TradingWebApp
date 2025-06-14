@@ -71,97 +71,54 @@ function setupEventListeners() {
     }
 }
 
-// Refresh dashboard data
-function refreshDashboard() {
-    showNotification('Aggiornamento dati...', 'info');
+// Create activity element
+function createActivityElement(activity) {
+    const div = document.createElement('div');
+    div.className = 'd-flex align-items-center mb-3';
     
-    // Show loading state
-    const refreshBtns = document.querySelectorAll('[data-action="refresh"]');
-    refreshBtns.forEach(btn => {
-        const originalText = btn.innerHTML;
-        btn.innerHTML = '<i class="bi bi-arrow-clockwise"></i> Aggiornamento...';
-        btn.disabled = true;
-        
-        // Simulate API call
-        setTimeout(() => {
-            btn.innerHTML = originalText;
-            btn.disabled = false;
-            showNotification('Dati aggiornati con successo!', 'success');
-            
-            // Refresh statistics (simulate)
-            updateStatistics();
-        }, 2000);
-    });
+    const iconClass = activity.type === 'success' ? 'bg-success bi-check' :
+                     activity.type === 'info' ? 'bg-info bi-info' :
+                     'bg-warning bi-exclamation';
+    
+    div.innerHTML = `
+        <div class="me-3">
+            <div class="${iconClass.split(' ')[0]} rounded-circle d-flex align-items-center justify-content-center" style="width: 35px; height: 35px;">
+                <i class="bi ${iconClass.split(' ')[1]} text-white"></i>
+            </div>
+        </div>
+        <div class="flex-grow-1">
+            <div class="small text-gray-500">${activity.time}</div>
+            <div>${activity.action}</div>
+        </div>
+    `;
+    
+    return div;
 }
 
-// Update statistics with animation
-function updateStatistics() {
-    const statElements = document.querySelectorAll('.h5.mb-0.font-weight-bold');
-    
-    statElements.forEach(element => {
-        const currentValue = parseFloat(element.textContent.replace(/[^0-9.-]+/g, ''));
-        const newValue = currentValue + Math.floor(Math.random() * 100) - 50;
-        
-        // Animate number change
-        animateNumber(element, currentValue, Math.max(0, newValue));
-    });
-}
-
-// Animate number changes
-function animateNumber(element, startValue, endValue) {
-    const duration = 1000;
-    const startTime = Date.now();
-    const isEuro = element.textContent.includes('€');
-    const hasComma = element.textContent.includes(',');
-    
-    function updateNumber() {
-        const elapsed = Date.now() - startTime;
-        const progress = Math.min(elapsed / duration, 1);
-        
-        const currentValue = startValue + (endValue - startValue) * easeOutQuart(progress);
-        
-        let formattedValue = Math.floor(currentValue).toString();
-        
-        if (hasComma) {
-            formattedValue = formattedValue.replace(/\B(?=(\d{3})+(?!\d))/g, ',');
-        }
-        
-        if (isEuro) {
-            formattedValue = '€' + formattedValue + '.00';
-        }
-        
-        element.textContent = formattedValue;
-        
-        if (progress < 1) {
-            requestAnimationFrame(updateNumber);
-        }
-    }
-    
-    updateNumber();
-}
-
-// Easing function
-function easeOutQuart(t) {
-    return 1 - (--t) * t * t * t;
-}
-
-// Export data functionality
-function exportData() {
+// Real export function
+async function exportData() {
     showNotification('Preparazione export...', 'info');
     
-    // Simulate export process
-    setTimeout(() => {
-        const data = {
+    try {
+        const [statsResponse, activitiesResponse] = await Promise.all([
+            fetch('/api/stats'),
+            fetch('/api/activities')
+        ]);
+        
+        const stats = await statsResponse.json();
+        const activities = await activitiesResponse.json();
+        
+        const exportData = {
             timestamp: new Date().toISOString(),
-            statistics: {
-                users: 1234,
-                sales: 45678.90,
-                sessions: 89,
-                conversion: 12.5
+            dashboard_stats: stats,
+            recent_activities: activities,
+            export_info: {
+                version: '1.0',
+                exported_by: 'Dashboard Export Tool'
             }
         };
         
-        const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
+        const blob = new Blob([JSON.stringify(exportData, null, 2)], { type: 'application/json' });
         const url = URL.createObjectURL(blob);
         const a = document.createElement('a');
         a.href = url;
@@ -172,7 +129,124 @@ function exportData() {
         URL.revokeObjectURL(url);
         
         showNotification('Export completato!', 'success');
-    }, 1500);
+    } catch (error) {
+        console.error('Errore export:', error);
+        showNotification('Errore durante l\'export', 'danger');
+    }
+}
+
+// Enhanced animate number function
+function animateNumber(element, startValue, endValue, withThousandsSeparator = false, suffix = '') {
+    const duration = 1000;
+    const startTime = Date.now();
+    
+    function updateNumber() {
+        const elapsed = Date.now() - startTime;
+        const progress = Math.min(elapsed / duration, 1);
+        
+        const currentValue = startValue + (endValue - startValue) * easeOutQuart(progress);
+        
+        let formattedValue = Math.floor(currentValue).toString();
+        
+        if (withThousandsSeparator) {
+            formattedValue = formattedValue.replace(/\B(?=(\d{3})+(?!\d))/g, ',');
+        }
+        
+        element.textContent = formattedValue + suffix;
+        
+        if (progress < 1) {
+            requestAnimationFrame(updateNumber);
+        }
+    }
+    
+    updateNumber();
+}
+
+
+// Easing function
+function easeOutQuart(t) {
+    return 1 - (--t) * t * t * t;
+}
+
+// Real dashboard refresh
+async function refreshDashboard() {
+    showNotification('Aggiornamento dati...', 'info');
+    
+    const refreshBtns = document.querySelectorAll('[data-action="refresh"]');
+    refreshBtns.forEach(btn => {
+        const originalText = btn.innerHTML;
+        btn.innerHTML = '<i class="bi bi-arrow-clockwise"></i> Aggiornamento...';
+        btn.disabled = true;
+    });
+    
+    try {
+        // Fetch real data
+        const [statsResponse, activitiesResponse] = await Promise.all([
+            fetch('/api/stats'),
+            fetch('/api/activities')
+        ]);
+        
+        if (statsResponse.ok && activitiesResponse.ok) {
+            const stats = await statsResponse.json();
+            const activities = await activitiesResponse.json();
+            
+            // Update statistics in real time
+            updateRealStatistics(stats);
+            updateRealActivities(activities);
+            
+            showNotification('Dati aggiornati con successo!', 'success');
+        } else {
+            throw new Error('Errore nel recuperare i dati');
+        }
+    } catch (error) {
+        console.error('Errore refresh:', error);
+        showNotification('Errore nell\'aggiornamento dati', 'danger');
+    } finally {
+        refreshBtns.forEach(btn => {
+            btn.innerHTML = btn.dataset.originalText || '<i class="bi bi-arrow-clockwise me-1"></i>Aggiorna';
+            btn.disabled = false;
+        });
+    }
+}
+// Update real activities
+function updateRealActivities(activities) {
+    const activitiesContainer = document.querySelector('.card-body .d-flex.align-items-center').parentNode;
+    if (!activitiesContainer) return;
+    
+    // Clear existing activities (keep the "Vedi tutte" button)
+    const existingActivities = activitiesContainer.querySelectorAll('.d-flex.align-items-center.mb-3');
+    existingActivities.forEach(activity => activity.remove());
+    
+    // Add new activities
+    activities.slice(0, 5).forEach(activity => {
+        const activityElement = createActivityElement(activity);
+        activitiesContainer.insertBefore(activityElement, activitiesContainer.lastElementChild);
+    });
+}
+
+// Update real statistics
+function updateRealStatistics(stats) {
+    const statMapping = {
+        'total_tickers': document.querySelector('.border-left-primary .h5'),
+        'updated_tickers': document.querySelector('.border-left-success .h5'),
+        'total_records': document.querySelector('.border-left-info .h5'),
+        'total_size_mb': document.querySelector('.border-left-warning .h5')
+    };
+    
+    Object.entries(statMapping).forEach(([key, element]) => {
+        if (element && stats[key] !== undefined) {
+            const currentValue = parseFloat(element.textContent.replace(/[^0-9.-]+/g, '')) || 0;
+            const newValue = stats[key];
+            
+            if (key === 'total_records') {
+                animateNumber(element, currentValue, newValue, true); // Con separatori migliaia
+            } else if (key === 'total_size_mb') {
+                animateNumber(element, currentValue, newValue, false, ' MB');
+            } else {
+                animateNumber(element, currentValue, newValue);
+            }
+        }
+    });
 }
 
 // Search functionality
@@ -246,22 +320,23 @@ function startAutoRefresh() {
     }, autoRefreshInterval);
 }
 
-// Fetch latest data from API
+// ✅ AGGIORNARE fetchLatestData per usare endpoint reali:
 async function fetchLatestData() {
     try {
-        // Fetch statistics
-        const statsResponse = await fetch('/api/stats');
+        const [statsResponse, activitiesResponse] = await Promise.all([
+            fetch('/api/stats'),
+            fetch('/api/activities')
+        ]);
+        
         if (statsResponse.ok) {
             const stats = await statsResponse.json();
-            // Update UI with new stats
+            updateRealStatistics(stats);
             console.log('Stats updated:', stats);
         }
         
-        // Fetch activities
-        const activitiesResponse = await fetch('/api/activities');
         if (activitiesResponse.ok) {
             const activities = await activitiesResponse.json();
-            // Update activities feed
+            updateRealActivities(activities);
             console.log('Activities updated:', activities);
         }
     } catch (error) {

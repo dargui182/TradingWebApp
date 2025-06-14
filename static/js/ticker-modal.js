@@ -334,89 +334,66 @@ class TickerModal {
         }
     }
 
-    async loadHistoricalData(ticker, version = 'adjusted') {
-        if (this.isLoading) {
-            console.log('⏳ Caricamento già in corso, ignoro richiesta');
-            return;
-        }
-
-        console.log(`📈 Caricamento dati storici per ${ticker} (${version})`);
-        
-        // Controlla cache
-        const cacheKey = `${ticker}-${version}`;
-        if (this.dataCache.has(cacheKey)) {
-            console.log(`💾 Dati trovati in cache per ${cacheKey}`);
-            const cachedData = this.dataCache.get(cacheKey);
-            this.populateHistoricalTable(cachedData, version);
-            return;
-        }
-
-        this.isLoading = true;
-        this.showTableLoading(true);
-        
-        try {
-            // Controlla se TickerAPI esiste e aspetta se necessario
-            await this.waitForTickerAPI();
-            
-            const apiUrl = `/api/ticker/${ticker}/data?limit=20&version=${version}`;
-            console.log(`🌐 Chiamata API: ${apiUrl}`);
-            
-            // CORRETTO: Usa window.TickerAPI
-            const data = await window.TickerAPI.getTickerData(ticker, { 
-                limit: 20, 
-                version: version 
-            });
-            
-            console.log('📊 Dati storici ricevuti:', data);
-            
-            // Verifica struttura dati
-            if (!data || !data.data || !Array.isArray(data.data)) {
-                throw new Error('Struttura dati non valida dalla API');
-            }
-            
-            let historicalData;
-            if (data.data.length === 0) {
-                console.warn('⚠️ Nessun dato storico disponibile dalla API');
-                historicalData = this.getConsistentMockData(ticker, version);
-            } else {
-                console.log(`✅ Caricati ${data.data.length} record storici dalla API`);
-                historicalData = data.data;
-            }
-            
-            // Salva in cache
-            this.dataCache.set(cacheKey, historicalData);
-            
-            // Popola tabella
-            this.populateHistoricalTable(historicalData, version);
-            
-            // Mostra la tabella
-            this.showTableLoading(false, false);
-            
-        } catch (error) {
-            console.error('❌ Errore caricamento dati storici:', error);
-            console.error('Stack trace:', error.stack);
-            
-            // Fallback con dati consistenti
-            console.log('🔄 Usando dati mock consistenti...');
-            try {
-                const mockData = this.getConsistentMockData(ticker, version);
-                
-                // Salva in cache anche i dati mock
-                this.dataCache.set(cacheKey, mockData);
-                
-                this.populateHistoricalTable(mockData, version);
-                this.showTableLoading(false, false);
-                
-                console.log('✅ Utilizzati dati mock consistenti');
-            } catch (fallbackError) {
-                console.error('❌ Anche fallback fallito:', fallbackError);
-                this.showTableLoading(false, true);
-            }
-        } finally {
-            this.isLoading = false;
-        }
+    // ✅ SOSTITUIRE il metodo loadHistoricalData con questa versione pulita:
+async loadHistoricalData(ticker, version = 'adjusted') {
+    if (this.isLoading) {
+        console.log('⏳ Caricamento già in corso, ignoro richiesta');
+        return;
     }
 
+    console.log(`📈 Caricamento dati storici per ${ticker} (${version})`);
+    
+    // Controlla cache
+    const cacheKey = `${ticker}-${version}`;
+    if (this.dataCache.has(cacheKey)) {
+        console.log(`💾 Dati trovati in cache per ${cacheKey}`);
+        const cachedData = this.dataCache.get(cacheKey);
+        this.populateHistoricalTable(cachedData, version);
+        return;
+    }
+
+    this.isLoading = true;
+    this.showTableLoading(true);
+    
+    try {
+        await this.waitForTickerAPI();
+        
+        const data = await window.TickerAPI.getTickerData(ticker, { 
+            limit: 20, 
+            version: version 
+        });
+        
+        console.log('📊 Dati storici ricevuti:', data);
+        
+        if (!data || !data.data || !Array.isArray(data.data)) {
+            throw new Error('Struttura dati non valida dalla API');
+        }
+        
+        if (data.data.length === 0) {
+            console.warn('⚠️ Nessun dato storico disponibile');
+            this.showTableLoading(false, true);
+            return;
+        }
+        
+        console.log(`✅ Caricati ${data.data.length} record storici`);
+        
+        // Salva in cache
+        this.dataCache.set(cacheKey, data.data);
+        
+        // Popola tabella
+        this.populateHistoricalTable(data.data, version);
+        
+        // Mostra la tabella
+        this.showTableLoading(false, false);
+        
+    } catch (error) {
+        console.error('❌ Errore caricamento dati storici:', error);
+        this.showTableLoading(false, true);
+    } finally {
+        this.isLoading = false;
+    }
+}
+ 
     // Nuovo metodo per aspettare che TickerAPI sia pronto
     async waitForTickerAPI() {
         const maxAttempts = 50; // 5 secondi massimo
@@ -471,64 +448,6 @@ class TickerModal {
         };
         
         console.log('✅ TickerAPI di emergenza creato');
-    }
-
-    getConsistentMockData(ticker, version) {
-        // Usa il ticker come seed per generare sempre gli stessi dati
-        const seed = this.hashCode(ticker + version);
-        
-        console.log(`🧪 Generazione dati mock consistenti per ${ticker} (${version}) con seed: ${seed}`);
-        
-        const mockData = [];
-        const today = new Date();
-        
-        // Usa il seed per Math.random consistente
-        const seededRandom = this.seededRandom(seed);
-        
-        for (let i = 0; i < 5; i++) {
-            const date = new Date(today);
-            date.setDate(date.getDate() - i);
-            
-            const basePrice = 100 + (seededRandom() * 50);
-            const record = {
-                date: date.toISOString().split('T')[0],
-                open: Math.round((basePrice + seededRandom() * 2 - 1) * 100) / 100,
-                high: Math.round((basePrice + seededRandom() * 3) * 100) / 100,
-                low: Math.round((basePrice - seededRandom() * 3) * 100) / 100,
-                close: Math.round((basePrice + seededRandom() * 2 - 1) * 100) / 100,
-                volume: Math.floor(seededRandom() * 1000000) + 100000
-            };
-            
-            if (version === 'adjusted') {
-                record.adj_close = record.close;
-            }
-            
-            mockData.push(record);
-        }
-        
-        console.log('🧪 Dati mock consistenti creati:', mockData.length, 'record');
-        return mockData;
-    }
-
-    // Hash function per creare seed consistente
-    hashCode(str) {
-        let hash = 0;
-        if (str.length === 0) return hash;
-        for (let i = 0; i < str.length; i++) {
-            const char = str.charCodeAt(i);
-            hash = ((hash << 5) - hash) + char;
-            hash = hash & hash; // Convert to 32bit integer
-        }
-        return Math.abs(hash);
-    }
-
-    // Generatore random con seed per consistenza
-    seededRandom(seed) {
-        let currentSeed = seed;
-        return function() {
-            currentSeed = (currentSeed * 9301 + 49297) % 233280;
-            return currentSeed / 233280;
-        };
     }
 
     showTableLoading(show, showError = false) {

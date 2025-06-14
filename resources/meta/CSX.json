@@ -4,15 +4,22 @@
     "symbol": "CSX",
     "name": "CSX Corporation",
     "sector": "Industrials",
-    "industry": "Railroads",
+    "industry": "Rail Transportation",
     "currency": "USD",
-    "exchange": "NMS",
-    "country": "United States"
+    "exchange": "N/A",
+    "country": "N/A",
+    "source": "CSV"
   },
-  "last_close_date": "2025-06-13",
-  "total_records": 11244,
-  "first_date": "1980-11-03",
-  "last_updated": "2025-06-14T09:34:15.086113",
+  "last_close_date": null,
+  "first_date": null,
+  "total_records": 0,
+  "last_updated": "2025-06-14T17:18:49.078530",
+  "csv_import": {
+    "imported_at": "2025-06-14T17:18:49.078530",
+    "company": "CSX Corporation",
+    "sector": "Industrials",
+    "industry": "Rail Transportation"
+  },
   "files": {
     "adjusted": "resources\\data\\daily\\CSX.csv",
     "not_adjusted": "resources\\data\\daily_notAdjusted\\CSX_notAdjusted.csv"
