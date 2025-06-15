@@ -788,43 +788,7 @@ class TechnicalAnalysisManager {
     }
 
     
-  /*   updateChartInfo(data) {
-        const priceInfo = document.getElementById('priceInfo');
-        const srInfo = document.getElementById('srInfo');
-        const zonesInfo = document.getElementById('zonesInfo');
-
-        if (priceInfo) {
-            const priceData = data.price_data;
-            const lastPrice = priceData[priceData.length - 1];
-            priceInfo.innerHTML = `
-                <div>📊 Tipo: ${data.data_type}</div>
-                <div>📈 Ultimo: $${lastPrice.close}</div>
-                <div>📅 Record: ${priceData.length}</div>
-            `;
-        }
-
-        if (srInfo) {
-            const srData = data.support_resistance || [];
-            const supports = srData.filter(s => s.type === 'Support').length;
-            const resistances = srData.filter(s => s.type === 'Resistance').length;
-            srInfo.innerHTML = `
-                <div>🟢 Supporti: ${supports}</div>
-                <div>🔴 Resistenze: ${resistances}</div>
-                <div>📏 Totale: ${srData.length}</div>
-            `;
-        }
-
-        if (zonesInfo) {
-            const zonesData = data.skorupinski_zones || [];
-            const supply = zonesData.filter(z => z.type === 'Supply').length;
-            const demand = zonesData.filter(z => z.type === 'Demand').length;
-            zonesInfo.innerHTML = `
-                <div>🔴 Supply: ${supply}</div>
-                <div>🟢 Demand: ${demand}</div>
-                <div>🎯 Totale: ${zonesData.length}</div>
-            `;
-        }
-    } */
+ 
     
 
     async loadZonesTable() {
@@ -1220,7 +1184,7 @@ class TechnicalAnalysisManager {
         }
     }
 
-    // Sostituzione del metodo loadChart per usare Plotly invece di Chart.js
+// Sostituzione del metodo loadChart per usare Plotly invece di Chart.js
 async loadChart(ticker) {
     this.showChartLoading(true);
     
@@ -1243,8 +1207,12 @@ async loadChart(ticker) {
         // Usa Plotly invece di Chart.js
         await this.renderPlotlyChart(data);
         
-        // Aggiorna info grafico
-        this.updateChartInfo(data.data_info);
+        // Ottieni anche i dati completi per info dettagliate
+        const fullDataResponse = await fetch(`/api/technical-analysis/chart/${ticker}?days=100&include_analysis=true`);
+        const fullData = fullDataResponse.ok ? await fullDataResponse.json() : null;
+        
+        // Aggiorna info grafico con dati completi
+        this.updateChartInfo(data.data_info, fullData);
         
         this.showLog(`✅ Grafico Plotly ${ticker} caricato`, 'success');
         
@@ -1318,43 +1286,170 @@ destroyExistingChart() {
     }
 }
 
-// Aggiorna le info del grafico
-updateChartInfo(dataInfo) {
+// Aggiorna le info del grafico - versione dettagliata
+updateChartInfo(dataInfo, fullData = null) {
+    // Cerca sia l'elemento singolo che i tre elementi separati
     const chartInfoDiv = document.getElementById('chartInfo');
-    if (!chartInfoDiv) return;
+    const priceInfo = document.getElementById('priceInfo');
+    const srInfo = document.getElementById('srInfo');
+    const zonesInfo = document.getElementById('zonesInfo');
+
+    // Se ci sono gli elementi separati (versione dettagliata)
+    if (priceInfo && srInfo && zonesInfo) {
+        this.updateDetailedChartInfo(dataInfo, fullData, priceInfo, srInfo, zonesInfo);
+    } 
+    // Altrimenti usa l'elemento singolo (versione compatta)
+    else if (chartInfoDiv) {
+        this.updateCompactChartInfo(dataInfo, chartInfoDiv);
+    }
+}
+
+// Versione dettagliata con tre sezioni separate
+updateDetailedChartInfo(dataInfo, fullData, priceInfo, srInfo, zonesInfo) {
+    // ===== PRICE INFO =====
+    if (priceInfo) {
+        let priceContent = `
+            <div>📊 Ticker: <strong>${dataInfo.ticker}</strong></div>
+            <div>📅 Giorni: <strong>${dataInfo.days || 'N/A'}</strong></div>
+            <div>📈 Record: <strong>${dataInfo.data_points}</strong></div>
+        `;
+
+        // Se abbiamo i dati completi, aggiungi ultimo prezzo e tipo
+        if (fullData && fullData.price_data && fullData.price_data.length > 0) {
+            const lastPrice = fullData.price_data[fullData.price_data.length - 1];
+            const dataType = fullData.data_type || 'N/A';
+            priceContent += `
+                <div>💰 Ultimo: <strong>${lastPrice.close?.toFixed(2) || 'N/A'}</strong></div>
+                <div>🔄 Tipo: <strong>${dataType}</strong></div>
+            `;
+        }
+
+        priceContent += `
+            <div>📅 Periodo: <small>${dataInfo.first_date} → ${dataInfo.last_date}</small></div>
+            <div>📊 Volume: <strong>${dataInfo.has_volume ? '✅ Sì' : '❌ No'}</strong></div>
+        `;
+
+        priceInfo.innerHTML = priceContent;
+    }
+
+    // ===== SUPPORT & RESISTANCE INFO =====
+    if (srInfo) {
+        let srContent = '';
+        
+        if (fullData && fullData.support_resistance) {
+            const srData = fullData.support_resistance;
+            const supports = srData.filter(s => s.type === 'Support').length;
+            const resistances = srData.filter(s => s.type === 'Resistance').length;
+            
+            srContent = `
+                <div>🟢 Supporti: <strong>${supports}</strong></div>
+                <div>🔴 Resistenze: <strong>${resistances}</strong></div>
+                <div>📏 Totale: <strong>${srData.length}</strong></div>
+            `;
+
+            // Aggiungi info sui livelli più significativi
+            if (srData.length > 0) {
+                const avgStrength = (srData.reduce((sum, level) => sum + (level.strength || 1), 0) / srData.length).toFixed(1);
+                srContent += `<div>💪 Forza Media: <strong>${avgStrength}</strong></div>`;
+            }
+        } else {
+            // Fallback con dati summary
+            srContent = `
+                <div>📏 Livelli S&R: <strong>${dataInfo.sr_levels}</strong></div>
+                <div>🔍 Dettagli: <em>Caricamento...</em></div>
+            `;
+        }
+
+        srInfo.innerHTML = srContent;
+    }
+
+    // ===== ZONES INFO =====
+    if (zonesInfo) {
+        let zonesContent = '';
+
+        if (fullData && fullData.skorupinski_zones) {
+            const zonesData = Array.isArray(fullData.skorupinski_zones) 
+                ? fullData.skorupinski_zones 
+                : [];
+            const supply = zonesData.filter(z => z.type === 'Supply').length;
+            const demand = zonesData.filter(z => z.type === 'Demand').length;
+            
+            zonesContent = `
+                <div>🔴 Supply: <strong>${supply}</strong></div>
+                <div>🟢 Demand: <strong>${demand}</strong></div>
+                <div>🎯 Totale: <strong>${zonesData.length}</strong></div>
+            `;
+
+            // Aggiungi statistiche aggiuntive se disponibili
+            if (zonesData.length > 0) {
+                const avgVolume = zonesData.filter(z => z.volume).length;
+                if (avgVolume > 0) {
+                    zonesContent += `<div>📊 Con Volume: <strong>${avgVolume}</strong></div>`;
+                }
+            }
+        } else {
+            // Fallback con dati summary
+            const totalZones = dataInfo.demand_zones + dataInfo.supply_zones;
+            zonesContent = `
+                <div>🔴 Supply: <strong>${dataInfo.supply_zones}</strong></div>
+                <div>🟢 Demand: <strong>${dataInfo.demand_zones}</strong></div>
+                <div>🎯 Totale: <strong>${totalZones}</strong></div>
+            `;
+        }
+
+        zonesInfo.innerHTML = zonesContent;
+    }
+}
+
+// Versione compatta con un solo elemento
+updateCompactChartInfo(dataInfo, chartInfoDiv) {
+    const totalZones = dataInfo.demand_zones + dataInfo.supply_zones;
     
     chartInfoDiv.innerHTML = `
         <div class="row g-2">
             <div class="col-md-3">
-                <small class="text-muted">Ticker:</small><br>
+                <small class="text-muted">📊 Ticker:</small><br>
                 <strong>${dataInfo.ticker}</strong>
             </div>
             <div class="col-md-3">
-                <small class="text-muted">Punti dati:</small><br>
+                <small class="text-muted">📈 Punti dati:</small><br>
                 <strong>${dataInfo.data_points}</strong>
             </div>
             <div class="col-md-3">
-                <small class="text-muted">Livelli S&R:</small><br>
+                <small class="text-muted">📏 Livelli S&R:</small><br>
                 <strong>${dataInfo.sr_levels}</strong>
             </div>
             <div class="col-md-3">
-                <small class="text-muted">Zone:</small><br>
-                <strong>${dataInfo.demand_zones + dataInfo.supply_zones}</strong>
+                <small class="text-muted">🎯 Zone:</small><br>
+                <strong>${totalZones}</strong>
                 <small>(${dataInfo.demand_zones}D/${dataInfo.supply_zones}S)</small>
             </div>
         </div>
         <div class="row g-2 mt-2">
-            <div class="col-md-6">
-                <small class="text-muted">Primo:</small>
+            <div class="col-md-4">
+                <small class="text-muted">📅 Primo:</small>
                 <span class="ms-1">${dataInfo.first_date}</span>
             </div>
-            <div class="col-md-6">
-                <small class="text-muted">Ultimo:</small>
+            <div class="col-md-4">
+                <small class="text-muted">📅 Ultimo:</small>
                 <span class="ms-1">${dataInfo.last_date}</span>
+            </div>
+            <div class="col-md-4">
+                <small class="text-muted">📊 Volume:</small>
+                <span class="ms-1">${dataInfo.has_volume ? '✅ Sì' : '❌ No'}</span>
             </div>
         </div>
     `;
 }
+
+
+
+
+
+
+ 
+
+
 }
 
 // ===== INIZIALIZZAZIONE COMPLETA =====
