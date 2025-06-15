@@ -262,74 +262,7 @@ class TechnicalAnalysisManager:
         
         return summary
     
-    def get_ticker_chart_data(self, ticker: str, days: int = 100, include_analysis: bool = True) -> Dict:
-        """
-        Ottiene dati per grafico di un ticker con analisi tecnica.
-        
-        Args:
-            ticker: simbolo del ticker
-            days: numero di giorni di storico
-            include_analysis: se includere supporti/resistenze e zone
-            
-        Returns:
-            Dict con dati OHLC e analisi tecnica
-        """
-        # Carica dati prezzi (usa la fonte attualmente configurata)
-        try:
-            if self.sr_manager.input_folder_prices == self.data_dir:
-                price_file = self.data_dir / f"{ticker}.csv"
-                data_type = "adjusted"
-            else:
-                price_file = self.data_dir_not_adj / f"{ticker}_notAdjusted.csv"
-                data_type = "notAdjusted"
-            
-            if not price_file.exists():
-                raise FileNotFoundError(f"File dati non trovato: {price_file}")
-            
-            # Carica e filtra dati
-            df = pd.read_csv(price_file, parse_dates=['Date'])
-            df = df.tail(days).copy()  # Ultimi N giorni
-            
-            result = {
-                'ticker': ticker,
-                'data_type': data_type,
-                'price_data': [],
-                'support_resistance': [],
-                'skorupinski_zones': []
-            }
-            
-            # Converti dati prezzi in formato compatibile con grafici
-            for _, row in df.iterrows():
-                result['price_data'].append({
-                    'date': row['Date'].strftime('%Y-%m-%d'),
-                    'open': float(row['Open']),
-                    'high': float(row['High']),
-                    'low': float(row['Low']),
-                    'close': float(row['Close']),
-                    'volume': int(row.get('Volume', 0))
-                })
-            
-            if include_analysis:
-                # Aggiungi supporti e resistenze
-                sr_data = self.sr_manager.get_current_levels(ticker, max_days_old=60, min_strength=1.5)
-                if sr_data is not None and not sr_data.empty:
-                    result['support_resistance'] = sr_data.to_dict('records')
-                
-                # Aggiungi zone Skorupinski
-                analysis_data = self.get_ticker_analysis_data(ticker, 'skorupinski')
-                result['skorupinski_zones'] = analysis_data.get('skorupinski_zones', [])
-            
-            return result
-            
-        except Exception as e:
-            print(f"❌ Errore nel caricamento dati grafico per {ticker}: {str(e)}")
-            return {
-                'ticker': ticker,
-                'error': str(e),
-                'price_data': [],
-                'support_resistance': [],
-                'skorupinski_zones': []
-            }
+
 
     # ===== FIX per TechnicalAnalysisManager.py =====
 # Aggiungi questo metodo corretto:
@@ -1004,3 +937,148 @@ class TechnicalAnalysisManager:
                 except Exception as e:
                     logger.error(f"Errore generazione grafico Plotly: {e}")
                     raise
+
+    def clean_data_for_json(self, data):
+        """
+        Pulisce i dati per la serializzazione JSON, convertendo NaN in None.
+        """
+        import pandas as pd
+        import numpy as np
+        
+        if isinstance(data, dict):
+            return {key: self.clean_data_for_json(value) for key, value in data.items()}
+        elif isinstance(data, list):
+            return [self.clean_data_for_json(item) for item in data]
+        elif isinstance(data, (pd.Series, pd.DataFrame)):
+            # Converti pandas in dict/list e pulisci
+            if isinstance(data, pd.DataFrame):
+                return self.clean_data_for_json(data.to_dict('records'))
+            else:
+                return self.clean_data_for_json(data.tolist())
+        elif pd.isna(data) or (isinstance(data, float) and (np.isnan(data) or np.isinf(data))):
+            return None
+        elif isinstance(data, (np.integer, np.floating)):
+            # Converti numpy numbers in Python numbers
+            if np.isnan(data) or np.isinf(data):
+                return None
+            return float(data) if isinstance(data, np.floating) else int(data)
+        else:
+            return data
+
+    def get_ticker_chart_data(self, ticker: str, days: int = 100, include_analysis: bool = True) -> Dict:
+        """
+        Ottiene dati per grafico di un ticker con analisi tecnica.
+        VERSIONE MIGLIORATA CON GESTIONE NaN
+        """
+        try:
+            if self.sr_manager.input_folder_prices == self.data_dir:
+                price_file = self.data_dir / f"{ticker}.csv"
+                data_type = "adjusted"
+            else:
+                price_file = self.data_dir_not_adj / f"{ticker}_notAdjusted.csv"
+                data_type = "notAdjusted"
+            
+            if not price_file.exists():
+                raise FileNotFoundError(f"File dati non trovato: {price_file}")
+            
+            # Carica e filtra dati
+            df = pd.read_csv(price_file, parse_dates=['Date'])
+            df = df.tail(days).copy()  # Ultimi N giorni
+            
+            # ===== PULISCI DATI PREZZO =====
+            # Rimuovi righe con tutti NaN
+            df = df.dropna(subset=['Close'])
+            
+            # Sostituisci NaN con valori ragionevoli
+            df['Open'] = df['Open'].fillna(df['Close'])
+            df['High'] = df['High'].fillna(df['Close'])
+            df['Low'] = df['Low'].fillna(df['Close'])
+            df['Volume'] = df['Volume'].fillna(0)
+            
+            result = {
+                'ticker': ticker,
+                'data_type': data_type,
+                'price_data': [],
+                'support_resistance': [],
+                'skorupinski_zones': []
+            }
+            
+            # Converti dati prezzi in formato compatibile con grafici
+            for _, row in df.iterrows():
+                # Verifica che i valori siano validi
+                if pd.notna(row['Close']) and row['Close'] > 0:
+                    price_record = {
+                        'date': row['Date'].strftime('%Y-%m-%d'),
+                        'open': float(row['Open']) if pd.notna(row['Open']) else float(row['Close']),
+                        'high': float(row['High']) if pd.notna(row['High']) else float(row['Close']),
+                        'low': float(row['Low']) if pd.notna(row['Low']) else float(row['Close']),
+                        'close': float(row['Close']),
+                        'volume': int(row.get('Volume', 0)) if pd.notna(row.get('Volume', 0)) else 0
+                    }
+                    result['price_data'].append(price_record)
+            
+            if include_analysis:
+                # Aggiungi supporti e resistenze
+                try:
+                    sr_data = self.sr_manager.get_current_levels(ticker, max_days_old=60, min_strength=1.5)
+                    if sr_data is not None and not sr_data.empty:
+                        # Pulisci dati S&R
+                        sr_cleaned = []
+                        for _, row in sr_data.iterrows():
+                            if pd.notna(row['level']) and row['level'] > 0:
+                                sr_record = {
+                                    'type': str(row['type']),
+                                    'level': float(row['level']),
+                                    'strength': float(row['strength']) if pd.notna(row['strength']) else 1.0,
+                                    'date': row['date'].strftime('%Y-%m-%d') if pd.notna(row.get('date')) else None
+                                }
+                                sr_cleaned.append(sr_record)
+                        result['support_resistance'] = sr_cleaned
+                except Exception as e:
+                    print(f"⚠️ Errore caricamento S&R per {ticker}: {e}")
+                    result['support_resistance'] = []
+                
+                # Aggiungi zone Skorupinski
+                try:
+                    analysis_data = self.get_ticker_analysis_data(ticker, 'skorupinski')
+                    zones_data = analysis_data.get('skorupinski_zones', [])
+                    
+                    # Pulisci dati zone
+                    zones_cleaned = []
+                    for zone in zones_data:
+                        if (isinstance(zone, dict) and 
+                            pd.notna(zone.get('zone_bottom')) and 
+                            pd.notna(zone.get('zone_top')) and
+                            zone.get('zone_bottom', 0) > 0):
+                            
+                            zone_record = {
+                                'pattern': str(zone.get('pattern', 'Unknown')),
+                                'type': str(zone.get('type', 'Unknown')),
+                                'zone_bottom': float(zone['zone_bottom']),
+                                'zone_top': float(zone['zone_top']),
+                                'zone_center': float(zone.get('zone_center', (zone['zone_bottom'] + zone['zone_top']) / 2)),
+                                'strength_score': float(zone.get('strength_score', 1.0)) if pd.notna(zone.get('strength_score')) else 1.0,
+                                'date': zone.get('date', '').strftime('%Y-%m-%d') if pd.notna(zone.get('date')) else None
+                            }
+                            zones_cleaned.append(zone_record)
+                    
+                    result['skorupinski_zones'] = zones_cleaned
+                except Exception as e:
+                    print(f"⚠️ Errore caricamento zone per {ticker}: {e}")
+                    result['skorupinski_zones'] = []
+            
+            # ===== PULIZIA FINALE =====
+            # Applica pulizia ricorsiva per essere sicuri
+            result = self.clean_data_for_json(result)
+            
+            return result
+            
+        except Exception as e:
+            print(f"❌ Errore nel caricamento dati grafico per {ticker}: {str(e)}")
+            return {
+                'ticker': ticker,
+                'error': str(e),
+                'price_data': [],
+                'support_resistance': [],
+                'skorupinski_zones': []
+            }                

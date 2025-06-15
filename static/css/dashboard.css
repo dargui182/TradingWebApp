@@ -640,3 +640,94 @@ body {
         color: #fff;
     }
 }
+
+/* Stili per le tabelle technical analysis */
+.table-hover tbody tr:hover {
+    background-color: rgba(0, 123, 255, 0.05);
+}
+
+/* Badge personalizzati per pattern */
+.badge.bg-danger { background-color: #dc3545 !important; }
+.badge.bg-dark { background-color: #212529 !important; }
+.badge.bg-success { background-color: #198754 !important; }
+.badge.bg-primary { background-color: #0d6efd !important; }
+
+/* Progress bar per strength score */
+.progress {
+    background-color: #e9ecef;
+}
+
+.progress-bar.bg-success { background-color: #198754 !important; }
+.progress-bar.bg-warning { background-color: #ffc107 !important; }
+.progress-bar.bg-danger { background-color: #dc3545 !important; }
+
+/* Zone vergini evidenziate */
+.table tbody tr.fw-bold {
+    font-weight: 600 !important;
+    border-left: 3px solid #0d6efd;
+}
+
+/* Responsive miglioramenti */
+@media (max-width: 768px) {
+    .table-responsive {
+        font-size: 0.875rem;
+    }
+    
+    .btn-group-sm .btn {
+        padding: 0.25rem 0.5rem;
+        font-size: 0.75rem;
+    }
+}
+
+/* Indicatori di stato */
+.text-success { color: #198754 !important; }
+.text-danger { color: #dc3545 !important; }
+.text-warning { color: #f57c00 !important; }
+.text-info { color: #0dcaf0 !important; }
+
+/* Miglioramenti tooltip */
+[data-bs-toggle="tooltip"] {
+    cursor: help;
+}
+
+/* Loading spinner per le tabelle */
+.table-loading {
+    position: relative;
+}
+
+.table-loading::after {
+    content: "";
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 2rem;
+    height: 2rem;
+    margin-top: -1rem;
+    margin-left: -1rem;
+    border: 2px solid #f3f3f3;
+    border-top: 2px solid #0d6efd;
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
+
+/* Evidenziazione righe importanti */
+.table tbody tr.table-success {
+    background-color: rgba(25, 135, 84, 0.1) !important;
+}
+
+.table tbody tr.table-danger {
+    background-color: rgba(220, 53, 69, 0.1) !important;
+}
+
+.table tbody tr.table-warning {
+    background-color: rgba(255, 193, 7, 0.1) !important;
+}
+
+.table tbody tr.table-info {
+    background-color: rgba(13, 202, 240, 0.1) !important;
+}

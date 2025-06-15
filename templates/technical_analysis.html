@@ -438,4 +438,104 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 });
 </script>
+<!-- AGGIUNGI gli script JavaScript alla fine del template -->
+<script>
+    // Inizializzazione Technical Analysis Manager
+    document.addEventListener('DOMContentLoaded', function() {
+        console.log('🚀 Inizializzazione Technical Analysis Dashboard...');
+        
+        // Crea istanza manager globale
+        window.taManager = new TechnicalAnalysisManager();
+        
+        // Carica dati iniziali se siamo nella tab overview
+        const overviewTab = document.getElementById('overview-tab');
+        if (overviewTab && overviewTab.classList.contains('active')) {
+            window.taManager.loadOverviewData();
+        }
+        
+        console.log('✅ Technical Analysis Manager inizializzato');
+    });
+    
+    // Event handlers per i tab
+    document.getElementById('zones-tab')?.addEventListener('shown.bs.tab', function() {
+        console.log('📊 Caricamento tab zone Skorupinski...');
+        window.taManager?.loadZonesTable();
+    });
+    
+    document.getElementById('levels-tab')?.addEventListener('shown.bs.tab', function() {
+        console.log('📏 Caricamento tab supporti/resistenze...');  
+        window.taManager?.loadLevelsTable();
+    });
+    
+    document.getElementById('chart-tab')?.addEventListener('shown.bs.tab', function() {
+        console.log('📈 Caricamento tab grafico...');
+        // Il grafico viene gestito separatamente
+    });
+    
+    // Event handlers per i bottoni refresh
+    document.getElementById('refreshZonesBtn')?.addEventListener('click', function() {
+        console.log('🔄 Refresh manuale zone Skorupinski...');
+        window.taManager?.loadZonesTable();
+    });
+    
+    document.getElementById('refreshLevelsBtn')?.addEventListener('click', function() {
+        console.log('🔄 Refresh manuale supporti/resistenze...');
+        window.taManager?.loadLevelsTable();
+    });
+    
+    // Event handlers per il grafico ticker
+    document.getElementById('tickerSelect')?.addEventListener('change', function() {
+        const selectedTicker = this.value;
+        if (selectedTicker && window.taManager) {
+            console.log(`📊 Caricamento grafico per ${selectedTicker}...`);
+            window.taManager.loadTickerChart(selectedTicker);
+        }
+    });
+    
+    // Auto-refresh ogni 5 minuti se la pagina è attiva
+    let autoRefreshInterval;
+    function startAutoRefresh() {
+        autoRefreshInterval = setInterval(() => {
+            if (!document.hidden && window.taManager) {
+                console.log('🔄 Auto-refresh dati technical analysis...');
+                
+                // Refresh solo la tab attiva
+                const activeTab = document.querySelector('.tab-pane.active');
+                if (activeTab) {
+                    switch(activeTab.id) {
+                        case 'zones':
+                            window.taManager.loadZonesTable();
+                            break;
+                        case 'levels': 
+                            window.taManager.loadLevelsTable();
+                            break;
+                        case 'overview':
+                            window.taManager.loadOverviewData();
+                            break;
+                    }
+                }
+            }
+        }, 5 * 60 * 1000); // 5 minuti
+    }
+    
+    // Gestione visibilità pagina
+    document.addEventListener('visibilitychange', function() {
+        if (document.hidden) {
+            if (autoRefreshInterval) {
+                clearInterval(autoRefreshInterval);
+                console.log('⏸️ Auto-refresh paused (pagina nascosta)');
+            }
+        } else {
+            startAutoRefresh();
+            console.log('▶️ Auto-refresh ripreso (pagina visibile)');
+        }
+    });
+    
+    // Avvia auto-refresh se la pagina è visibile
+    if (!document.hidden) {
+        startAutoRefresh();
+    }
+    
+    console.log('✅ Event handlers technical analysis configurati');
+    </script>
 {% endblock %}
