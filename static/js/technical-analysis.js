@@ -486,183 +486,430 @@ class TechnicalAnalysisManager {
         }, 200);
     }
 
+// 2. Modifica la funzione createChart per leggere correttamente lo stato delle checkbox
+// Sostituisci la funzione esistente con questa versione migliorata:
 
-
-    createChart(ticker, data, showSR, showZones) {
-        const ctx = document.getElementById('technicalChart');
-        if (!ctx) return;
-
-        try {
-            console.log('📊 Creazione nuovo grafico per', ticker);
-
-            // Verifica validità dati
-            if (!data.price_data || data.price_data.length === 0) {
-                throw new Error('Dati prezzo mancanti o vuoti');
-            }
-
-            // Prepara dati con validazione
-            const labels = data.price_data.map((item, index) => {
-                try {
-                    const date = new Date(item.date);
-                    if (isNaN(date.getTime())) {
-                        return `Giorno ${index + 1}`;
-                    }
-                    return date.toLocaleDateString('it-IT', {
-                        day: '2-digit',
-                        month: '2-digit'
-                    });
-                } catch {
-                    return `Giorno ${index + 1}`;
-                }
-            });
-
-            const priceData = data.price_data.map(item => {
-                const price = this.sanitizeNumber(item.close);
-                return price !== null ? price : 0;
-            });
-
-            // Verifica che abbiamo dati validi
-            const validPrices = priceData.filter(p => p > 0);
-            if (validPrices.length === 0) {
-                throw new Error('Nessun prezzo valido trovato');
-            }
-
-            console.log('📊 Dati preparati:', {
-                labels: labels.length,
-                prices: priceData.length,
-                validPrices: validPrices.length,
-                firstLabel: labels[0],
-                lastLabel: labels[labels.length - 1],
-                priceRange: `${Math.min(...validPrices).toFixed(2)} - ${Math.max(...validPrices).toFixed(2)}`
-            });
-
-            // Dataset base
-            const datasets = [{
-                label: `${ticker} - Prezzo`,
-                data: priceData,
-                borderColor: '#007bff',
-                backgroundColor: 'rgba(0, 123, 255, 0.1)',
-                borderWidth: 2,
-                fill: false,
-                tension: 0.1,
-                pointRadius: 1
-            }];
-
-            // Aggiungi supporti e resistenze con validazione
-            if (showSR && data.support_resistance && Array.isArray(data.support_resistance)) {
-                console.log('📏 Aggiungendo', data.support_resistance.length, 'livelli S&R');
-                
-                let validSRCount = 0;
-                data.support_resistance.forEach((level, index) => {
-                    const levelValue = this.sanitizeNumber(level.level);
-                    if (levelValue === null || levelValue <= 0) {
-                        console.warn(`⚠️ Livello S&R non valido saltato:`, level);
-                        return;
-                    }
-
-                    const isSupport = level.type === 'support' || level.type === 'Support';
-                    const levelData = new Array(labels.length).fill(levelValue);
-                    
-                    datasets.push({
-                        label: `${isSupport ? 'Support' : 'Resistance'} ${levelValue.toFixed(2)}`,
-                        data: levelData,
-                        borderColor: isSupport ? '#28a745' : '#dc3545',
-                        backgroundColor: 'transparent',
-                        borderWidth: 2,
-                        borderDash: [8, 4],
-                        pointRadius: 0,
-                        fill: false
-                    });
-                    
-                    validSRCount++;
-                });
-                
-                console.log(`✅ Aggiunti ${validSRCount} livelli S&R validi`);
-            }
-
-            // Aggiungi zone Skorupinski con validazione
-            if (showZones && data.skorupinski_zones) {
-                try {
-                    this.addSkorupinkiZones(datasets, data.skorupinski_zones, labels.length);
-                } catch (zonesError) {
-                    console.warn('⚠️ Errore aggiunta zone Skorupinski:', zonesError);
-                }
-            }
-
-            // Configurazione Chart.js
-            const config = {
-                type: 'line',
-                data: {
-                    labels: labels,
-                    datasets: datasets
-                },
-                options: {
-                    responsive: true,
-                    maintainAspectRatio: false,
-                    scales: {
-                        x: {
-                            title: {
-                                display: true,
-                                text: 'Data'
-                            },
-                            ticks: {
-                                maxTicksLimit: 8
-                            }
-                        },
-                        y: {
-                            title: {
-                                display: true,
-                                text: 'Prezzo ($)'
-                            },
-                            beginAtZero: false,
-                            // Imposta range basato sui dati reali
-                            min: Math.min(...validPrices) * 0.98,
-                            max: Math.max(...validPrices) * 1.02
-                        }
-                    },
-                    plugins: {
-                        title: {
-                            display: true,
-                            text: `${ticker} - Analisi Tecnica`
-                        },
-                        legend: {
-                            display: true,
-                            position: 'top',
-                            labels: {
-                                filter: function(legendItem, chartData) {
-                                    // Nascondi legend items per zone troppo numerose
-                                    return chartData.datasets.length < 15;
-                                }
-                            }
-                        },
-                        tooltip: {
-                            mode: 'index',
-                            intersect: false,
-                            filter: function(tooltipItem) {
-                                // Mostra solo tooltip per dati validi
-                                return tooltipItem.parsed.y > 0;
-                            }
-                        }
-                    }
-                }
-            };
-
-            // Crea il grafico
-            console.log('🎨 Creazione Chart.js...');
-            this.chart = new Chart(ctx, config);
-            
-            console.log('✅ Grafico creato con successo!');
-            this.showLog(`✅ Grafico ${ticker} caricato (${datasets.length} datasets)`, 'success');
-
-        } catch (error) {
-            console.error('❌ Errore creazione grafico:', error);
-            this.showLog(`❌ Errore grafico: ${error.message}`, 'error');
-            
-            // Fallback
-            this.createMinimalChart(ticker, data);
+async createChart(ticker) {
+    try {
+        console.log(`📈 Creazione grafico per ${ticker}...`);
+        
+        // Mostra loading
+        this.showLoading(true);
+        
+        // IMPORTANTE: Leggi lo stato attuale delle checkbox
+        const showSRCheckbox = document.getElementById('showSRLevels');
+        const showZonesCheckbox = document.getElementById('showZones');
+        
+        const showSR = showSRCheckbox ? showSRCheckbox.checked : true;
+        const showZones = showZonesCheckbox ? showZonesCheckbox.checked : true;
+        
+        console.log(`🔧 Stato checkbox - S&R: ${showSR}, Zone: ${showZones}`);
+        
+        // Fetch dei dati
+        const response = await fetch(`/api/technical-analysis/chart-data/${ticker}?days=100`);
+        if (!response.ok) {
+            throw new Error(`HTTP ${response.status}: ${response.statusText}`);
         }
+        
+        const data = await response.json();
+        
+        if (!data.price_data || data.price_data.length === 0) {
+            throw new Error('Nessun dato prezzo disponibile');
+        }
+        
+        // IMPORTANTE: Pulisci il container del grafico prima di creare il nuovo grafico
+        const chartContainer = document.getElementById('technicalChart');
+        if (chartContainer) {
+            // Rimuovi completamente il contenuto esistente
+            chartContainer.innerHTML = '';
+        }
+        
+        // Prepara i dati per Plotly
+        const traces = [];
+        const annotations = [];
+        
+        // Dati del prezzo (candlestick)
+        const dates = data.price_data.map(item => item.date);
+        const opens = data.price_data.map(item => parseFloat(item.open));
+        const highs = data.price_data.map(item => parseFloat(item.high));
+        const lows = data.price_data.map(item => parseFloat(item.low));
+        const closes = data.price_data.map(item => parseFloat(item.close));
+        
+        // Trace principale candlestick
+        traces.push({
+            x: dates,
+            open: opens,
+            high: highs,
+            low: lows,
+            close: closes,
+            type: 'candlestick',
+            name: ticker,
+            increasing: { line: { color: '#26a69a' } },
+            decreasing: { line: { color: '#ef5350' } }
+        });
+        
+        // Aggiungi supporti e resistenze SOLO se la checkbox è selezionata
+        if (showSR && data.support_resistance && data.support_resistance.length > 0) {
+            console.log(`✅ Aggiunta di ${data.support_resistance.length} livelli S&R`);
+            
+            data.support_resistance.forEach((level, index) => {
+                const levelValue = parseFloat(level.level || level.price);
+                const isSupport = level.type === 'Support';
+                const color = isSupport ? '#28a745' : '#dc3545';
+                
+                // Linea orizzontale per il livello
+                traces.push({
+                    x: dates,
+                    y: new Array(dates.length).fill(levelValue),
+                    mode: 'lines',
+                    line: {
+                        color: color,
+                        width: 2,
+                        dash: 'dash'
+                    },
+                    name: `${level.type} ${levelValue.toFixed(2)}`,
+                    showlegend: true,
+                    hoverinfo: 'name'
+                });
+            });
+        } else if (!showSR) {
+            console.log('⚪ Supporti/Resistenze nascosti (checkbox deselezionata)');
+        }
+        
+        // Aggiungi zone Skorupinski SOLO se la checkbox è selezionata
+        if (showZones && data.skorupinski_zones) {
+            console.log('✅ Aggiunta zone Skorupinski');
+            
+            const zones = data.skorupinski_zones;
+            const shapes = [];
+            
+            // Zone di domanda (verdi)
+            if (zones.demand_zones && zones.demand_zones.length > 0) {
+                zones.demand_zones.forEach((zone, index) => {
+                    shapes.push({
+                        type: 'rect',
+                        x0: dates[0],
+                        x1: dates[dates.length - 1],
+                        y0: parseFloat(zone.zone_bottom),
+                        y1: parseFloat(zone.zone_top),
+                        fillcolor: 'rgba(40, 167, 69, 0.2)',
+                        line: {
+                            color: 'rgba(40, 167, 69, 0.8)',
+                            width: 1
+                        },
+                        layer: 'below'
+                    });
+                });
+            }
+            
+            // Zone di offerta (rosse)
+            if (zones.supply_zones && zones.supply_zones.length > 0) {
+                zones.supply_zones.forEach((zone, index) => {
+                    shapes.push({
+                        type: 'rect',
+                        x0: dates[0],
+                        x1: dates[dates.length - 1],
+                        y0: parseFloat(zone.zone_bottom),
+                        y1: parseFloat(zone.zone_top),
+                        fillcolor: 'rgba(220, 53, 69, 0.2)',
+                        line: {
+                            color: 'rgba(220, 53, 69, 0.8)',
+                            width: 1
+                        },
+                        layer: 'below'
+                    });
+                });
+            }
+            
+            // Aggiungi le shapes al layout
+            if (shapes.length > 0) {
+                data.shapes = shapes;
+            }
+        } else if (!showZones) {
+            console.log('⚪ Zone Skorupinski nascoste (checkbox deselezionata)');
+        }
+        
+        // Layout del grafico
+        const layout = {
+            title: {
+                text: `${ticker} - Analisi Tecnica`,
+                font: { size: 16 }
+            },
+            xaxis: {
+                title: 'Data',
+                type: 'date',
+                rangeslider: { visible: false }
+            },
+            yaxis: {
+                title: 'Prezzo ($)',
+                autorange: true
+            },
+            plot_bgcolor: 'white',
+            paper_bgcolor: 'white',
+            margin: { t: 50, b: 50, l: 60, r: 60 },
+            showlegend: true,
+            legend: {
+                orientation: 'h',
+                y: -0.2
+            },
+            shapes: data.shapes || [] // Aggiungi le zone come shapes
+        };
+        
+        // Configurazione
+        const config = {
+            responsive: true,
+            displayModeBar: true,
+            modeBarButtonsToRemove: ['pan2d', 'lasso2d'],
+            displaylogo: false
+        };
+        
+        // Crea il grafico
+        await Plotly.newPlot('technicalChart', traces, layout, config);
+        
+        console.log('✅ Grafico creato con successo');
+        
+        // Aggiorna info del grafico
+        this.updateChartInfo(ticker, data);
+        
+    } catch (error) {
+        console.error('❌ Errore creazione grafico:', error);
+        this.showError('Errore nella creazione del grafico: ' + error.message);
+    } finally {
+        this.showLoading(false);
     }
+}
 
+// Sostituzione del metodo loadChart per leggere stato checkbox
+async loadChart(ticker) {
+    this.showChartLoading(true);
+    
+    try {
+        console.log(`📊 Caricamento grafico Plotly per ${ticker}...`);
+        
+        // IMPORTANTE: Leggi lo stato delle checkbox PRIMA di fare la chiamata API
+        const showSRCheckbox = document.getElementById('showSRLevels');
+        const showZonesCheckbox = document.getElementById('showZones');
+        
+        const showSR = showSRCheckbox ? showSRCheckbox.checked : true;
+        const showZones = showZonesCheckbox ? showZonesCheckbox.checked : true;
+        
+        console.log(`🔧 Stato checkbox - S&R: ${showSR}, Zone: ${showZones}`);
+        
+        // Chiama l'API Plotly (che include sempre tutto)
+        const response = await fetch(`/api/technical-analysis/chart-plotly/${ticker}?days=100&include_analysis=true`);
+        
+        if (!response.ok) {
+            throw new Error(`Errore API: ${response.status}`);
+        }
+        
+        const data = await response.json();
+        
+        if (data.error) {
+            throw new Error(data.error);
+        }
+        
+        // IMPORTANTE: Filtra i dati in base allo stato delle checkbox
+        const filteredData = this.filterChartDataByCheckboxes(data, showSR, showZones);
+        
+        // Usa Plotly con dati filtrati
+        await this.renderPlotlyChart(filteredData);
+        
+        // Ottieni anche i dati completi per info dettagliate
+        const fullDataResponse = await fetch(`/api/technical-analysis/chart/${ticker}?days=100&include_analysis=true`);
+        const fullData = fullDataResponse.ok ? await fullDataResponse.json() : null;
+        
+        // Aggiorna info grafico con dati completi
+        this.updateChartInfo(filteredData.data_info || data.data_info, fullData);
+        
+        this.showLog(`✅ Grafico Plotly ${ticker} caricato (S&R: ${showSR}, Zone: ${showZones})`, 'success');
+        
+    } catch (error) {
+        console.error('❌ Errore caricamento grafico Plotly:', error);
+        this.showLog(`❌ Errore grafico: ${error.message}`, 'error');
+        this.showPlotlyError(ticker, error.message);
+    } finally {
+        this.showChartLoading(false);
+    }
+}
+
+// NUOVO METODO: Filtra i dati del grafico in base alle checkbox
+filterChartDataByCheckboxes(data, showSR, showZones) {
+    try {
+        // Parse del JSON del grafico
+        const figure = JSON.parse(data.chart_json);
+        
+        // Filtra i traces in base alle checkbox
+        const filteredTraces = figure.data.filter(trace => {
+            // Mantieni sempre il trace principale (candlestick)
+            if (trace.type === 'candlestick') {
+                return true;
+            }
+            
+            // Mantieni sempre il volume se presente
+            if (trace.name && trace.name.toLowerCase().includes('volume')) {
+                return true;
+            }
+            
+            // Filtra supporti e resistenze (controllo più robusto)
+            if (trace.name) {
+                const traceName = trace.name.toLowerCase();
+                if (traceName.includes('support') || traceName.includes('resistance') || 
+                    traceName.includes('supporto') || traceName.includes('resistenza') ||
+                    traceName.includes('livello') || traceName.includes('level')) {
+                    console.log(`${showSR ? '✅ Mantieni' : '❌ Rimuovi'} S&R trace: ${trace.name}`);
+                    return showSR;
+                }
+                
+                // Filtra zone Skorupinski nei traces (se presenti)
+                if (traceName.includes('demand') || traceName.includes('supply') ||
+                    traceName.includes('domanda') || traceName.includes('offerta') ||
+                    traceName.includes('zona')) {
+                    console.log(`${showZones ? '✅ Mantieni' : '❌ Rimuovi'} zona trace: ${trace.name}`);
+                    return showZones;
+                }
+            }
+            
+            // Mantieni altri traces per sicurezza
+            return true;
+        });
+        
+        // Filtra le shapes (zone Skorupinski) nel layout
+        let filteredShapes = [];
+        if (figure.layout.shapes) {
+            filteredShapes = figure.layout.shapes.filter(shape => {
+                // Le zone Skorupinski sono shapes rettangolari con colori specifici
+                if (shape.type === 'rect' && 
+                    (shape.fillcolor?.includes('rgba(40, 167, 69') || // Zone verdi (demand)
+                     shape.fillcolor?.includes('rgba(220, 53, 69'))) { // Zone rosse (supply)
+                    console.log(`${showZones ? '✅ Mantieni' : '❌ Rimuovi'} zona Skorupinski`);
+                    return showZones;
+                }
+                // Mantieni altre shapes
+                return true;
+            });
+        }
+
+        // Filtra le annotations (etichette di testo)
+        let filteredAnnotations = [];
+        if (figure.layout.annotations) {
+            filteredAnnotations = figure.layout.annotations.filter(annotation => {
+                const annotationText = annotation.text || '';
+                
+                // Filtra etichette supporti/resistenze
+                if (annotationText.includes('Support') || annotationText.includes('Resistance') || 
+                    annotationText.includes('Supporto') || annotationText.includes('Resistenza')) {
+                    console.log(`${showSR ? '✅ Mantieni' : '❌ Rimuovi'} etichetta S&R: ${annotationText}`);
+                    return showSR;
+                }
+                
+                // Filtra etichette zone Skorupinski  
+                if (annotationText.includes('Demand') || annotationText.includes('Supply') ||
+                    annotationText.includes('Domanda') || annotationText.includes('Offerta') ||
+                    annotationText.includes('Zone')) {
+                    console.log(`${showZones ? '✅ Mantieni' : '❌ Rimuovi'} etichetta zona: ${annotationText}`);
+                    return showZones;
+                }
+                
+                // Mantieni altre annotations
+                return true;
+            });
+        }
+        
+        // Crea il nuovo figure filtrato
+        const filteredFigure = {
+            data: filteredTraces,
+            layout: {
+                ...figure.layout,
+                shapes: filteredShapes,
+                annotations: filteredAnnotations
+            }
+        };
+        
+        // Restituisci i dati modificati
+        return {
+            ...data,
+            chart_json: JSON.stringify(filteredFigure)
+        };
+        
+    } catch (error) {
+        console.error('❌ Errore filtraggio dati:', error);
+        // In caso di errore, restituisci i dati originali
+        return data;
+    }
+}
+
+// Metodo aggiornato per refreshChart che considera le checkbox
+refreshChart() {
+    const tickerSelect = document.getElementById('chartTickerSelect'); // Nota: usa chartTickerSelect, non tickerSelect
+    if (tickerSelect && tickerSelect.value) {
+        console.log('🔄 Refresh forzato del grafico...');
+        this.loadChart(tickerSelect.value);
+    } else {
+        console.log('⚠️ Nessun ticker selezionato per il refresh');
+    }
+}
+
+// METODO ALTERNATIVO: Se vuoi passare i parametri direttamente all'API
+// Sostituisci loadChart con questa versione se preferisci che l'API gestisca il filtraggio
+async loadChartWithAPIFiltering(ticker) {
+    this.showChartLoading(true);
+    
+    try {
+        console.log(`📊 Caricamento grafico Plotly per ${ticker}...`);
+        
+        // Leggi stato checkbox
+        const showSRCheckbox = document.getElementById('showSRLevels');
+        const showZonesCheckbox = document.getElementById('showZones');
+        
+        const showSR = showSRCheckbox ? showSRCheckbox.checked : true;
+        const showZones = showZonesCheckbox ? showZonesCheckbox.checked : true;
+        
+        console.log(`🔧 Stato checkbox - S&R: ${showSR}, Zone: ${showZones}`);
+        
+        // Chiama l'API con parametri per filtraggio
+        const params = new URLSearchParams({
+            days: 100,
+            include_analysis: true,
+            show_support_resistance: showSR,
+            show_zones: showZones
+        });
+        
+        const response = await fetch(`/api/technical-analysis/chart-plotly/${ticker}?${params}`);
+        
+        if (!response.ok) {
+            throw new Error(`Errore API: ${response.status}`);
+        }
+        
+        const data = await response.json();
+        
+        if (data.error) {
+            throw new Error(data.error);
+        }
+        
+        // Renderizza direttamente (l'API ha già filtrato)
+        await this.renderPlotlyChart(data);
+        
+        this.showLog(`✅ Grafico Plotly ${ticker} caricato con filtraggio API`, 'success');
+        
+    } catch (error) {
+        console.error('❌ Errore caricamento grafico:', error);
+        // Fallback al metodo con filtraggio client
+        console.log('🔄 Tentativo fallback con filtraggio client...');
+        await this.loadChart(ticker);
+    } finally {
+        this.showChartLoading(false);
+    }
+}
+
+
+
+
+
+
+
+
+
+  
     addSkorupinkiZones(datasets, zonesData, labelsLength) {
         try {
             // Zone di domanda (support)
@@ -1184,46 +1431,7 @@ class TechnicalAnalysisManager {
         }
     }
 
-// Sostituzione del metodo loadChart per usare Plotly invece di Chart.js
-async loadChart(ticker) {
-    this.showChartLoading(true);
-    
-    try {
-        console.log(`📊 Caricamento grafico Plotly per ${ticker}...`);
-        
-        // Chiama l'API Plotly invece di quella Chart.js
-        const response = await fetch(`/api/technical-analysis/chart-plotly/${ticker}?days=100&include_analysis=true`);
-        
-        if (!response.ok) {
-            throw new Error(`Errore API: ${response.status}`);
-        }
-        
-        const data = await response.json();
-        
-        if (data.error) {
-            throw new Error(data.error);
-        }
-        
-        // Usa Plotly invece di Chart.js
-        await this.renderPlotlyChart(data);
-        
-        // Ottieni anche i dati completi per info dettagliate
-        const fullDataResponse = await fetch(`/api/technical-analysis/chart/${ticker}?days=100&include_analysis=true`);
-        const fullData = fullDataResponse.ok ? await fullDataResponse.json() : null;
-        
-        // Aggiorna info grafico con dati completi
-        this.updateChartInfo(data.data_info, fullData);
-        
-        this.showLog(`✅ Grafico Plotly ${ticker} caricato`, 'success');
-        
-    } catch (error) {
-        console.error('❌ Errore caricamento grafico Plotly:', error);
-        this.showLog(`❌ Errore grafico: ${error.message}`, 'error');
-        this.showPlotlyError(ticker, error.message);
-    } finally {
-        this.showChartLoading(false);
-    }
-}
+
 
 // Nuovo metodo per renderizzare con Plotly
 async renderPlotlyChart(data) {
@@ -1443,19 +1651,102 @@ updateCompactChartInfo(dataInfo, chartInfoDiv) {
 }
 
 
-
-
-
-
- 
-
-
 }
 
-// ===== INIZIALIZZAZIONE COMPLETA =====
+    // ===== INIZIALIZZAZIONE COMPLETA =====
 document.addEventListener('DOMContentLoaded', function() {
-    console.log('🔄 DOM loaded - Inizializzazione Technical Analysis...');
+        console.log('🔄 DOM loaded - Inizializzazione Technical Analysis...');
+      
+        const loadChartBtn = document.getElementById('loadChartBtn');
+        if (loadChartBtn) {
+            loadChartBtn.addEventListener('click', function() {
+                console.log('🔄 Bottone aggiorna cliccato');
+                if (window.taManager) {
+                    window.taManager.refreshChart();
+                }
+            });
+        }
+
+// Event listener per checkbox Supporti/Resistenze - VERSIONE MIGLIORATA
+const showSRCheckbox = document.getElementById('showSRLevels');
+if (showSRCheckbox) {
+    showSRCheckbox.addEventListener('change', function() {
+        console.log(`📊 Checkbox S&R cambiata: ${this.checked}`);
+        
+        // Ottieni ticker corrente
+        const currentTicker = document.getElementById('chartTickerSelect')?.value;
+        
+        if (currentTicker && window.taManager) {
+            console.log(`🔄 Aggiornamento grafico per ${currentTicker}...`);
+            window.taManager.loadChart(currentTicker);
+        } else {
+            console.log('⚠️ Nessun ticker selezionato - aggiornamento saltato');
+        }
+    });
+}
+
+// Event listener per checkbox Zone Skorupinski - VERSIONE MIGLIORATA  
+const showZonesCheckbox = document.getElementById('showZones');
+if (showZonesCheckbox) {
+    showZonesCheckbox.addEventListener('change', function() {
+        console.log(`🎯 Checkbox Zone cambiata: ${this.checked}`);
+        
+        // Ottieni ticker corrente
+        const currentTicker = document.getElementById('chartTickerSelect')?.value;
+        
+        if (currentTicker && window.taManager) {
+            console.log(`🔄 Aggiornamento grafico per ${currentTicker}...`);
+            window.taManager.loadChart(currentTicker);
+        } else {
+            console.log('⚠️ Nessun ticker selezionato - aggiornamento saltato');
+        }
+    });
+}
+
+// DEBUG: Aggiungi questa funzione per verificare il filtraggio
+window.debugCheckboxState = function() {
+    const showSR = document.getElementById('showSRLevels')?.checked;
+    const showZones = document.getElementById('showZones')?.checked;
+    const currentTicker = document.getElementById('chartTickerSelect')?.value;
     
+    console.log('🔍 DEBUG Stato Checkbox:');
+    console.log(`- Supporti/Resistenze: ${showSR}`);
+    console.log(`- Zone Skorupinski: ${showZones}`);  
+    console.log(`- Ticker corrente: ${currentTicker}`);
+    
+    if (currentTicker && window.taManager) {
+        console.log('🔄 Forzando refresh...');
+        window.taManager.loadChart(currentTicker);
+    }
+};
+
+// DEBUG: Funzione per ispezionare il contenuto del grafico Plotly
+window.debugPlotlyContent = function() {
+    const chartDiv = document.getElementById('technicalChart');
+    if (chartDiv && chartDiv.data && chartDiv.layout) {
+        console.log('🔍 DEBUG Contenuto Plotly:');
+        console.log('📊 Traces:', chartDiv.data.map(trace => ({
+            name: trace.name,
+            type: trace.type,
+            visible: trace.visible
+        })));
+        console.log('🔳 Shapes:', chartDiv.layout.shapes?.length || 0);
+        console.log('📝 Annotations:', chartDiv.layout.annotations?.map(ann => ann.text) || []);
+        console.log('🏷️ Legend entries:', chartDiv.data.filter(trace => trace.showlegend !== false).length);
+    } else {
+        console.log('❌ Nessun grafico Plotly trovato');
+    }
+};
+
+console.log('✅ Fix checkbox Plotly installato - usa debugCheckboxState() per test');
+console.log('🔍 Usa debugPlotlyContent() per ispezionare il contenuto del grafico');
+
+
+
+
+
+console.log('✅ Fix checkbox Plotly installato - usa debugCheckboxState() per test');
+
     // Controlla se siamo nella pagina di analisi tecnica
     if (document.getElementById('analysisNavTabs')) {
         console.log('✅ Pagina Technical Analysis rilevata');
