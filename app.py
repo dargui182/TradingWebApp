@@ -740,7 +740,7 @@ def get_support_resistance_levels():
                         'strength': float(row['strength']) if pd.notna(row['strength']) else 1.0,
                         'touches': int(row.get('touches', 1)) if pd.notna(row.get('touches', 1)) else 1,
                         'distance_pct': distance_pct,
-                        'days_old': int(row.get('days_old', 0)) if pd.notna(row.get('days_old', 0)) else 0
+                        'days_from_end': int(row.get('days_from_end', 0)) if pd.notna(row.get('days_from_end', 0)) else 0
                     }
                     all_levels.append(level_data)
                     

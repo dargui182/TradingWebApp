@@ -731,3 +731,179 @@ body {
 .table tbody tr.table-info {
     background-color: rgba(13, 202, 240, 0.1) !important;
 }
+
+/* Aggiungi questo CSS a static/css/dashboard.css */
+
+/* === STILI PER TABELLE POTENZIATE === */
+
+/* Colonne ordinabili */
+.sortable {
+    cursor: pointer;
+    user-select: none;
+    position: relative;
+    transition: background-color 0.2s ease;
+}
+
+.sortable:hover {
+    background-color: rgba(0, 123, 255, 0.1);
+}
+
+/* Icone di ordinamento */
+.sort-icon {
+    font-size: 0.75rem;
+    color: #6c757d;
+    margin-left: 0.25rem;
+    transition: color 0.2s ease;
+}
+
+.sortable:hover .sort-icon {
+    color: #0d6efd;
+}
+
+/* Stato di ordinamento attivo */
+.sortable.sort-asc .sort-icon::before {
+    content: "\f128"; /* bi-arrow-up */
+    color: #0d6efd;
+    font-weight: bold;
+}
+
+.sortable.sort-desc .sort-icon::before {
+    content: "\f12b"; /* bi-arrow-down */
+    color: #0d6efd;
+    font-weight: bold;
+}
+
+.sortable.sort-asc,
+.sortable.sort-desc {
+    background-color: rgba(0, 123, 255, 0.05);
+}
+
+/* Controlli filtri */
+.filter-controls {
+    background-color: #f8f9fa;
+    border-radius: 0.375rem;
+    padding: 0.75rem;
+    margin-bottom: 1rem;
+}
+
+/* Paginazione personalizzata */
+.pagination-sm .page-link {
+    padding: 0.25rem 0.5rem;
+    font-size: 0.875rem;
+}
+
+.pagination .page-item.active .page-link {
+    background-color: #0d6efd;
+    border-color: #0d6efd;
+}
+
+.pagination .page-item.disabled .page-link {
+    color: #6c757d;
+    background-color: #fff;
+    border-color: #dee2e6;
+}
+
+/* Informazioni tabella */
+.table-info-text {
+    font-size: 0.875rem;
+    color: #6c757d;
+}
+
+/* Indicatori di caricamento per tabelle */
+.table-loading {
+    position: relative;
+    opacity: 0.6;
+    pointer-events: none;
+}
+
+.table-loading::after {
+    content: "";
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 2rem;
+    height: 2rem;
+    margin-top: -1rem;
+    margin-left: -1rem;
+    border: 2px solid #f3f3f3;
+    border-top: 2px solid #0d6efd;
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+    z-index: 10;
+}
+
+/* Evidenziazione righe filtrate */
+.table tbody tr.filtered-match {
+    background-color: rgba(255, 193, 7, 0.1);
+}
+
+/* Stili responsive migliorati */
+@media (max-width: 768px) {
+    .filter-controls .row > div {
+        margin-bottom: 0.5rem;
+    }
+    
+    .table-responsive {
+        font-size: 0.75rem;
+    }
+    
+    .sort-icon {
+        display: none;
+    }
+    
+    .pagination-sm {
+        justify-content: center;
+    }
+    
+    .pagination-sm .page-item {
+        margin: 0 1px;
+    }
+}
+
+/* Animazioni per transizioni */
+.table tbody tr {
+    transition: background-color 0.2s ease;
+}
+
+.fade-in {
+    animation: fadeIn 0.3s ease-in;
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(-10px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
+
+/* Badge migliorati */
+.badge {
+    font-size: 0.75rem;
+    padding: 0.35em 0.65em;
+}
+
+/* Input range personalizzato per forza */
+.form-range::-webkit-slider-thumb {
+    background-color: #0d6efd;
+}
+
+.form-range::-moz-range-thumb {
+    background-color: #0d6efd;
+    border: none;
+}
+
+/* Stili per stati vuoti */
+.empty-state {
+    padding: 3rem 1rem;
+    text-align: center;
+    color: #6c757d;
+}
+
+.empty-state i {
+    font-size: 3rem;
+    margin-bottom: 1rem;
+    opacity: 0.5;
+}

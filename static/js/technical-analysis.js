@@ -8,13 +8,22 @@ class TechnicalAnalysisManager {
     constructor() {
         this.currentDataSource = 'adjusted';
         this.chart = null;
+        // Inizializza gestori tabelle potenziate
+        this.zonesTableManager = null;
+        this.levelsTableManager = null;
+        
         this.init();
+
     }
 
     init() {
         console.log('🔧 Inizializzazione Technical Analysis Manager...');
         this.setupEventListeners();
         this.loadInitialData();
+         // Inizializza dopo che il DOM è pronto
+         document.addEventListener('DOMContentLoaded', () => {
+            this.initializeEnhancedTables();
+        });
         console.log('✅ Technical Analysis Manager inizializzato');
     }
 
@@ -98,6 +107,42 @@ class TechnicalAnalysisManager {
         });
 
         console.log('✅ Event listeners configurati');
+    }
+
+     // 2. CORREGGI il metodo initializeEnhancedTables (chiamalo DOPO che tutto è caricato):
+     initializeEnhancedTables() {
+        console.log('🔧 Inizializzazione Enhanced Tables...');
+        
+        // Verifica che la classe EnhancedTableManager sia disponibile
+        if (typeof EnhancedTableManager === 'undefined') {
+            console.error('❌ EnhancedTableManager non disponibile! Assicurati che enhacedTableManager.js sia caricato.');
+            return;
+        }
+        
+        // Inizializza solo se gli elementi esistono
+        const zonesTable = document.getElementById('zonesTable');
+        if (zonesTable) {
+            console.log('✅ Inizializzazione tabella zone...');
+            this.zonesTableManager = new EnhancedTableManager('zonesTable', {
+                pageSize: 25,
+                defaultSort: 'strength_score'
+            });
+            console.log('✅ ZonesTableManager creato');
+        } else {
+            console.warn('⚠️ Elemento zonesTable non trovato');
+        }
+        
+        const levelsTable = document.getElementById('levelsTable');
+        if (levelsTable) {
+            console.log('✅ Inizializzazione tabella livelli...');
+            this.levelsTableManager = new EnhancedTableManager('levelsTable', {
+                pageSize: 25,
+                defaultSort: 'strength'
+            });
+            console.log('✅ LevelsTableManager creato');
+        } else {
+            console.warn('⚠️ Elemento levelsTable non trovato');
+        }
     }
 
     // METODO CORRETTO per loadInitialData
@@ -829,10 +874,17 @@ class TechnicalAnalysisManager {
         }
     }
 
-    // Metodi per tabelle e gestione dati... (mantieni quelli esistenti)
+
+    // 3. AGGIORNA i metodi loadZonesTable e loadLevelsTable per debug migliore:
     async loadZonesTable() {
         try {
             console.log('📊 Caricamento tabella zone Skorupinski...');
+            
+            // Inizializza enhanced table se non esiste
+            if (!this.zonesTableManager && document.getElementById('zonesTable')) {
+                console.log('🔧 Inizializzazione tardiva zonesTableManager...');
+                this.initializeEnhancedTables();
+            }
             
             const response = await fetch('/api/technical-analysis/zones');
             
@@ -846,22 +898,31 @@ class TechnicalAnalysisManager {
             }
             
             const data = await response.json();
-            this.populateZonesTable(data.zones || []);
+            console.log('📊 Dati zone ricevuti:', data);
+            
+            if (this.zonesTableManager) {
+                console.log('✅ Usando EnhancedTableManager per zone');
+                this.zonesTableManager.setData(data.zones || []);
+            } else {
+                console.log('⚠️ Fallback a populateZonesTable standard');
+                this.populateZonesTable(data.zones || []);
+            }
             
         } catch (error) {
             console.error('❌ Errore caricamento tabella zone:', error);
-            
-            if (error.message.includes('500') || error.message.includes('INTERNAL SERVER ERROR')) {
-                this.showZonesFallback();
-            } else {
-                this.showError('Errore nel caricamento delle zone Skorupinski: ' + error.message);
-            }
+            this.showError(`Errore caricamento zone: ${error.message}`);
         }
     }
-
+    
     async loadLevelsTable() {
         try {
             console.log('📏 Caricamento tabella supporti/resistenze...');
+            
+            // Inizializza enhanced table se non esiste
+            if (!this.levelsTableManager && document.getElementById('levelsTable')) {
+                console.log('🔧 Inizializzazione tardiva levelsTableManager...');
+                this.initializeEnhancedTables();
+            }
             
             const response = await fetch('/api/technical-analysis/levels');
             
@@ -875,16 +936,19 @@ class TechnicalAnalysisManager {
             }
             
             const data = await response.json();
-            this.populateLevelsTable(data.levels || []);
+            console.log('📏 Dati livelli ricevuti:', data);
+            
+            if (this.levelsTableManager) {
+                console.log('✅ Usando EnhancedTableManager per livelli');
+                this.levelsTableManager.setData(data.levels || []);
+            } else {
+                console.log('⚠️ Fallback a populateLevelsTable standard');
+                this.populateLevelsTable(data.levels || []);
+            }
             
         } catch (error) {
             console.error('❌ Errore caricamento tabella livelli:', error);
-            
-            if (error.message.includes('500') || error.message.includes('INTERNAL SERVER ERROR')) {
-                this.showLevelsFallback();
-            } else {
-                this.showError('Errore nel caricamento dei livelli di supporto/resistenza: ' + error.message);
-            }
+            this.showError(`Errore caricamento livelli: ${error.message}`);
         }
     }
 
@@ -974,14 +1038,14 @@ class TechnicalAnalysisManager {
 
         tbody.innerHTML = levels.map(level => `
             <tr class="${level.type === 'Resistance' ? 'table-warning' : 'table-info'}">
-                <td><span class="badge ${level.type === 'Resistance' ? 'bg-warning text-dark' : 'bg-info'}">${level.ticker}</span></td>
-                <td class="small">${this.formatDate(level.date)}</td>
-                <td><i class="bi ${level.type === 'Resistance' ? 'bi-arrow-up text-warning' : 'bi-arrow-down text-info'}"></i> ${level.type}</td>
-                <td class="font-monospace">${level.level?.toFixed(4) || 'N/A'}</td>
-                <td><small class="text-muted">${level.strength?.toFixed(1) || 'N/A'}</small></td>
-                <td class="small">${level.touches || 0} volte</td>
-                <td class="font-monospace small"><span class="text-muted">${level.distance_pct?.toFixed(2) || 'N/A'}%</span></td>
-                <td><button class="btn btn-outline-primary btn-sm"><i class="bi bi-eye"></i></button></td>
+            <td><span class="badge ${level.type === 'Resistance' ? 'bg-warning text-dark' : 'bg-info'}">${level.ticker}</span></td>
+            <td class="small">${this.formatDate(level.date)}</td>
+            <td><i class="bi ${level.type === 'Resistance' ? 'bi-arrow-up text-warning' : 'bi-arrow-down text-info'}"></i> ${level.type}</td>
+            <td class="font-monospace">${level.level?.toFixed(4) || 'N/A'}</td>
+            <td><small class="text-muted">${level.strength?.toFixed(1) || 'N/A'}</small></td>
+            <td class="small">${level.touches || 0} volte</td>
+            <td class="small">${level.days_from_end || 'N/A'} giorni</td>
+            <td><button class="btn btn-outline-primary btn-sm"><i class="bi bi-eye"></i></button></td>
             </tr>
         `).join('');
     }
@@ -1026,6 +1090,7 @@ class TechnicalAnalysisManager {
         }, 5000);
     }
 
+ // 4. AGGIORNA il metodo onTabChanged per inizializzare le tabelle quando necessario:
     onTabChanged(target) {
         console.log(`🔄 Cambio tab: ${target}`);
         
@@ -1033,9 +1098,17 @@ class TechnicalAnalysisManager {
             case '#chart':
                 break;
             case '#zones':
+                // Inizializza enhanced table se non esiste
+                if (!this.zonesTableManager && document.getElementById('zonesTable')) {
+                    this.initializeEnhancedTables();
+                }
                 this.loadZonesTable();
                 break;
             case '#levels':
+                // Inizializza enhanced table se non esiste
+                if (!this.levelsTableManager && document.getElementById('levelsTable')) {
+                    this.initializeEnhancedTables();
+                }
                 this.loadLevelsTable();
                 break;
         }
@@ -1120,6 +1193,14 @@ document.addEventListener('DOMContentLoaded', function() {
         // Crea istanza manager UNICA
         window.taManager = new TechnicalAnalysisManager();
         window.TechnicalAnalysisInstance = window.taManager; // Alias per compatibilità
+        
+        // IMPORTANTE: Inizializza le enhanced tables DOPO che tutto è pronto
+        setTimeout(() => {
+            console.log('🕐 Inizializzazione delayed enhanced tables...');
+            if (window.taManager) {
+                window.taManager.initializeEnhancedTables();
+            }
+        }, 500); // Delay di 500ms per essere sicuri che tutto sia caricato
         
         // Event listeners per checkbox
         const showSRCheckbox = document.getElementById('showSRLevels');

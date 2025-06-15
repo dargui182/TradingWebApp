@@ -332,70 +332,218 @@
                     </div>
                 </div>
                 
-                <!-- Skorupinski Zones Tab -->
-                <div class="tab-pane fade" id="zones" role="tabpanel">
-                    <div class="d-flex justify-content-between align-items-center mb-3">
-                        <h5 class="mb-0">🎯 Zone Supply/Demand Skorupinski</h5>
-                        <button class="btn btn-sm btn-outline-primary" id="refreshZonesBtn">
-                            <i class="bi bi-arrow-clockwise me-1"></i>Aggiorna
-                        </button>
-                    </div>
-                    
-                    <!-- Zones Table -->
-                    <div class="table-responsive">
-                        <table class="table table-hover" id="zonesTable">
-                            <thead class="table-light">
-                                <tr>
-                                    <th>Ticker</th>
-                                    <th>Data</th>
-                                    <th>Pattern</th>
-                                    <th>Tipo</th>
-                                    <th>Zona (Bottom-Top)</th>
-                                    <th>Centro</th>
-                                    <th>Spessore</th>
-                                    <th>Forza</th>
-                                    <th>Distanza %</th>
-                                    <th>Azioni</th>
-                                </tr>
-                            </thead>
-                            <tbody id="zonesTableBody">
-                                <!-- Populated by JavaScript -->
-                            </tbody>
-                        </table>
+<!-- Zone Skorupinski Tab con controlli potenziati -->
+<div class="tab-pane fade" id="zones" role="tabpanel">
+    <div class="d-flex justify-content-between align-items-center mb-3">
+        <h5 class="mb-0">🎯 Zone Skorupinski</h5>
+        <button class="btn btn-sm btn-outline-primary" id="refreshZonesBtn">
+            <i class="bi bi-arrow-clockwise me-1"></i>Aggiorna
+        </button>
+    </div>
+    
+    <!-- Controlli Filtri e Ricerca Zone -->
+    <div class="card mb-3">
+        <div class="card-body py-2">
+            <div class="row g-2 align-items-center">
+                <div class="col-md-4">
+                    <div class="input-group input-group-sm">
+                        <span class="input-group-text"><i class="bi bi-search"></i></span>
+                        <input type="text" class="form-control" id="zonesTickerFilter" 
+                               placeholder="Cerca per ticker (es. AAPL, MSFT...)">
                     </div>
                 </div>
-                
-                <!-- Support/Resistance Tab -->
-                <div class="tab-pane fade" id="levels" role="tabpanel">
-                    <div class="d-flex justify-content-between align-items-center mb-3">
-                        <h5 class="mb-0">📏 Livelli Supporti e Resistenze</h5>
-                        <button class="btn btn-sm btn-outline-primary" id="refreshLevelsBtn">
-                            <i class="bi bi-arrow-clockwise me-1"></i>Aggiorna
-                        </button>
-                    </div>
-                    
-                    <!-- S/R Table -->
-                    <div class="table-responsive">
-                        <table class="table table-hover" id="levelsTable">
-                            <thead class="table-light">
-                                <tr>
-                                    <th>Ticker</th>
-                                    <th>Data</th>
-                                    <th>Tipo</th>
-                                    <th>Livello</th>
-                                    <th>Forza</th>
-                                    <th>Tocchi</th>
-                                    <th>Giorni Formazione</th>
-                                    <th>Range Medio</th>
-                                    <th>Azioni</th>
-                                </tr>
-                            </thead>
-                            <tbody id="levelsTableBody">
-                                <!-- Populated by JavaScript -->
-                            </tbody>
-                        </table>
+                <div class="col-md-3">
+                    <select class="form-select form-select-sm" id="zonesTypeFilter">
+                        <option value="">Tutti i tipi</option>
+                        <option value="Supply">Solo Supply</option>
+                        <option value="Demand">Solo Demand</option>
+                    </select>
+                </div>
+                <div class="col-md-3">
+                    <select class="form-select form-select-sm" id="zonesPatternFilter">
+                        <option value="">Tutti i pattern</option>
+                        <option value="RBD">RBD</option>
+                        <option value="DBD">DBD</option>
+                        <option value="DBR">DBR</option>
+                        <option value="RBR">RBR</option>
+                    </select>
+                </div>
+                <div class="col-md-2">
+                    <button class="btn btn-sm btn-outline-secondary w-100" id="clearZonesFilters">
+                        <i class="bi bi-x-circle me-1"></i>Reset
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Info e Paginazione Zone -->
+    <div class="d-flex justify-content-between align-items-center mb-2">
+        <small class="text-muted" id="zonesTableInfo">
+            Mostrando 0 di 0 zone
+        </small>
+        <div class="d-flex align-items-center gap-2">
+            <small class="text-muted">Righe per pagina:</small>
+            <select class="form-select form-select-sm" id="zonesPageSize" style="width: auto;">
+                <option value="10">10</option>
+                <option value="25" selected>25</option>
+                <option value="50">50</option>
+                <option value="100">100</option>
+            </select>
+        </div>
+    </div>
+    
+    <!-- Tabella Zone -->
+    <div class="table-responsive">
+        <table class="table table-hover" id="zonesTable">
+            <thead class="table-light">
+                <tr>
+                    <th class="sortable" data-column="ticker">
+                        Ticker <i class="bi bi-arrow-down-up sort-icon"></i>
+                    </th>
+                    <th class="sortable" data-column="date">
+                        Data <i class="bi bi-arrow-down-up sort-icon"></i>
+                    </th>
+                    <th class="sortable" data-column="pattern">
+                        Pattern <i class="bi bi-arrow-down-up sort-icon"></i>
+                    </th>
+                    <th class="sortable" data-column="type">
+                        Tipo <i class="bi bi-arrow-down-up sort-icon"></i>
+                    </th>
+                    <th>Zona</th>
+                    <th class="sortable" data-column="zone_center">
+                        Centro <i class="bi bi-arrow-down-up sort-icon"></i>
+                    </th>
+                    <th class="sortable" data-column="zone_thickness_pct">
+                        Spessore <i class="bi bi-arrow-down-up sort-icon"></i>
+                    </th>
+                    <th class="sortable" data-column="strength_score">
+                        Forza <i class="bi bi-arrow-down-up sort-icon"></i>
+                    </th>
+                    <th class="sortable" data-column="distance_from_current">
+                        Distanza % <i class="bi bi-arrow-down-up sort-icon"></i>
+                    </th>
+                    <th>Azioni</th>
+                </tr>
+            </thead>
+            <tbody id="zonesTableBody">
+                <!-- Populated by JavaScript -->
+            </tbody>
+        </table>
+    </div>
+    
+    <!-- Paginazione Zone -->
+    <nav aria-label="Paginazione zone">
+        <ul class="pagination pagination-sm justify-content-center" id="zonesPagination">
+            <!-- Populated by JavaScript -->
+        </ul>
+    </nav>
+</div>
+
+<!-- Support/Resistance Tab con controlli potenziati -->
+<div class="tab-pane fade" id="levels" role="tabpanel">
+    <div class="d-flex justify-content-between align-items-center mb-3">
+        <h5 class="mb-0">📏 Livelli Supporti e Resistenze</h5>
+        <button class="btn btn-sm btn-outline-primary" id="refreshLevelsBtn">
+            <i class="bi bi-arrow-clockwise me-1"></i>Aggiorna
+        </button>
+    </div>
+    
+    <!-- Controlli Filtri e Ricerca Livelli -->
+    <div class="card mb-3">
+        <div class="card-body py-2">
+            <div class="row g-2 align-items-center">
+                <div class="col-md-4">
+                    <div class="input-group input-group-sm">
+                        <span class="input-group-text"><i class="bi bi-search"></i></span>
+                        <input type="text" class="form-control" id="levelsTickerFilter" 
+                               placeholder="Cerca per ticker (es. AAPL, MSFT...)">
                     </div>
                 </div>
+                <div class="col-md-3">
+                    <select class="form-select form-select-sm" id="levelsTypeFilter">
+                        <option value="">Tutti i tipi</option>
+                        <option value="Support">Solo Supporti</option>
+                        <option value="Resistance">Solo Resistenze</option>
+                    </select>
+                </div>
+                <div class="col-md-3">
+                    <input type="range" class="form-range" id="levelsStrengthFilter" 
+                           min="0" max="10" step="0.5" value="0">
+                    <small class="text-muted">Forza min: <span id="strengthValue">0</span></small>
+                </div>
+                <div class="col-md-2">
+                    <button class="btn btn-sm btn-outline-secondary w-100" id="clearLevelsFilters">
+                        <i class="bi bi-x-circle me-1"></i>Reset
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Info e Paginazione Livelli -->
+    <div class="d-flex justify-content-between align-items-center mb-2">
+        <small class="text-muted" id="levelsTableInfo">
+            Mostrando 0 di 0 livelli
+        </small>
+        <div class="d-flex align-items-center gap-2">
+            <small class="text-muted">Righe per pagina:</small>
+            <select class="form-select form-select-sm" id="levelsPageSize" style="width: auto;">
+                <option value="10">10</option>
+                <option value="25" selected>25</option>
+                <option value="50">50</option>
+                <option value="100">100</option>
+            </select>
+        </div>
+    </div>
+    
+    <!-- Tabella Livelli -->
+    <div class="table-responsive">
+        <table class="table table-hover" id="levelsTable">
+            <thead class="table-light">
+                <tr>
+                    <th class="sortable" data-column="ticker">
+                        Ticker <i class="bi bi-arrow-down-up sort-icon"></i>
+                    </th>
+                    <th class="sortable" data-column="date">
+                        Data <i class="bi bi-arrow-down-up sort-icon"></i>
+                    </th>
+                    <th class="sortable" data-column="type">
+                        Tipo <i class="bi bi-arrow-down-up sort-icon"></i>
+                    </th>
+                    <th class="sortable" data-column="level">
+                        Livello <i class="bi bi-arrow-down-up sort-icon"></i>
+                    </th>
+                    <th class="sortable" data-column="strength">
+                        Forza <i class="bi bi-arrow-down-up sort-icon"></i>
+                    </th>
+                    <th class="sortable" data-column="touches">
+                        Tocchi <i class="bi bi-arrow-down-up sort-icon"></i>
+                    </th>
+                    <th class="sortable" data-column="days_from_end">
+                        Giorni Formazione <i class="bi bi-arrow-down-up sort-icon"></i>
+                    </th>
+                    <th class="sortable" data-column="avg_range">
+                        Range Medio <i class="bi bi-arrow-down-up sort-icon"></i>
+                    </th>
+                    <th>Azioni</th>
+                </tr>
+            </thead>
+            <tbody id="levelsTableBody">
+                <!-- Populated by JavaScript -->
+            </tbody>
+        </table>
+    </div>
+    
+    <!-- Paginazione Livelli -->
+    <nav aria-label="Paginazione livelli">
+        <ul class="pagination pagination-sm justify-content-center" id="levelsPagination">
+            <!-- Populated by JavaScript -->
+        </ul>
+    </nav>
+</div>
+              
+
             </div>
         </div>
     </div>
@@ -421,50 +569,96 @@
 <!-- Plotly.js -->
 <script src="https://cdnjs.cloudflare.com/ajax/libs/plotly.js/2.26.0/plotly.min.js"></script>
 
-<!-- Technical Analysis JavaScript -->
+<!-- Technical Analysis JavaScript - ORDINE IMPORTANTE! -->
+<script src="{{ url_for('static', filename='js/enhacedTableManager.js') }}"></script>
 <script src="{{ url_for('static', filename='js/technical-analysis.js') }}"></script>
 
 <script>
+// UNICA INIZIALIZZAZIONE - Non duplicare!
 document.addEventListener('DOMContentLoaded', function() {
-    if (typeof Plotly !== 'undefined') {
-        console.log('✅ Plotly.js caricato, versione:', Plotly.version);
-        
-        if (document.getElementById('analysisNavTabs')) {
-            console.log('✅ Inizializzazione Technical Analysis...');
-            window.TechnicalAnalysisInstance = new TechnicalAnalysisManager();
-        }
-    } else {
+    console.log('🚀 Inizializzazione Technical Analysis Dashboard...');
+    
+    // Verifica che Plotly sia caricato
+    if (typeof Plotly === 'undefined') {
         console.error('❌ Plotly.js non caricato');
+        return;
     }
-});
-</script>
-<!-- AGGIUNGI gli script JavaScript alla fine del template -->
-<script>
-    // Inizializzazione Technical Analysis Manager
-    document.addEventListener('DOMContentLoaded', function() {
-        console.log('🚀 Inizializzazione Technical Analysis Dashboard...');
-        
-        // Crea istanza manager globale
+    console.log('✅ Plotly.js caricato, versione:', Plotly.version);
+    
+    // Verifica che EnhancedTableManager sia caricato
+    if (typeof EnhancedTableManager === 'undefined') {
+        console.error('❌ EnhancedTableManager non caricato');
+        return;
+    }
+    console.log('✅ EnhancedTableManager caricato');
+    
+    // Verifica di essere nella pagina corretta
+    if (!document.getElementById('analysisNavTabs')) {
+        console.log('ℹ️ Pagina Technical Analysis non rilevata - inizializzazione saltata');
+        return;
+    }
+    console.log('✅ Pagina Technical Analysis rilevata');
+    
+    // Crea istanza manager UNICA se non esiste già
+    if (!window.taManager) {
+        console.log('🔧 Creazione TechnicalAnalysisManager...');
         window.taManager = new TechnicalAnalysisManager();
-        
-        // Carica dati iniziali se siamo nella tab overview
-        const overviewTab = document.getElementById('overview-tab');
-        if (overviewTab && overviewTab.classList.contains('active')) {
-            window.taManager.loadOverviewData();
-        }
-        
-        console.log('✅ Technical Analysis Manager inizializzato');
-    });
+        window.TechnicalAnalysisInstance = window.taManager; // Alias per compatibilità
+    }
+    
+    // Event listeners per checkbox
+    const showSRCheckbox = document.getElementById('showSRLevels');
+    if (showSRCheckbox) {
+        showSRCheckbox.addEventListener('change', function() {
+            console.log(`📊 Checkbox S&R: ${this.checked}`);
+            const currentTicker = document.getElementById('chartTickerSelect')?.value;
+            if (currentTicker && window.taManager) {
+                window.taManager.loadChart(currentTicker);
+            }
+        });
+        console.log('✅ Event listener checkbox S&R configurato');
+    }
+    
+    const showZonesCheckbox = document.getElementById('showZones');
+    if (showZonesCheckbox) {
+        showZonesCheckbox.addEventListener('change', function() {
+            console.log(`🎯 Checkbox Zone: ${this.checked}`);
+            const currentTicker = document.getElementById('chartTickerSelect')?.value;
+            if (currentTicker && window.taManager) {
+                window.taManager.loadChart(currentTicker);
+            }
+        });
+        console.log('✅ Event listener checkbox Zone configurato');
+    }
+    
+    const loadChartBtn = document.getElementById('loadChartBtn');
+    if (loadChartBtn) {
+        loadChartBtn.addEventListener('click', function() {
+            console.log('🔄 Bottone aggiorna cliccato');
+            if (window.taManager) {
+                window.taManager.refreshChart();
+            }
+        });
+        console.log('✅ Event listener bottone refresh configurato');
+    }
     
     // Event handlers per i tab
     document.getElementById('zones-tab')?.addEventListener('shown.bs.tab', function() {
         console.log('📊 Caricamento tab zone Skorupinski...');
-        window.taManager?.loadZonesTable();
+        setTimeout(() => {
+            if (window.taManager) {
+                window.taManager.loadZonesTable();
+            }
+        }, 100); // Piccolo delay per assicurarsi che il tab sia completamente mostrato
     });
     
     document.getElementById('levels-tab')?.addEventListener('shown.bs.tab', function() {
         console.log('📏 Caricamento tab supporti/resistenze...');  
-        window.taManager?.loadLevelsTable();
+        setTimeout(() => {
+            if (window.taManager) {
+                window.taManager.loadLevelsTable();
+            }
+        }, 100);
     });
     
     document.getElementById('chart-tab')?.addEventListener('shown.bs.tab', function() {
@@ -475,67 +669,63 @@ document.addEventListener('DOMContentLoaded', function() {
     // Event handlers per i bottoni refresh
     document.getElementById('refreshZonesBtn')?.addEventListener('click', function() {
         console.log('🔄 Refresh manuale zone Skorupinski...');
-        window.taManager?.loadZonesTable();
+        if (window.taManager) {
+            window.taManager.loadZonesTable();
+        }
     });
     
     document.getElementById('refreshLevelsBtn')?.addEventListener('click', function() {
         console.log('🔄 Refresh manuale supporti/resistenze...');
-        window.taManager?.loadLevelsTable();
-    });
-    
-    // Event handlers per il grafico ticker
-    document.getElementById('tickerSelect')?.addEventListener('change', function() {
-        const selectedTicker = this.value;
-        if (selectedTicker && window.taManager) {
-            console.log(`📊 Caricamento grafico per ${selectedTicker}...`);
-            window.taManager.loadTickerChart(selectedTicker);
+        if (window.taManager) {
+            window.taManager.loadLevelsTable();
         }
     });
     
-    // Auto-refresh ogni 5 minuti se la pagina è attiva
-    let autoRefreshInterval;
-    function startAutoRefresh() {
-        autoRefreshInterval = setInterval(() => {
-            if (!document.hidden && window.taManager) {
-                console.log('🔄 Auto-refresh dati technical analysis...');
-                
-                // Refresh solo la tab attiva
-                const activeTab = document.querySelector('.tab-pane.active');
-                if (activeTab) {
-                    switch(activeTab.id) {
-                        case 'zones':
-                            window.taManager.loadZonesTable();
-                            break;
-                        case 'levels': 
-                            window.taManager.loadLevelsTable();
-                            break;
-                        case 'overview':
-                            window.taManager.loadOverviewData();
-                            break;
-                    }
-                }
+    // Carica dati iniziali se siamo nella tab overview
+    const overviewTab = document.getElementById('overview-tab');
+    if (overviewTab && overviewTab.classList.contains('active')) {
+        console.log('📊 Tab overview attiva - caricamento dati...');
+        setTimeout(() => {
+            if (window.taManager) {
+                window.taManager.loadOverviewData();
             }
-        }, 5 * 60 * 1000); // 5 minuti
+        }, 100);
     }
     
-    // Gestione visibilità pagina
-    document.addEventListener('visibilitychange', function() {
-        if (document.hidden) {
-            if (autoRefreshInterval) {
-                clearInterval(autoRefreshInterval);
-                console.log('⏸️ Auto-refresh paused (pagina nascosta)');
-            }
-        } else {
-            startAutoRefresh();
-            console.log('▶️ Auto-refresh ripreso (pagina visibile)');
-        }
+    console.log('✅ Technical Analysis Manager inizializzato completamente');
+});
+
+// Funzione di debug per testare i controlli
+window.debugEnhancedTables = function() {
+    console.log('🔍 DEBUG Enhanced Tables:');
+    console.log('- EnhancedTableManager disponibile:', typeof EnhancedTableManager !== 'undefined');
+    console.log('- taManager disponibile:', !!window.taManager);
+    console.log('- zonesTableManager:', !!window.taManager?.zonesTableManager);
+    console.log('- levelsTableManager:', !!window.taManager?.levelsTableManager);
+    
+    // Testa elementi DOM
+    const elements = [
+        'zonesTable', 'zonesTableBody', 'zonesPagination', 'zonesTableInfo',
+        'levelsTable', 'levelsTableBody', 'levelsPagination', 'levelsTableInfo',
+        'zonesTickerFilter', 'zonesTypeFilter', 'zonesPatternFilter',
+        'levelsTickerFilter', 'levelsTypeFilter', 'levelsStrengthFilter'
+    ];
+    
+    console.log('📊 Elementi DOM:');
+    elements.forEach(id => {
+        const element = document.getElementById(id);
+        console.log(`  ${id}:`, !!element);
     });
     
-    // Avvia auto-refresh se la pagina è visibile
-    if (!document.hidden) {
-        startAutoRefresh();
+    // Testa inizializzazione manuale
+    if (window.taManager && !window.taManager.zonesTableManager) {
+        console.log('🔧 Tentativo inizializzazione manuale...');
+        window.taManager.initializeEnhancedTables();
     }
-    
-    console.log('✅ Event handlers technical analysis configurati');
-    </script>
+};
+
+console.log('✅ Script technical analysis caricato');
+console.log('🧪 Funzione debug disponibile: debugEnhancedTables()');
+</script>
+
 {% endblock %}

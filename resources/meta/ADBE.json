@@ -3,23 +3,16 @@
   "info": {
     "symbol": "ADBE",
     "name": "Adobe Inc.",
-    "sector": "Information Technology",
-    "industry": "Application Software",
+    "sector": "Technology",
+    "industry": "Software - Application",
     "currency": "USD",
-    "exchange": "N/A",
-    "country": "N/A",
-    "source": "CSV"
+    "exchange": "NMS",
+    "country": "United States"
   },
-  "last_close_date": null,
-  "first_date": null,
-  "total_records": 0,
-  "last_updated": "2025-06-14T17:18:49.010843",
-  "csv_import": {
-    "imported_at": "2025-06-14T17:18:49.010843",
-    "company": "Adobe Inc.",
-    "sector": "Information Technology",
-    "industry": "Application Software"
-  },
+  "last_close_date": "2025-06-13",
+  "total_records": 9785,
+  "first_date": "1986-08-13",
+  "last_updated": "2025-06-15T14:00:41.796684",
   "files": {
     "adjusted": "resources\\data\\daily\\ADBE.csv",
     "not_adjusted": "resources\\data\\daily_notAdjusted\\ADBE_notAdjusted.csv"
