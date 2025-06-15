@@ -239,41 +239,106 @@
                     </div>
                 </div>
                 
-                <!-- Interactive Chart Tab -->
+                <!-- Interactive Chart Tab CON ZONA LEGGENDA MIGLIORATA -->
                 <div class="tab-pane fade" id="chart" role="tabpanel">
+                    
                     <div class="row mb-3">
-                        <div class="col-md-6">
-                            <label for="chartTickerSelect" class="form-label">Seleziona Ticker</label>
-                            <select class="form-select" id="chartTickerSelect">
-                                <option value="">-- Seleziona un ticker --</option>
-                                {% for ticker in tickers %}
-                                <option value="{{ ticker }}">{{ ticker }}</option>
-                                {% endfor %}
-                            </select>
-                        </div>
-                        <div class="col-md-3">
-                            <label for="chartDaysSelect" class="form-label">Giorni di Storico</label>
-                            <select class="form-select" id="chartDaysSelect">
-                                <option value="30">30 giorni</option>
-                                <option value="60">60 giorni</option>
-                                <option value="100" selected>100 giorni</option>
-                                <option value="200">200 giorni</option>
-                                <option value="365">1 anno</option>
-                            </select>
-                        </div>
-                        <div class="col-md-3">
-                            <label class="form-label">Opzioni Grafico</label>
-                            <div class="form-check">
-                                <input class="form-check-input" type="checkbox" id="showSRLevels" checked>
-                                <label class="form-check-label" for="showSRLevels">
-                                    Supporti/Resistenze
-                                </label>
+                        <div class="col-md-8">
+                            <!-- Controlli esistenti del grafico -->
+                            <div class="card">
+                                <div class="card-body">
+                                    <div class="row g-2 align-items-end">
+                                        <div class="col-md-4">
+                                            <label for="chartTickerSelect" class="form-label">Seleziona Ticker</label>
+                                            <select class="form-select" id="chartTickerSelect">
+                                                <option value="">-- Seleziona un ticker --</option>
+                                                {% for ticker in tickers %}
+                                                <option value="{{ ticker }}">{{ ticker }}</option>
+                                                {% endfor %}
+                                            </select>
+                                        </div>
+                                        <div class="col-md-3">
+                                            <label for="chartDaysSelect" class="form-label">Giorni di Storico</label>
+                                            <select class="form-select" id="chartDaysSelect">
+                                                <option value="30">30 giorni</option>
+                                                <option value="60">60 giorni</option>
+                                                <option value="100" selected>100 giorni</option>
+                                                <option value="200">200 giorni</option>
+                                                <option value="365">1 anno</option>
+                                                <option value="730">2 anni</option>
+                                                <option value="1095">3 anni</option>
+                                            </select>
+                                        </div>
+                                        <div class="col-md-3">
+                                            <label class="form-label">Opzioni Grafico</label>
+                                            <div class="form-check">
+                                                <input class="form-check-input" type="checkbox" id="showSRLevels" checked>
+                                                <label class="form-check-label" for="showSRLevels">
+                                                    Supporti/Resistenze
+                                                </label>
+                                            </div>
+                                            <div class="form-check">
+                                                <input class="form-check-input" type="checkbox" id="showZones" checked>
+                                                <label class="form-check-label" for="showZones">
+                                                    Zone Skorupinski
+                                                </label>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-2">
+                                            <!-- NUOVO: Controlli Zone -->
+                                            <div class="btn-group-vertical w-100">
+                                                <button class="btn btn-outline-info btn-sm" id="toggleZoneLegend"
+                                                        data-bs-toggle="tooltip" title="Mostra/Nascondi Leggenda Zone">
+                                                    <i class="bi bi-list-ul"></i> Leggenda
+                                                </button>
+                                                <button type="button" class="btn btn-outline-secondary btn-sm" id="loadChartBtn">
+                                                    <i class="bi bi-arrow-clockwise"></i> Aggiorna
+                                                </button>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
                             </div>
-                            <div class="form-check">
-                                <input class="form-check-input" type="checkbox" id="showZones" checked>
-                                <label class="form-check-label" for="showZones">
-                                    Zone Skorupinski
-                                </label>
+                        </div>
+                        
+                        <div class="col-md-4">
+                            <!-- NUOVO: Pannello informazioni zone migliorato -->
+                            <div class="card zone-info-card">
+                                <div class="card-header bg-primary text-white">
+                                    <h6 class="card-title mb-0">🎯 Zone Skorupinski</h6>
+                                </div>
+                                <div class="card-body py-3">
+                                    <div class="row text-center">
+                                        <div class="col-4">
+                                            <div class="zone-counter">
+                                                <span class="badge bg-success badge-lg" id="demandZoneCount">0</span>
+                                                <small class="text-muted d-block mt-1">Demand</small>
+                                            </div>
+                                        </div>
+                                        <div class="col-4">
+                                            <div class="zone-counter">
+                                                <span class="badge bg-danger badge-lg" id="supplyZoneCount">0</span>
+                                                <small class="text-muted d-block mt-1">Supply</small>
+                                            </div>
+                                        </div>
+                                        <div class="col-4">
+                                            <div class="zone-counter">
+                                                <span class="badge bg-secondary badge-lg" id="totalZoneCount">0</span>
+                                                <small class="text-muted d-block mt-1">Totale</small>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <hr class="my-2">
+                                    <div class="d-flex justify-content-between">
+                                        <button class="btn btn-outline-secondary btn-sm" id="zoneConfigBtn"
+                                                data-bs-toggle="modal" data-bs-target="#zoneConfigModal">
+                                            <i class="bi bi-gear"></i> Config
+                                        </button>
+                                        <button class="btn btn-outline-primary btn-sm" id="toggleAllZonesBtn">
+                                            <i class="bi bi-eye"></i> Toggle All
+                                        </button>
+                                    </div>
+                                </div>
                             </div>
                         </div>
                     </div>
@@ -283,11 +348,11 @@
                         <div class="card-header d-flex justify-content-between align-items-center">
                             <h6 class="mb-0" id="chartTitle">Seleziona un ticker per visualizzare il grafico</h6>
                             <div class="btn-group btn-group-sm" role="group">
-                                <button type="button" class="btn btn-outline-secondary" id="loadChartBtn">
-                                    <i class="bi bi-arrow-clockwise"></i> Aggiorna
-                                </button>
                                 <button type="button" class="btn btn-outline-secondary" id="exportChartBtn">
                                     <i class="bi bi-download"></i> Esporta
+                                </button>
+                                <button type="button" class="btn btn-outline-secondary" id="fullscreenChartBtn">
+                                    <i class="bi bi-arrows-fullscreen"></i> Fullscreen
                                 </button>
                             </div>
                         </div>
@@ -332,281 +397,279 @@
                     </div>
                 </div>
                 
-<!-- SOSTITUISCI le sezioni delle tabelle in technical_analysis.html con queste versioni con tooltip -->
-
-<!-- Zone Skorupinski Tab con tooltip -->
-<div class="tab-pane fade" id="zones" role="tabpanel">
-    <div class="d-flex justify-content-between align-items-center mb-3">
-        <h5 class="mb-0">🎯 Zone Skorupinski</h5>
-        <button class="btn btn-sm btn-outline-primary" id="refreshZonesBtn">
-            <i class="bi bi-arrow-clockwise me-1"></i>Aggiorna
-        </button>
-    </div>
-    
-    <!-- Controlli Filtri e Ricerca Zone -->
-    <div class="card mb-3">
-        <div class="card-body py-2">
-            <div class="row g-2 align-items-center">
-                <div class="col-md-4">
-                    <div class="input-group input-group-sm">
-                        <span class="input-group-text"><i class="bi bi-search"></i></span>
-                        <input type="text" class="form-control" id="zonesTickerFilter" 
-                               placeholder="Cerca per ticker (es. AAPL, MSFT...)">
+                <!-- Zone Skorupinski Tab con tooltip -->
+                <div class="tab-pane fade" id="zones" role="tabpanel">
+                    <div class="d-flex justify-content-between align-items-center mb-3">
+                        <h5 class="mb-0">🎯 Zone Skorupinski</h5>
+                        <button class="btn btn-sm btn-outline-primary" id="refreshZonesBtn">
+                            <i class="bi bi-arrow-clockwise me-1"></i>Aggiorna
+                        </button>
                     </div>
-                </div>
-                <div class="col-md-3">
-                    <select class="form-select form-select-sm" id="zonesTypeFilter">
-                        <option value="">Tutti i tipi</option>
-                        <option value="Supply">Solo Supply</option>
-                        <option value="Demand">Solo Demand</option>
-                    </select>
-                </div>
-                <div class="col-md-3">
-                    <select class="form-select form-select-sm" id="zonesPatternFilter">
-                        <option value="">Tutti i pattern</option>
-                        <option value="RBD">RBD</option>
-                        <option value="DBD">DBD</option>
-                        <option value="DBR">DBR</option>
-                        <option value="RBR">RBR</option>
-                    </select>
-                </div>
-                <div class="col-md-2">
-                    <button class="btn btn-sm btn-outline-secondary w-100" id="clearZonesFilters">
-                        <i class="bi bi-x-circle me-1"></i>Reset
-                    </button>
-                </div>
-            </div>
-        </div>
-    </div>
-    
-    <!-- Info e Paginazione Zone -->
-    <div class="d-flex justify-content-between align-items-center mb-2">
-        <small class="text-muted" id="zonesTableInfo">
-            Mostrando 0 di 0 zone
-        </small>
-        <div class="d-flex align-items-center gap-2">
-            <small class="text-muted">Righe per pagina:</small>
-            <select class="form-select form-select-sm" id="zonesPageSize" style="width: auto;">
-                <option value="10">10</option>
-                <option value="25" selected>25</option>
-                <option value="50">50</option>
-                <option value="100">100</option>
-            </select>
-        </div>
-    </div>
-    
-    <!-- Tabella Zone con Tooltip -->
-    <div class="table-responsive">
-        <table class="table table-hover" id="zonesTable">
-            <thead class="table-light">
-                <tr>
-                    <th class="sortable" data-column="ticker" 
-                        data-bs-toggle="tooltip" 
-                        data-bs-placement="top" 
-                        title="📊 Simbolo del titolo azionario (es. AAPL per Apple Inc.)">
-                        Ticker <i class="bi bi-arrow-down-up sort-icon"></i>
-                    </th>
-                    <th class="sortable" data-column="date"
-                        data-bs-toggle="tooltip" 
-                        data-bs-placement="top" 
-                        title="📅 Data di formazione della zona Skorupinski">
-                        Data <i class="bi bi-arrow-down-up sort-icon"></i>
-                    </th>
-                    <th class="sortable" data-column="pattern"
-                        data-bs-toggle="tooltip" 
-                        data-bs-placement="top" 
-                        title="🎯 Tipo di pattern: RBD (Rise-Base-Drop), DBD (Drop-Base-Drop), DBR (Drop-Base-Rise), RBR (Rise-Base-Rise)">
-                        Pattern <i class="bi bi-arrow-down-up sort-icon"></i>
-                    </th>
-                    <th class="sortable" data-column="type"
-                        data-bs-toggle="tooltip" 
-                        data-bs-placement="top" 
-                        title="⚡ Tipo di zona: Supply (venditori attivi) o Demand (compratori attivi)">
-                        Tipo <i class="bi bi-arrow-down-up sort-icon"></i>
-                    </th>
-                    <th data-bs-toggle="tooltip" 
-                        data-bs-placement="top" 
-                        title="📏 Range di prezzi che compone la zona (Minimo - Massimo)">
-                        Zona
-                    </th>
-                    <th class="sortable" data-column="zone_center"
-                        data-bs-toggle="tooltip" 
-                        data-bs-placement="top" 
-                        title="🎯 Prezzo centrale della zona (punto medio tra minimo e massimo)">
-                        Centro <i class="bi bi-arrow-down-up sort-icon"></i>
-                    </th>
-                    <th class="sortable" data-column="zone_thickness_pct"
-                        data-bs-toggle="tooltip" 
-                        data-bs-placement="top" 
-                        title="📐 Spessore della zona come percentuale del prezzo (zone sottili sono più precise)">
-                        Spessore <i class="bi bi-arrow-down-up sort-icon"></i>
-                    </th>
-                    <th class="sortable" data-column="strength_score"
-                        data-bs-toggle="tooltip" 
-                        data-bs-placement="top" 
-                        title="💪 Punteggio di forza della zona (0-10): considera volume, velocità impulso e qualità pattern">
-                        Forza <i class="bi bi-arrow-down-up sort-icon"></i>
-                    </th>
-                    <th class="sortable" data-column="distance_from_current"
-                        data-bs-toggle="tooltip" 
-                        data-bs-placement="top" 
-                        title="📍 Distanza percentuale dal prezzo corrente del titolo (+/- %)">
-                        Distanza % <i class="bi bi-arrow-down-up sort-icon"></i>
-                    </th>
-                    <th data-bs-toggle="tooltip" 
-                        data-bs-placement="top" 
-                        title="🔧 Azioni disponibili: visualizza grafico, analizza dettagli">
-                        Azioni
-                    </th>
-                </tr>
-            </thead>
-            <tbody id="zonesTableBody">
-                <!-- Populated by JavaScript -->
-            </tbody>
-        </table>
-    </div>
-    
-    <!-- Paginazione Zone -->
-    <nav aria-label="Paginazione zone">
-        <ul class="pagination pagination-sm justify-content-center" id="zonesPagination">
-            <!-- Populated by JavaScript -->
-        </ul>
-    </nav>
-</div>
-
-<!-- Support/Resistance Tab con tooltip -->
-<div class="tab-pane fade" id="levels" role="tabpanel">
-    <div class="d-flex justify-content-between align-items-center mb-3">
-        <h5 class="mb-0">📏 Livelli Supporti e Resistenze</h5>
-        <button class="btn btn-sm btn-outline-primary" id="refreshLevelsBtn">
-            <i class="bi bi-arrow-clockwise me-1"></i>Aggiorna
-        </button>
-    </div>
-    
-    <!-- Controlli Filtri e Ricerca Livelli -->
-    <div class="card mb-3">
-        <div class="card-body py-2">
-            <div class="row g-2 align-items-center">
-                <div class="col-md-4">
-                    <div class="input-group input-group-sm">
-                        <span class="input-group-text"><i class="bi bi-search"></i></span>
-                        <input type="text" class="form-control" id="levelsTickerFilter" 
-                               placeholder="Cerca per ticker (es. AAPL, MSFT...)">
+                    
+                    <!-- Controlli Filtri e Ricerca Zone -->
+                    <div class="card mb-3">
+                        <div class="card-body py-2">
+                            <div class="row g-2 align-items-center">
+                                <div class="col-md-4">
+                                    <div class="input-group input-group-sm">
+                                        <span class="input-group-text"><i class="bi bi-search"></i></span>
+                                        <input type="text" class="form-control" id="zonesTickerFilter" 
+                                               placeholder="Cerca per ticker (es. AAPL, MSFT...)">
+                                    </div>
+                                </div>
+                                <div class="col-md-3">
+                                    <select class="form-select form-select-sm" id="zonesTypeFilter">
+                                        <option value="">Tutti i tipi</option>
+                                        <option value="Supply">Solo Supply</option>
+                                        <option value="Demand">Solo Demand</option>
+                                    </select>
+                                </div>
+                                <div class="col-md-3">
+                                    <select class="form-select form-select-sm" id="zonesPatternFilter">
+                                        <option value="">Tutti i pattern</option>
+                                        <option value="RBD">RBD</option>
+                                        <option value="DBD">DBD</option>
+                                        <option value="DBR">DBR</option>
+                                        <option value="RBR">RBR</option>
+                                    </select>
+                                </div>
+                                <div class="col-md-2">
+                                    <button class="btn btn-sm btn-outline-secondary w-100" id="clearZonesFilters">
+                                        <i class="bi bi-x-circle me-1"></i>Reset
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
                     </div>
+                    
+                    <!-- Info e Paginazione Zone -->
+                    <div class="d-flex justify-content-between align-items-center mb-2">
+                        <small class="text-muted" id="zonesTableInfo">
+                            Mostrando 0 di 0 zone
+                        </small>
+                        <div class="d-flex align-items-center gap-2">
+                            <small class="text-muted">Righe per pagina:</small>
+                            <select class="form-select form-select-sm" id="zonesPageSize" style="width: auto;">
+                                <option value="10">10</option>
+                                <option value="25" selected>25</option>
+                                <option value="50">50</option>
+                                <option value="100">100</option>
+                            </select>
+                        </div>
+                    </div>
+                    
+                    <!-- Tabella Zone con Tooltip -->
+                    <div class="table-responsive">
+                        <table class="table table-hover" id="zonesTable">
+                            <thead class="table-light">
+                                <tr>
+                                    <th class="sortable" data-column="ticker" 
+                                        data-bs-toggle="tooltip" 
+                                        data-bs-placement="top" 
+                                        title="📊 Simbolo del titolo azionario (es. AAPL per Apple Inc.)">
+                                        Ticker <i class="bi bi-arrow-down-up sort-icon"></i>
+                                    </th>
+                                    <th class="sortable" data-column="date"
+                                        data-bs-toggle="tooltip" 
+                                        data-bs-placement="top" 
+                                        title="📅 Data di formazione della zona Skorupinski">
+                                        Data <i class="bi bi-arrow-down-up sort-icon"></i>
+                                    </th>
+                                    <th class="sortable" data-column="pattern"
+                                        data-bs-toggle="tooltip" 
+                                        data-bs-placement="top" 
+                                        title="🎯 Tipo di pattern: RBD (Rise-Base-Drop), DBD (Drop-Base-Drop), DBR (Drop-Base-Rise), RBR (Rise-Base-Rise)">
+                                        Pattern <i class="bi bi-arrow-down-up sort-icon"></i>
+                                    </th>
+                                    <th class="sortable" data-column="type"
+                                        data-bs-toggle="tooltip" 
+                                        data-bs-placement="top" 
+                                        title="⚡ Tipo di zona: Supply (venditori attivi) o Demand (compratori attivi)">
+                                        Tipo <i class="bi bi-arrow-down-up sort-icon"></i>
+                                    </th>
+                                    <th data-bs-toggle="tooltip" 
+                                        data-bs-placement="top" 
+                                        title="📏 Range di prezzi che compone la zona (Minimo - Massimo)">
+                                        Zona
+                                    </th>
+                                    <th class="sortable" data-column="zone_center"
+                                        data-bs-toggle="tooltip" 
+                                        data-bs-placement="top" 
+                                        title="🎯 Prezzo centrale della zona (punto medio tra minimo e massimo)">
+                                        Centro <i class="bi bi-arrow-down-up sort-icon"></i>
+                                    </th>
+                                    <th class="sortable" data-column="zone_thickness_pct"
+                                        data-bs-toggle="tooltip" 
+                                        data-bs-placement="top" 
+                                        title="📐 Spessore della zona come percentuale del prezzo (zone sottili sono più precise)">
+                                        Spessore <i class="bi bi-arrow-down-up sort-icon"></i>
+                                    </th>
+                                    <th class="sortable" data-column="strength_score"
+                                        data-bs-toggle="tooltip" 
+                                        data-bs-placement="top" 
+                                        title="💪 Punteggio di forza della zona (0-10): considera volume, velocità impulso e qualità pattern">
+                                        Forza <i class="bi bi-arrow-down-up sort-icon"></i>
+                                    </th>
+                                    <th class="sortable" data-column="distance_from_current"
+                                        data-bs-toggle="tooltip" 
+                                        data-bs-placement="top" 
+                                        title="📍 Distanza percentuale dal prezzo corrente del titolo (+/- %)">
+                                        Distanza % <i class="bi bi-arrow-down-up sort-icon"></i>
+                                    </th>
+                                    <th data-bs-toggle="tooltip" 
+                                        data-bs-placement="top" 
+                                        title="🔧 Azioni disponibili: visualizza grafico, analizza dettagli">
+                                        Azioni
+                                    </th>
+                                </tr>
+                            </thead>
+                            <tbody id="zonesTableBody">
+                                <!-- Populated by JavaScript -->
+                            </tbody>
+                        </table>
+                    </div>
+                    
+                    <!-- Paginazione Zone -->
+                    <nav aria-label="Paginazione zone">
+                        <ul class="pagination pagination-sm justify-content-center" id="zonesPagination">
+                            <!-- Populated by JavaScript -->
+                        </ul>
+                    </nav>
                 </div>
-                <div class="col-md-3">
-                    <select class="form-select form-select-sm" id="levelsTypeFilter">
-                        <option value="">Tutti i tipi</option>
-                        <option value="Support">Solo Supporti</option>
-                        <option value="Resistance">Solo Resistenze</option>
-                    </select>
+
+                <!-- Support/Resistance Tab con tooltip -->
+                <div class="tab-pane fade" id="levels" role="tabpanel">
+                    <div class="d-flex justify-content-between align-items-center mb-3">
+                        <h5 class="mb-0">📏 Livelli Supporti e Resistenze</h5>
+                        <button class="btn btn-sm btn-outline-primary" id="refreshLevelsBtn">
+                            <i class="bi bi-arrow-clockwise me-1"></i>Aggiorna
+                        </button>
+                    </div>
+                    
+                    <!-- Controlli Filtri e Ricerca Livelli -->
+                    <div class="card mb-3">
+                        <div class="card-body py-2">
+                            <div class="row g-2 align-items-center">
+                                <div class="col-md-4">
+                                    <div class="input-group input-group-sm">
+                                        <span class="input-group-text"><i class="bi bi-search"></i></span>
+                                        <input type="text" class="form-control" id="levelsTickerFilter" 
+                                               placeholder="Cerca per ticker (es. AAPL, MSFT...)">
+                                    </div>
+                                </div>
+                                <div class="col-md-3">
+                                    <select class="form-select form-select-sm" id="levelsTypeFilter">
+                                        <option value="">Tutti i tipi</option>
+                                        <option value="Support">Solo Supporti</option>
+                                        <option value="Resistance">Solo Resistenze</option>
+                                    </select>
+                                </div>
+                                <div class="col-md-3">
+                                    <input type="range" class="form-range" id="levelsStrengthFilter" 
+                                           min="0" max="10" step="0.5" value="0"
+                                           data-bs-toggle="tooltip" 
+                                           data-bs-placement="top" 
+                                           title="💪 Filtra per forza minima del livello (0 = tutti, 10 = solo i più forti)">
+                                    <small class="text-muted">Forza min: <span id="strengthValue">0</span></small>
+                                </div>
+                                <div class="col-md-2">
+                                    <button class="btn btn-sm btn-outline-secondary w-100" id="clearLevelsFilters">
+                                        <i class="bi bi-x-circle me-1"></i>Reset
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Info e Paginazione Livelli -->
+                    <div class="d-flex justify-content-between align-items-center mb-2">
+                        <small class="text-muted" id="levelsTableInfo">
+                            Mostrando 0 di 0 livelli
+                        </small>
+                        <div class="d-flex align-items-center gap-2">
+                            <small class="text-muted">Righe per pagina:</small>
+                            <select class="form-select form-select-sm" id="levelsPageSize" style="width: auto;">
+                                <option value="10">10</option>
+                                <option value="25" selected>25</option>
+                                <option value="50">50</option>
+                                <option value="100">100</option>
+                            </select>
+                        </div>
+                    </div>
+                    
+                    <!-- Tabella Livelli con Tooltip -->
+                    <div class="table-responsive">
+                        <table class="table table-hover" id="levelsTable">
+                            <thead class="table-light">
+                                <tr>
+                                    <th class="sortable" data-column="ticker"
+                                        data-bs-toggle="tooltip" 
+                                        data-bs-placement="top" 
+                                        title="📊 Simbolo del titolo azionario (es. AAPL per Apple Inc.)">
+                                        Ticker <i class="bi bi-arrow-down-up sort-icon"></i>
+                                    </th>
+                                    <th class="sortable" data-column="date"
+                                        data-bs-toggle="tooltip" 
+                                        data-bs-placement="top" 
+                                        title="📅 Data di formazione del livello di supporto o resistenza">
+                                        Data <i class="bi bi-arrow-down-up sort-icon"></i>
+                                    </th>
+                                    <th class="sortable" data-column="type"
+                                        data-bs-toggle="tooltip" 
+                                        data-bs-placement="top" 
+                                        title="⚡ Tipo: Support (supporto, livello di rimbalzo) o Resistance (resistenza, livello di respinta)">
+                                        Tipo <i class="bi bi-arrow-down-up sort-icon"></i>
+                                    </th>
+                                    <th class="sortable" data-column="level"
+                                        data-bs-toggle="tooltip" 
+                                        data-bs-placement="top" 
+                                        title="💰 Prezzo esatto del livello di supporto o resistenza">
+                                        Livello <i class="bi bi-arrow-down-up sort-icon"></i>
+                                    </th>
+                                    <th class="sortable" data-column="strength"
+                                        data-bs-toggle="tooltip" 
+                                        data-bs-placement="top" 
+                                        title="💪 Forza del livello (1-10): considera numero tocchi, volume e recency">
+                                        Forza <i class="bi bi-arrow-down-up sort-icon"></i>
+                                    </th>
+                                    <th class="sortable" data-column="touches"
+                                        data-bs-toggle="tooltip" 
+                                        data-bs-placement="top" 
+                                        title="👆 Numero di volte che il prezzo ha toccato questo livello (più tocchi = più significativo)">
+                                        Tocchi <i class="bi bi-arrow-down-up sort-icon"></i>
+                                    </th>
+                                    <th class="sortable" data-column="days_from_end"
+                                        data-bs-toggle="tooltip" 
+                                        data-bs-placement="top" 
+                                        title="📅 Giorni trascorsi dalla formazione del livello (livelli recenti sono più rilevanti)">
+                                        Giorni Formazione <i class="bi bi-arrow-down-up sort-icon"></i>
+                                    </th>
+                                    <th class="sortable" data-column="avg_range"
+                                        data-bs-toggle="tooltip" 
+                                        data-bs-placement="top" 
+                                        title="📊 Range medio giornaliero del titolo (High - Low medio) durante l'analisi">
+                                        Range Medio <i class="bi bi-arrow-down-up sort-icon"></i>
+                                    </th>
+                                    <th data-bs-toggle="tooltip" 
+                                        data-bs-placement="top" 
+                                        title="🔧 Azioni disponibili: visualizza grafico, analizza dettagli">
+                                        Azioni
+                                    </th>
+                                </tr>
+                            </thead>
+                            <tbody id="levelsTableBody">
+                                <!-- Populated by JavaScript -->
+                            </tbody>
+                        </table>
+                    </div>
+                    
+                    <!-- Paginazione Livelli -->
+                    <nav aria-label="Paginazione livelli">
+                        <ul class="pagination pagination-sm justify-content-center" id="levelsPagination">
+                            <!-- Populated by JavaScript -->
+                        </ul>
+                    </nav>
                 </div>
-                <div class="col-md-3">
-                    <input type="range" class="form-range" id="levelsStrengthFilter" 
-                           min="0" max="10" step="0.5" value="0"
-                           data-bs-toggle="tooltip" 
-                           data-bs-placement="top" 
-                           title="💪 Filtra per forza minima del livello (0 = tutti, 10 = solo i più forti)">
-                    <small class="text-muted">Forza min: <span id="strengthValue">0</span></small>
-                </div>
-                <div class="col-md-2">
-                    <button class="btn btn-sm btn-outline-secondary w-100" id="clearLevelsFilters">
-                        <i class="bi bi-x-circle me-1"></i>Reset
-                    </button>
-                </div>
-            </div>
-        </div>
-    </div>
-    
-    <!-- Info e Paginazione Livelli -->
-    <div class="d-flex justify-content-between align-items-center mb-2">
-        <small class="text-muted" id="levelsTableInfo">
-            Mostrando 0 di 0 livelli
-        </small>
-        <div class="d-flex align-items-center gap-2">
-            <small class="text-muted">Righe per pagina:</small>
-            <select class="form-select form-select-sm" id="levelsPageSize" style="width: auto;">
-                <option value="10">10</option>
-                <option value="25" selected>25</option>
-                <option value="50">50</option>
-                <option value="100">100</option>
-            </select>
-        </div>
-    </div>
-    
-    <!-- Tabella Livelli con Tooltip -->
-    <div class="table-responsive">
-        <table class="table table-hover" id="levelsTable">
-            <thead class="table-light">
-                <tr>
-                    <th class="sortable" data-column="ticker"
-                        data-bs-toggle="tooltip" 
-                        data-bs-placement="top" 
-                        title="📊 Simbolo del titolo azionario (es. AAPL per Apple Inc.)">
-                        Ticker <i class="bi bi-arrow-down-up sort-icon"></i>
-                    </th>
-                    <th class="sortable" data-column="date"
-                        data-bs-toggle="tooltip" 
-                        data-bs-placement="top" 
-                        title="📅 Data di formazione del livello di supporto o resistenza">
-                        Data <i class="bi bi-arrow-down-up sort-icon"></i>
-                    </th>
-                    <th class="sortable" data-column="type"
-                        data-bs-toggle="tooltip" 
-                        data-bs-placement="top" 
-                        title="⚡ Tipo: Support (supporto, livello di rimbalzo) o Resistance (resistenza, livello di respinta)">
-                        Tipo <i class="bi bi-arrow-down-up sort-icon"></i>
-                    </th>
-                    <th class="sortable" data-column="level"
-                        data-bs-toggle="tooltip" 
-                        data-bs-placement="top" 
-                        title="💰 Prezzo esatto del livello di supporto o resistenza">
-                        Livello <i class="bi bi-arrow-down-up sort-icon"></i>
-                    </th>
-                    <th class="sortable" data-column="strength"
-                        data-bs-toggle="tooltip" 
-                        data-bs-placement="top" 
-                        title="💪 Forza del livello (1-10): considera numero tocchi, volume e recency">
-                        Forza <i class="bi bi-arrow-down-up sort-icon"></i>
-                    </th>
-                    <th class="sortable" data-column="touches"
-                        data-bs-toggle="tooltip" 
-                        data-bs-placement="top" 
-                        title="👆 Numero di volte che il prezzo ha toccato questo livello (più tocchi = più significativo)">
-                        Tocchi <i class="bi bi-arrow-down-up sort-icon"></i>
-                    </th>
-                    <th class="sortable" data-column="days_from_end"
-                        data-bs-toggle="tooltip" 
-                        data-bs-placement="top" 
-                        title="📅 Giorni trascorsi dalla formazione del livello (livelli recenti sono più rilevanti)">
-                        Giorni Formazione <i class="bi bi-arrow-down-up sort-icon"></i>
-                    </th>
-                    <th class="sortable" data-column="avg_range"
-                        data-bs-toggle="tooltip" 
-                        data-bs-placement="top" 
-                        title="📊 Range medio giornaliero del titolo (High - Low medio) durante l'analisi">
-                        Range Medio <i class="bi bi-arrow-down-up sort-icon"></i>
-                    </th>
-                    <th data-bs-toggle="tooltip" 
-                        data-bs-placement="top" 
-                        title="🔧 Azioni disponibili: visualizza grafico, analizza dettagli">
-                        Azioni
-                    </th>
-                </tr>
-            </thead>
-            <tbody id="levelsTableBody">
-                <!-- Populated by JavaScript -->
-            </tbody>
-        </table>
-    </div>
-    
-    <!-- Paginazione Livelli -->
-    <nav aria-label="Paginazione livelli">
-        <ul class="pagination pagination-sm justify-content-center" id="levelsPagination">
-            <!-- Populated by JavaScript -->
-        </ul>
-    </nav>
-</div>
             </div>
         </div>
     </div>
@@ -626,6 +689,90 @@
         </div>
     </div>
 
+    <!-- NUOVO: Leggenda Zone Mobile -->
+    <div id="zone-legend-container" class="zone-legend-panel d-none">
+        <!-- Contenuto generato dinamicamente via JavaScript -->
+    </div>
+
+    <!-- NUOVO: Modal Configurazione Zone -->
+    <div class="modal fade" id="zoneConfigModal" tabindex="-1">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">⚙️ Configurazione Zone Skorupinski</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <h6>🟢 Zone Demand</h6>
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" id="showDemandLabels" checked>
+                                <label class="form-check-label" for="showDemandLabels">
+                                    Mostra etichette prezzi
+                                </label>
+                            </div>
+                            <div class="mt-2">
+                                <label class="form-label">Opacità:</label>
+                                <input type="range" class="form-range" id="demandOpacity" 
+                                       min="10" max="80" value="20" step="10">
+                                <small class="text-muted">20%</small>
+                            </div>
+                        </div>
+                        
+                        <div class="col-md-6">
+                            <h6>🔴 Zone Supply</h6>
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" id="showSupplyLabels" checked>
+                                <label class="form-check-label" for="showSupplyLabels">
+                                    Mostra etichette prezzi
+                                </label>
+                            </div>
+                            <div class="mt-2">
+                                <label class="form-label">Opacità:</label>
+                                <input type="range" class="form-range" id="supplyOpacity" 
+                                       min="10" max="80" value="20" step="10">
+                                <small class="text-muted">20%</small>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <hr>
+                    
+                    <div class="row">
+                        <div class="col-12">
+                            <h6>🎯 Filtri Zone</h6>
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <label class="form-label">Distanza massima:</label>
+                                    <select class="form-select form-select-sm" id="maxDistanceFilter">
+                                        <option value="">Tutte le zone</option>
+                                        <option value="5">Entro 5%</option>
+                                        <option value="10">Entro 10%</option>
+                                        <option value="20">Entro 20%</option>
+                                    </select>
+                                </div>
+                                <div class="col-md-6">
+                                    <label class="form-label">Forza minima:</label>
+                                    <select class="form-select form-select-sm" id="minStrengthFilter">
+                                        <option value="">Tutte le forze</option>
+                                        <option value="5">Forza ≥ 5</option>
+                                        <option value="7">Forza ≥ 7</option>
+                                        <option value="8">Forza ≥ 8</option>
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Chiudi</button>
+                    <button type="button" class="btn btn-primary" id="applyZoneConfig">Applica</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
 {% endblock %}
 
 {% block scripts %}
@@ -637,158 +784,151 @@
 <script src="{{ url_for('static', filename='js/technical-analysis.js') }}"></script>
 
 <script>
-// UNICA INIZIALIZZAZIONE - Non duplicare!
+// INIZIALIZZAZIONE PRINCIPALE TECHNICAL ANALYSIS
 document.addEventListener('DOMContentLoaded', function() {
     console.log('🚀 Inizializzazione Technical Analysis Dashboard...');
     
-    // Verifica che Plotly sia caricato
+    // Verifica librerie necessarie
     if (typeof Plotly === 'undefined') {
         console.error('❌ Plotly.js non caricato');
         return;
     }
-    console.log('✅ Plotly.js caricato, versione:', Plotly.version);
     
-    // Verifica che EnhancedTableManager sia caricato
     if (typeof EnhancedTableManager === 'undefined') {
         console.error('❌ EnhancedTableManager non caricato');
         return;
     }
-    console.log('✅ EnhancedTableManager caricato');
     
-    // Verifica di essere nella pagina corretta
+    // Verifica pagina corretta
     if (!document.getElementById('analysisNavTabs')) {
-        console.log('ℹ️ Pagina Technical Analysis non rilevata - inizializzazione saltata');
+        console.log('ℹ️ Pagina Technical Analysis non rilevata');
         return;
     }
-    console.log('✅ Pagina Technical Analysis rilevata');
     
-    // Crea istanza manager UNICA se non esiste già
+    // Crea istanza manager principale
     if (!window.taManager) {
-        console.log('🔧 Creazione TechnicalAnalysisManager...');
         window.taManager = new TechnicalAnalysisManager();
-        window.TechnicalAnalysisInstance = window.taManager; // Alias per compatibilità
+        window.TechnicalAnalysisInstance = window.taManager;
     }
     
-    // Event listeners per checkbox
-    const showSRCheckbox = document.getElementById('showSRLevels');
-    if (showSRCheckbox) {
-        showSRCheckbox.addEventListener('change', function() {
-            console.log(`📊 Checkbox S&R: ${this.checked}`);
-            const currentTicker = document.getElementById('chartTickerSelect')?.value;
-            if (currentTicker && window.taManager) {
-                window.taManager.loadChart(currentTicker);
-            }
-        });
-        console.log('✅ Event listener checkbox S&R configurato');
-    }
-    
-    const showZonesCheckbox = document.getElementById('showZones');
-    if (showZonesCheckbox) {
-        showZonesCheckbox.addEventListener('change', function() {
-            console.log(`🎯 Checkbox Zone: ${this.checked}`);
-            const currentTicker = document.getElementById('chartTickerSelect')?.value;
-            if (currentTicker && window.taManager) {
-                window.taManager.loadChart(currentTicker);
-            }
-        });
-        console.log('✅ Event listener checkbox Zone configurato');
-    }
-    
-    const loadChartBtn = document.getElementById('loadChartBtn');
-    if (loadChartBtn) {
-        loadChartBtn.addEventListener('click', function() {
-            console.log('🔄 Bottone aggiorna cliccato');
-            if (window.taManager) {
-                window.taManager.refreshChart();
-            }
-        });
-        console.log('✅ Event listener bottone refresh configurato');
-    }
-    
-    // Event handlers per i tab
-    document.getElementById('zones-tab')?.addEventListener('shown.bs.tab', function() {
-        console.log('📊 Caricamento tab zone Skorupinski...');
-        setTimeout(() => {
-            if (window.taManager) {
-                window.taManager.loadZonesTable();
-            }
-        }, 100); // Piccolo delay per assicurarsi che il tab sia completamente mostrato
-    });
-    
-    document.getElementById('levels-tab')?.addEventListener('shown.bs.tab', function() {
-        console.log('📏 Caricamento tab supporti/resistenze...');  
-        setTimeout(() => {
-            if (window.taManager) {
-                window.taManager.loadLevelsTable();
-            }
-        }, 100);
-    });
-    
-    document.getElementById('chart-tab')?.addEventListener('shown.bs.tab', function() {
-        console.log('📈 Caricamento tab grafico...');
-        // Il grafico viene gestito separatamente
-    });
-    
-    // Event handlers per i bottoni refresh
-    document.getElementById('refreshZonesBtn')?.addEventListener('click', function() {
-        console.log('🔄 Refresh manuale zone Skorupinski...');
-        if (window.taManager) {
-            window.taManager.loadZonesTable();
-        }
-    });
-    
-    document.getElementById('refreshLevelsBtn')?.addEventListener('click', function() {
-        console.log('🔄 Refresh manuale supporti/resistenze...');
-        if (window.taManager) {
-            window.taManager.loadLevelsTable();
-        }
-    });
-    
-    // Carica dati iniziali se siamo nella tab overview
-    const overviewTab = document.getElementById('overview-tab');
-    if (overviewTab && overviewTab.classList.contains('active')) {
-        console.log('📊 Tab overview attiva - caricamento dati...');
-        setTimeout(() => {
-            if (window.taManager) {
-                window.taManager.loadOverviewData();
-            }
-        }, 100);
-    }
+    // Event listeners per controlli zone
+    setupZoneControls();
     
     console.log('✅ Technical Analysis Manager inizializzato completamente');
 });
 
-// Funzione di debug per testare i controlli
-window.debugEnhancedTables = function() {
-    console.log('🔍 DEBUG Enhanced Tables:');
-    console.log('- EnhancedTableManager disponibile:', typeof EnhancedTableManager !== 'undefined');
-    console.log('- taManager disponibile:', !!window.taManager);
-    console.log('- zonesTableManager:', !!window.taManager?.zonesTableManager);
-    console.log('- levelsTableManager:', !!window.taManager?.levelsTableManager);
+// FUNZIONE PER CONFIGURARE CONTROLLI ZONE
+function setupZoneControls() {
+    // Toggle leggenda
+    const toggleLegendBtn = document.getElementById('toggleZoneLegend');
+    if (toggleLegendBtn) {
+        toggleLegendBtn.addEventListener('click', function() {
+            const legendContainer = document.getElementById('zone-legend-container');
+            if (legendContainer) {
+                legendContainer.classList.toggle('d-none');
+                
+                // Cambia icona del bottone
+                const icon = this.querySelector('i');
+                if (legendContainer.classList.contains('d-none')) {
+                    icon.className = 'bi bi-list-ul';
+                    this.innerHTML = '<i class="bi bi-list-ul"></i> Leggenda';
+                } else {
+                    icon.className = 'bi bi-x-lg';
+                    this.innerHTML = '<i class="bi bi-x-lg"></i> Chiudi';
+                }
+            }
+        });
+    }
     
-    // Testa elementi DOM
-    const elements = [
-        'zonesTable', 'zonesTableBody', 'zonesPagination', 'zonesTableInfo',
-        'levelsTable', 'levelsTableBody', 'levelsPagination', 'levelsTableInfo',
-        'zonesTickerFilter', 'zonesTypeFilter', 'zonesPatternFilter',
-        'levelsTickerFilter', 'levelsTypeFilter', 'levelsStrengthFilter'
-    ];
+    // Toggle tutte le zone
+    const toggleAllBtn = document.getElementById('toggleAllZonesBtn');
+    if (toggleAllBtn) {
+        toggleAllBtn.addEventListener('click', function() {
+            if (typeof window.toggleAllZones === 'function') {
+                window.toggleAllZones();
+            }
+        });
+    }
     
-    console.log('📊 Elementi DOM:');
-    elements.forEach(id => {
-        const element = document.getElementById(id);
-        console.log(`  ${id}:`, !!element);
-    });
+    // Configurazione zone modal
+    const applyConfigBtn = document.getElementById('applyZoneConfig');
+    if (applyConfigBtn) {
+        applyConfigBtn.addEventListener('click', function() {
+            const demandOpacity = document.getElementById('demandOpacity')?.value || 20;
+            const supplyOpacity = document.getElementById('supplyOpacity')?.value || 20;
+            const maxDistance = document.getElementById('maxDistanceFilter')?.value;
+            const minStrength = document.getElementById('minStrengthFilter')?.value;
+            
+            // Applica configurazioni
+            if (window.taManager && typeof window.taManager.applyZoneConfiguration === 'function') {
+                window.taManager.applyZoneConfiguration({
+                    demandOpacity: demandOpacity,
+                    supplyOpacity: supplyOpacity,
+                    maxDistance: maxDistance,
+                    minStrength: minStrength
+                });
+            }
+            
+            // Chiudi modal
+            const modal = bootstrap.Modal.getInstance(document.getElementById('zoneConfigModal'));
+            if (modal) modal.hide();
+        });
+    }
+}
+
+// FUNZIONE PER AGGIORNARE CONTATORI ZONE
+window.updateZoneCounts = function(zoneLegendData) {
+    if (!zoneLegendData) return;
     
-    // Testa inizializzazione manuale
-    if (window.taManager && !window.taManager.zonesTableManager) {
-        console.log('🔧 Tentativo inizializzazione manuale...');
-        window.taManager.initializeEnhancedTables();
+    const demandCount = zoneLegendData.filter(z => z.type === 'Demand').length;
+    const supplyCount = zoneLegendData.filter(z => z.type === 'Supply').length;
+    const totalCount = demandCount + supplyCount;
+    
+    const demandCountEl = document.getElementById('demandZoneCount');
+    const supplyCountEl = document.getElementById('supplyZoneCount');
+    const totalCountEl = document.getElementById('totalZoneCount');
+    
+    if (demandCountEl) {
+        demandCountEl.textContent = demandCount;
+        demandCountEl.classList.add('animate-update');
+        setTimeout(() => demandCountEl.classList.remove('animate-update'), 300);
+    }
+    if (supplyCountEl) {
+        supplyCountEl.textContent = supplyCount;
+        supplyCountEl.classList.add('animate-update');
+        setTimeout(() => supplyCountEl.classList.remove('animate-update'), 300);
+    }
+    if (totalCountEl) {
+        totalCountEl.textContent = totalCount;
+        totalCountEl.classList.add('animate-update');
+        setTimeout(() => totalCountEl.classList.remove('animate-update'), 300);
     }
 };
 
-console.log('✅ Script technical analysis caricato');
-console.log('🧪 Funzione debug disponibile: debugEnhancedTables()');
+// FUNZIONI GLOBALI PER ZONE
+window.toggleZoneVisibility = function(zoneId, isVisible) {
+    if (window.taManager && typeof window.taManager.toggleZoneVisibility === 'function') {
+        window.taManager.toggleZoneVisibility(zoneId, isVisible);
+    }
+};
+
+window.toggleAllZones = function() {
+    const checkboxes = document.querySelectorAll('#zone-legend-container .zone-checkbox');
+    if (checkboxes.length === 0) return;
+    
+    const allChecked = Array.from(checkboxes).every(cb => cb.checked);
+    const newState = !allChecked;
+    
+    checkboxes.forEach(checkbox => {
+        if (checkbox.checked !== newState) {
+            checkbox.checked = newState;
+            const zoneId = checkbox.getAttribute('data-zone-id');
+            window.toggleZoneVisibility(zoneId, newState);
+        }
+    });
+};
+
+console.log('✅ Technical Analysis Dashboard completo caricato');
 </script>
 
 {% endblock %}

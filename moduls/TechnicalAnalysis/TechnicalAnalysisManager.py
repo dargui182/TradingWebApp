@@ -1,7 +1,7 @@
-# ===== FILE: TechnicalAnalysisManager.py =====
+# ===== FILE: moduls/TechnicalAnalysis/TechnicalAnalysisManager.py =====
 """
 Manager principale per l'analisi tecnica integrato nella dashboard.
-Combina supporti/resistenze classici e zone Skorupinski.
+Combina supporti/resistenze classici e zone Skorupinski con prezzi centrali.
 """
 
 import json
@@ -23,9 +23,8 @@ from plotly.subplots import make_subplots
 import json
 import logging
 
-# Setup logging (aggiungi in cima al file se non esiste)
+# Setup logging
 logger = logging.getLogger(__name__)
-
 
 
 class TechnicalAnalysisManager:
@@ -78,60 +77,30 @@ class TechnicalAnalysisManager:
     
     def _initialize_managers(self):
         """Inizializza i manager specifici per ogni tipo di analisi."""
-        # Manager per supporti/resistenze classici
-        self.sr_manager = SupportResistanceManager(
-            input_file=self.sr_state_file,
-            input_folder_prices=self.data_dir,  # Usa adjusted di default
-            output_folder=self.sr_output_dir,
-            min_distance_factor=0.5,
-            touch_tolerance_factor=0.1,
-            max_years_lookback=5
-        )
-        
-        # Manager per zone Skorupinski
-        self.skorupinski_manager = SkorupinkiZoneManager(
-            input_file=self.skorupinski_state_file,
-            input_folder_prices=self.data_dir,  # Usa adjusted di default
-            output_folder=self.skorupinski_output_dir,
-            min_pullback_pct=2.0,
-            zone_thickness_pct=0.3,
-            max_lookback_bars=60,
-            min_zone_strength=1,
-            max_years_lookback=5,
-            min_impulse_pct=1.2,
-            max_base_bars=10
-        )
-        
-        # Inizializza file di stato se non esistono
-        self._initialize_state_files()
-    
-    def _initialize_state_files(self):
-        """Inizializza i file di stato per tracking elaborazioni."""
-        # Carica ticker configurati
-        ticker_config = self._load_ticker_config()
-        tickers = ticker_config.get('tickers', [])
-        
-        # Inizializza stato S/R se non esiste
-        if not self.sr_state_file.exists():
-            sr_state = {}
-            for ticker in tickers:
-                sr_state[ticker] = "1900-01-01T00:00:00"  # Data molto vecchia per forzare primo calcolo
+        try:
+            # Supporti e Resistenze Manager
+            self.sr_manager = SupportResistanceManager(
+                input_folder_prices=self.data_dir,
+                output_folder=self.sr_output_dir,
+                state_file=self.sr_state_file
+            )
             
-            with open(self.sr_state_file, 'w') as f:
-                json.dump(sr_state, f, indent=2)
-            print(f"📝 Inizializzato file stato S/R con {len(tickers)} ticker")
-        
-        # Inizializza stato Skorupinski se non esiste
-        if not self.skorupinski_state_file.exists():
-            skorupinski_state = {}
-            for ticker in tickers:
-                skorupinski_state[ticker] = "1900-01-01T00:00:00"
+            # Skorupinski Zone Manager
+            self.skorupinski_manager = SkorupinkiZoneManager(
+                input_folder_prices=self.data_dir,
+                output_folder=self.skorupinski_output_dir,
+                state_file=self.skorupinski_state_file
+            )
             
-            with open(self.skorupinski_state_file, 'w') as f:
-                json.dump(skorupinski_state, f, indent=2)
-            print(f"📝 Inizializzato file stato Skorupinski con {len(tickers)} ticker")
+            print("✅ Manager analisi tecnica inizializzati")
+            
+        except Exception as e:
+            logger.error(f"Errore inizializzazione manager: {e}")
+            # Inizializza con valori None per evitare crash
+            self.sr_manager = None
+            self.skorupinski_manager = None
     
-    def _load_ticker_config(self) -> Dict:
+    def _load_ticker_config(self):
         """Carica la configurazione dei ticker."""
         if not self.config_file.exists():
             return {'tickers': []}
@@ -154,18 +123,28 @@ class TechnicalAnalysisManager:
             print("📊 Impostata fonte dati: NOT ADJUSTED (prezzi originali)")
         
         # Aggiorna i manager
-        self.sr_manager.input_folder_prices = input_folder
-        self.skorupinski_manager.input_folder_prices = input_folder
+        if self.sr_manager:
+            self.sr_manager.input_folder_prices = input_folder
+        if self.skorupinski_manager:
+            self.skorupinski_manager.input_folder_prices = input_folder
     
     def run_support_resistance_analysis(self) -> Dict[str, bool]:
         """Esegue l'analisi di supporti e resistenze classici."""
         print("\n🔧 ===== ANALISI SUPPORTI E RESISTENZE CLASSICI =====")
-        return self.sr_manager.run()
+        if self.sr_manager:
+            return self.sr_manager.run()
+        else:
+            logger.error("SupportResistanceManager non inizializzato")
+            return {}
     
     def run_skorupinski_analysis(self) -> Dict[str, bool]:
         """Esegue l'analisi delle zone Skorupinski."""
         print("\n🎯 ===== ANALISI ZONE SKORUPINSKI =====")
-        return self.skorupinski_manager.run()
+        if self.skorupinski_manager:
+            return self.skorupinski_manager.run()
+        else:
+            logger.error("SkorupinkiZoneManager non inizializzato")
+            return {}
     
     def run_full_analysis(self, use_adjusted: bool = True) -> Dict[str, Dict[str, bool]]:
         """
@@ -197,34 +176,523 @@ class TechnicalAnalysisManager:
         
         Args:
             ticker: simbolo del ticker
-            analysis_type: 'sr', 'skorupinski', or 'both'
+            analysis_type: 'sr', 'skorupinski', o 'both'
             
         Returns:
             Dict con i dati di analisi
         """
         result = {'ticker': ticker}
         
-        if analysis_type in ['sr', 'both']:
-            # Carica supporti e resistenze
-            sr_data = self.sr_manager.get_levels_summary(ticker)
-            if sr_data is not None and not sr_data.empty:
-                result['support_resistance'] = sr_data.to_dict('records')
-            else:
-                result['support_resistance'] = []
+        try:
+            # Supporti e resistenze
+            if analysis_type in ['sr', 'both']:
+                sr_file = self.sr_output_dir / f"{ticker}_SR.csv"
+                if sr_file.exists():
+                    sr_data = pd.read_csv(sr_file)
+                    result['support_resistance'] = sr_data.to_dict('records')
+                else:
+                    result['support_resistance'] = []
+            
+            # Zone Skorupinski
+            if analysis_type in ['skorupinski', 'both']:
+                sz_file = self.skorupinski_output_dir / f"{ticker}_SkorupinkiZones.csv"
+                if sz_file.exists():
+                    sz_data = pd.read_csv(sz_file)
+                    result['skorupinski_zones'] = sz_data.to_dict('records')
+                else:
+                    result['skorupinski_zones'] = []
+            
+            return result
+            
+        except Exception as e:
+            logger.error(f"Errore nel recuperare dati analisi per {ticker}: {e}")
+            return result
+    
+    def load_ticker_price_data(self, ticker: str, days: int = 100) -> Optional[pd.DataFrame]:
+        """
+        Carica i dati di prezzo per un ticker.
         
-        if analysis_type in ['skorupinski', 'both']:
-            # Carica zone Skorupinski
-            skorupinski_file = self.skorupinski_output_dir / f"{ticker}_SkorupinkiZones.csv"
-            if skorupinski_file.exists():
-                skorupinski_data = pd.read_csv(skorupinski_file, parse_dates=['date'])
-                result['skorupinski_zones'] = skorupinski_data.to_dict('records')
-            else:
-                result['skorupinski_zones'] = []
+        Args:
+            ticker: simbolo del ticker
+            days: numero di giorni di storico
+            
+        Returns:
+            DataFrame con i dati di prezzo o None se non trovato
+        """
+        try:
+            # Prova prima con dati adjusted
+            file_path = self.data_dir / f"{ticker}.csv"
+            
+            if not file_path.exists():
+                # Fallback a dati non adjusted
+                file_path = self.data_dir_not_adj / f"{ticker}_notAdjusted.csv"
+            
+            if not file_path.exists():
+                logger.warning(f"File dati non trovato per {ticker}")
+                return None
+            
+            # Carica i dati
+            df = pd.read_csv(file_path)
+            
+            # Converti la colonna Date
+            df['Date'] = pd.to_datetime(df['Date'])
+            
+            # Ordina per data (più recenti alla fine)
+            df = df.sort_values('Date')
+            
+            # Prendi gli ultimi N giorni
+            if days > 0:
+                df = df.tail(days)
+            
+            logger.info(f"Caricati {len(df)} record per {ticker} (ultimi {days} giorni)")
+            return df
+            
+        except Exception as e:
+            logger.error(f"Errore nel caricare dati per {ticker}: {e}")
+            return None
+    
+    def get_ticker_chart_data(self, ticker: str, days: int = 100, include_analysis: bool = True) -> Dict:
+        """
+        Ottiene tutti i dati necessari per il grafico di un ticker.
         
-        return result
+        Args:
+            ticker: simbolo del ticker
+            days: giorni di storico
+            include_analysis: se includere i dati di analisi tecnica
+            
+        Returns:
+            Dict con price_data, support_resistance, skorupinski_zones
+        """
+        try:
+            result = {'ticker': ticker, 'days': days}
+            
+            # Carica dati di prezzo
+            price_df = self.load_ticker_price_data(ticker, days)
+            if price_df is None:
+                return result
+            
+            # Converti a formato JSON serializzabile
+            price_data = []
+            for _, row in price_df.iterrows():
+                price_record = {
+                    'date': row['Date'].strftime('%Y-%m-%d'),
+                    'open': float(row['Open']),
+                    'high': float(row['High']),
+                    'low': float(row['Low']),
+                    'close': float(row['Close'])
+                }
+                
+                # Aggiungi volume se presente
+                if 'Volume' in row and pd.notna(row['Volume']):
+                    price_record['volume'] = int(row['Volume'])
+                
+                # Aggiungi Adj Close se presente (per dati adjusted)
+                if 'Adj Close' in row and pd.notna(row['Adj Close']):
+                    price_record['adj_close'] = float(row['Adj Close'])
+                
+                price_data.append(price_record)
+            
+            result['price_data'] = price_data
+            
+            # Includi analisi tecnica se richiesta
+            if include_analysis:
+                analysis_data = self.get_ticker_analysis_data(ticker, 'both')
+                result.update(analysis_data)
+            
+            return result
+            
+        except Exception as e:
+            logger.error(f"Errore nel preparare dati grafico per {ticker}: {e}")
+            return {'ticker': ticker, 'days': days, 'error': str(e)}
+    
+    def generate_plotly_chart(self, ticker, days=100, include_analysis=True):
+        """
+        Genera un grafico Plotly con candlestick e analisi tecnica con zone Skorupinski migliorate
+        """
+        try:
+            logger.info(f"Generazione grafico Plotly per {ticker}, {days} giorni")
+            
+            # Ottieni dati usando il metodo esistente
+            data = self.get_ticker_chart_data(ticker, days, include_analysis)
+            
+            if not data or 'price_data' not in data or not data['price_data']:
+                raise ValueError(f"Nessun dato disponibile per {ticker}")
+            
+            logger.info(f"Dati caricati per {ticker}: {len(data['price_data'])} punti prezzo")
+            
+            # Crea subplot con volume opzionale
+            has_volume = 'volume' in data['price_data'][0] if data['price_data'] else False
+            
+            if has_volume:
+                fig = make_subplots(
+                    rows=2, cols=1,
+                    shared_xaxes=True,
+                    vertical_spacing=0.1,
+                    subplot_titles=(f'{ticker} - Analisi Tecnica', 'Volume'),
+                    row_heights=[0.7, 0.3]
+                )
+            else:
+                fig = make_subplots(
+                    rows=1, cols=1,
+                    subplot_titles=(f'{ticker} - Analisi Tecnica',)
+                )
+            
+            # Prepara dati per candlestick
+            dates = [item['date'] for item in data['price_data']]
+            opens = [item['open'] for item in data['price_data']]
+            highs = [item['high'] for item in data['price_data']]
+            lows = [item['low'] for item in data['price_data']]
+            closes = [item['close'] for item in data['price_data']]
+            volumes = [item.get('volume', 0) for item in data['price_data']]
+            
+            # Candlestick chart
+            candlestick = go.Candlestick(
+                x=dates,
+                open=opens,
+                high=highs,
+                low=lows,
+                close=closes,
+                name=ticker,
+                increasing_line_color='#00C851',
+                decreasing_line_color='#FF4444'
+            )
+            fig.add_trace(candlestick, row=1, col=1)
+            
+            # Volume chart se disponibile
+            if has_volume:
+                volume_colors = ['#00C851' if close >= open else '#FF4444' 
+                               for close, open in zip(closes, opens)]
+                
+                volume_chart = go.Bar(
+                    x=dates,
+                    y=volumes,
+                    name='Volume',
+                    marker_color=volume_colors,
+                    opacity=0.7
+                )
+                fig.add_trace(volume_chart, row=2, col=1)
+            
+            # Contatori per zone
+            demand_count = 0
+            supply_count = 0
+            
+            # ===== SUPPORTI E RESISTENZE =====
+            if include_analysis and data.get('support_resistance'):
+                logger.info("Aggiungendo supporti e resistenze")
+                for level in data['support_resistance']:
+                    level_value = level.get('level')
+                    if level_value is None:
+                        continue
+                        
+                    color = '#28a745' if level.get('type') == 'Support' else '#dc3545'
+                    
+                    if has_volume:
+                        fig.add_hline(
+                            y=level_value,
+                            line_dash="dash",
+                            line_color=color,
+                            line_width=2,
+                            annotation_text=f"{level.get('type', '').title()} ${level_value:.2f}",
+                            annotation_position="top right",
+                            row=1, col=1
+                        )
+                    else:
+                        fig.add_hline(
+                            y=level_value,
+                            line_dash="dash", 
+                            line_color=color,
+                            line_width=2,
+                            annotation_text=f"{level.get('type', '').title()} ${level_value:.2f}",
+                            annotation_position="top right"
+                        )
+            
+            # ===== ZONE SKORUPINSKI CON PREZZI CENTRALI =====
+            zone_legend_data = []  # Per la leggenda interattiva
+            
+            if include_analysis and data.get('skorupinski_zones'):
+                skorupinski_data = data['skorupinski_zones']
+                
+                logger.info("Aggiungendo zone Skorupinski con prezzi centrali")
+                
+                # Gestisci diversi formati di dati Skorupinski
+                if isinstance(skorupinski_data, list):
+                    # Formato: lista di zone direttamente dal CSV
+                    logger.info(f"Processando {len(skorupinski_data)} zone Skorupinski (formato lista)")
+                    
+                    demand_zones = []
+                    supply_zones = []
+                    
+                    for zone in skorupinski_data:
+                        if isinstance(zone, dict):
+                            zone_type = zone.get('type', '').lower()
+                            if 'demand' in zone_type or 'support' in zone_type:
+                                demand_zones.append(zone)
+                            elif 'supply' in zone_type or 'resistance' in zone_type:
+                                supply_zones.append(zone)
+                    
+                    # Aggiorna contatori
+                    demand_count = len(demand_zones)
+                    supply_count = len(supply_zones)
+                    
+                    # Aggiungi zone di domanda con prezzi centrali
+                    for i, zone in enumerate(demand_zones):
+                        zone_bottom = zone.get('zone_bottom') or zone.get('bottom') or zone.get('low')
+                        zone_top = zone.get('zone_top') or zone.get('top') or zone.get('high')
+                        zone_center = zone.get('zone_center')
+                        
+                        # Calcola il centro se non disponibile
+                        if zone_center is None and zone_bottom is not None and zone_top is not None:
+                            zone_center = (zone_bottom + zone_top) / 2
+                        
+                        if zone_bottom is not None and zone_top is not None and zone_center is not None:
+                            # Crea etichetta con prezzo centrale
+                            zone_label = f"Demand ${zone_center:.2f}"
+                            zone_id = f"demand_{i}"
+                            
+                            # Aggiungi dati per la leggenda
+                            zone_legend_data.append({
+                                'id': zone_id,
+                                'type': 'Demand',
+                                'center': zone_center,
+                                'label': zone_label,
+                                'visible': zone.get('visibility', True),
+                                'color': 'rgba(40, 167, 69, 0.8)',
+                                'strength': zone.get('strength_score', 0),
+                                'distance': zone.get('distance_from_current', 0)
+                            })
+                            
+                            if has_volume:
+                                fig.add_hrect(
+                                    y0=zone_bottom,
+                                    y1=zone_top,
+                                    fillcolor="rgba(40, 167, 69, 0.2)",
+                                    line_color="rgba(40, 167, 69, 0.8)",
+                                    line_width=1,
+                                    annotation_text=zone_label,
+                                    annotation_position="top left",
+                                    row=1, col=1,
+                                    name=f"demand_zone_{i}"
+                                )
+                            else:
+                                fig.add_hrect(
+                                    y0=zone_bottom,
+                                    y1=zone_top,
+                                    fillcolor="rgba(40, 167, 69, 0.2)",
+                                    line_color="rgba(40, 167, 69, 0.8)",
+                                    line_width=1,
+                                    annotation_text=zone_label,
+                                    annotation_position="top left",
+                                    name=f"demand_zone_{i}"
+                                )
+                    
+                    # Aggiungi zone di offerta con prezzi centrali
+                    for i, zone in enumerate(supply_zones):
+                        zone_bottom = zone.get('zone_bottom') or zone.get('bottom') or zone.get('low')
+                        zone_top = zone.get('zone_top') or zone.get('top') or zone.get('high')
+                        zone_center = zone.get('zone_center')
+                        
+                        # Calcola il centro se non disponibile
+                        if zone_center is None and zone_bottom is not None and zone_top is not None:
+                            zone_center = (zone_bottom + zone_top) / 2
+                        
+                        if zone_bottom is not None and zone_top is not None and zone_center is not None:
+                            # Crea etichetta con prezzo centrale
+                            zone_label = f"Supply ${zone_center:.2f}"
+                            zone_id = f"supply_{i}"
+                            
+                            # Aggiungi dati per la leggenda
+                            zone_legend_data.append({
+                                'id': zone_id,
+                                'type': 'Supply',
+                                'center': zone_center,
+                                'label': zone_label,
+                                'visible': zone.get('visibility', True),
+                                'color': 'rgba(220, 53, 69, 0.8)',
+                                'strength': zone.get('strength_score', 0),
+                                'distance': zone.get('distance_from_current', 0)
+                            })
+                            
+                            if has_volume:
+                                fig.add_hrect(
+                                    y0=zone_bottom,
+                                    y1=zone_top,
+                                    fillcolor="rgba(220, 53, 69, 0.2)",
+                                    line_color="rgba(220, 53, 69, 0.8)",
+                                    line_width=1,
+                                    annotation_text=zone_label,
+                                    annotation_position="top left",
+                                    row=1, col=1,
+                                    name=f"supply_zone_{i}"
+                                )
+                            else:
+                                fig.add_hrect(
+                                    y0=zone_bottom,
+                                    y1=zone_top,
+                                    fillcolor="rgba(220, 53, 69, 0.2)",
+                                    line_color="rgba(220, 53, 69, 0.8)",
+                                    line_width=1,
+                                    annotation_text=zone_label,
+                                    annotation_position="top left",
+                                    name=f"supply_zone_{i}"
+                                )
+                    
+                    logger.info(f"Zone aggiunte: {len(demand_zones)} demand, {len(supply_zones)} supply")
+                    
+                elif isinstance(skorupinski_data, dict):
+                    # Formato: dizionario con demand_zones e supply_zones
+                    logger.info("Processando zone Skorupinski (formato dizionario)")
+                    
+                    # Zone di domanda
+                    if skorupinski_data.get('demand_zones'):
+                        demand_count = len(skorupinski_data['demand_zones'])
+                        for i, zone in enumerate(skorupinski_data['demand_zones']):
+                            zone_center = zone.get('zone_center')
+                            if zone_center is None:
+                                zone_center = (zone['zone_bottom'] + zone['zone_top']) / 2
+                            
+                            zone_label = f"Demand ${zone_center:.2f}"
+                            zone_id = f"demand_{i}"
+                            
+                            zone_legend_data.append({
+                                'id': zone_id,
+                                'type': 'Demand',
+                                'center': zone_center,
+                                'label': zone_label,
+                                'visible': zone.get('visibility', True),
+                                'color': 'rgba(40, 167, 69, 0.8)',
+                                'strength': zone.get('strength_score', 0),
+                                'distance': zone.get('distance_from_current', 0)
+                            })
+                            
+                            if has_volume:
+                                fig.add_hrect(
+                                    y0=zone['zone_bottom'],
+                                    y1=zone['zone_top'],
+                                    fillcolor="rgba(40, 167, 69, 0.2)",
+                                    line_color="rgba(40, 167, 69, 0.8)",
+                                    line_width=1,
+                                    annotation_text=zone_label,
+                                    annotation_position="top left",
+                                    row=1, col=1,
+                                    name=f"demand_zone_{i}"
+                                )
+                            else:
+                                fig.add_hrect(
+                                    y0=zone['zone_bottom'],
+                                    y1=zone['zone_top'],
+                                    fillcolor="rgba(40, 167, 69, 0.2)",
+                                    line_color="rgba(40, 167, 69, 0.8)",
+                                    line_width=1,
+                                    annotation_text=zone_label,
+                                    annotation_position="top left",
+                                    name=f"demand_zone_{i}"
+                                )
+                    
+                    # Zone di offerta
+                    if skorupinski_data.get('supply_zones'):
+                        supply_count = len(skorupinski_data['supply_zones'])
+                        for i, zone in enumerate(skorupinski_data['supply_zones']):
+                            zone_center = zone.get('zone_center')
+                            if zone_center is None:
+                                zone_center = (zone['zone_bottom'] + zone['zone_top']) / 2
+                            
+                            zone_label = f"Supply ${zone_center:.2f}"
+                            zone_id = f"supply_{i}"
+                            
+                            zone_legend_data.append({
+                                'id': zone_id,
+                                'type': 'Supply',
+                                'center': zone_center,
+                                'label': zone_label,
+                                'visible': zone.get('visibility', True),
+                                'color': 'rgba(220, 53, 69, 0.8)',
+                                'strength': zone.get('strength_score', 0),
+                                'distance': zone.get('distance_from_current', 0)
+                            })
+                            
+                            if has_volume:
+                                fig.add_hrect(
+                                    y0=zone['zone_bottom'],
+                                    y1=zone['zone_top'],
+                                    fillcolor="rgba(220, 53, 69, 0.2)",
+                                    line_color="rgba(220, 53, 69, 0.8)",
+                                    line_width=1,
+                                    annotation_text=zone_label,
+                                    annotation_position="top left",
+                                    row=1, col=1,
+                                    name=f"supply_zone_{i}"
+                                )
+                            else:
+                                fig.add_hrect(
+                                    y0=zone['zone_bottom'],
+                                    y1=zone['zone_top'],
+                                    fillcolor="rgba(220, 53, 69, 0.2)",
+                                    line_color="rgba(220, 53, 69, 0.8)",
+                                    line_width=1,
+                                    annotation_text=zone_label,
+                                    annotation_position="top left",
+                                    name=f"supply_zone_{i}"
+                                )
+            
+            # Configura layout
+            fig.update_layout(
+                title=f'{ticker} - Analisi Tecnica Completa',
+                xaxis_title='Data',
+                yaxis_title='Prezzo ($)',
+                template='plotly_white',
+                showlegend=True,
+                legend=dict(
+                    orientation="v",
+                    yanchor="top",
+                    y=0.99,
+                    xanchor="left",
+                    x=1.01
+                ),
+                hovermode='x unified'
+            )
+            
+            # Rimuovi il range selector per chart più pulito
+            fig.update_xaxes(rangeslider_visible=False)
+            
+            # Converti in JSON
+            chart_json = fig.to_json()
+            
+            return {
+                'chart_json': chart_json,
+                'chart_config': {
+                    'displayModeBar': True,
+                    'displaylogo': False,
+                    'modeBarButtonsToRemove': ['pan2d', 'lasso2d', 'select2d'],
+                    'responsive': True
+                },
+                'data_info': {
+                    'ticker': ticker,
+                    'days': days,
+                    'data_points': len(data['price_data']),
+                    'first_date': dates[0] if dates else None,
+                    'last_date': dates[-1] if dates else None,
+                    'sr_levels': len(data.get('support_resistance', [])),
+                    'demand_zones': demand_count,
+                    'supply_zones': supply_count,
+                    'has_volume': has_volume
+                },
+                # NUOVO: Aggiungi dati delle zone per la leggenda interattiva
+                'zone_legend': zone_legend_data
+            }
+            
+        except Exception as e:
+            logger.error(f"Errore generazione grafico Plotly per {ticker}: {e}")
+            import traceback
+            logger.error(f"Traceback completo: {traceback.format_exc()}")
+            raise
     
     def get_analysis_summary(self) -> Dict:
-        """Ottiene un riassunto di tutte le analisi."""
+        """
+        Ottiene un riassunto dell'analisi tecnica per tutti i ticker.
+        
+        Returns:
+            Dict con statistiche di analisi
+        """
         ticker_config = self._load_ticker_config()
         tickers = ticker_config.get('tickers', [])
         
@@ -247,838 +715,130 @@ class TechnicalAnalysisManager:
             sr_file = self.sr_output_dir / f"{ticker}_SR.csv"
             if sr_file.exists():
                 summary['support_resistance']['analyzed'] += 1
-                sr_data = pd.read_csv(sr_file)
-                summary['support_resistance']['total_levels'] += len(sr_data)
+                try:
+                    sr_data = pd.read_csv(sr_file)
+                    summary['support_resistance']['total_levels'] += len(sr_data)
+                except Exception as e:
+                    logger.error(f"Errore lettura file S&R per {ticker}: {e}")
         
         # Conta zone Skorupinski
         for ticker in tickers:
             sz_file = self.skorupinski_output_dir / f"{ticker}_SkorupinkiZones.csv"
             if sz_file.exists():
                 summary['skorupinski_zones']['analyzed'] += 1
-                sz_data = pd.read_csv(sz_file)
-                summary['skorupinski_zones']['total_zones'] += len(sz_data)
-                summary['skorupinski_zones']['supply_zones'] += len(sz_data[sz_data['type'] == 'Supply'])
-                summary['skorupinski_zones']['demand_zones'] += len(sz_data[sz_data['type'] == 'Demand'])
+                try:
+                    sz_data = pd.read_csv(sz_file)
+                    summary['skorupinski_zones']['total_zones'] += len(sz_data)
+                    summary['skorupinski_zones']['supply_zones'] += len(sz_data[sz_data['type'] == 'Supply'])
+                    summary['skorupinski_zones']['demand_zones'] += len(sz_data[sz_data['type'] == 'Demand'])
+                except Exception as e:
+                    logger.error(f"Errore lettura file zone per {ticker}: {e}")
         
         return summary
     
-
-
-    # ===== FIX per TechnicalAnalysisManager.py =====
-# Aggiungi questo metodo corretto:
-
-    def generate_plotly_chart(self, ticker, days=100, include_analysis=True):
+    def get_all_support_resistance_levels(self) -> List[Dict]:
         """
-        Genera un grafico Plotly con candlestick e analisi tecnica
-        """
-        try:
-            logger.info(f"Generazione grafico Plotly per {ticker}, {days} giorni")
-            
-            # Ottieni dati usando il metodo esistente
-            data = self.get_ticker_chart_data(ticker, days, include_analysis)
-            
-            if not data or 'price_data' not in data or not data['price_data']:
-                raise ValueError(f"Nessun dato disponibile per {ticker}")
-            
-            logger.info(f"Dati caricati per {ticker}: {len(data['price_data'])} punti prezzo")
-            
-            # Debug: stampa la struttura di skorupinski_zones
-            if 'skorupinski_zones' in data:
-                logger.info(f"Struttura skorupinski_zones per {ticker}: {type(data['skorupinski_zones'])}")
-                if isinstance(data['skorupinski_zones'], list):
-                    logger.info(f"Zone Skorupinski (lista): {len(data['skorupinski_zones'])} elementi")
-                    if data['skorupinski_zones']:
-                        logger.info(f"Primo elemento: {data['skorupinski_zones'][0]}")
-                elif isinstance(data['skorupinski_zones'], dict):
-                    logger.info(f"Zone Skorupinski (dict): {list(data['skorupinski_zones'].keys())}")
-            
-            # Crea subplot con volume opzionale
-            has_volume = len(data['price_data']) > 0 and 'volume' in data['price_data'][0]
-            
-            if has_volume:
-                fig = make_subplots(
-                    rows=2, cols=1,
-                    shared_xaxes=True,
-                    vertical_spacing=0.1,
-                    subplot_titles=(f'{ticker} - Analisi Tecnica', 'Volume'),
-                    row_heights=[0.7, 0.3]
-                )
-            else:
-                fig = go.Figure()
-            
-            # ===== CANDLESTICK PRINCIPALE =====
-            dates = [item['date'] for item in data['price_data']]
-            opens = [item['open'] for item in data['price_data']]
-            highs = [item['high'] for item in data['price_data']]
-            lows = [item['low'] for item in data['price_data']]
-            closes = [item['close'] for item in data['price_data']]
-            
-            candlestick = go.Candlestick(
-                x=dates,
-                open=opens,
-                high=highs,
-                low=lows,
-                close=closes,
-                name=ticker,
-                increasing_line_color='#00C851',
-                decreasing_line_color='#FF4444',
-                increasing_line_width=2,
-                decreasing_line_width=2
-            )
-            
-            if has_volume:
-                fig.add_trace(candlestick, row=1, col=1)
-            else:
-                fig.add_trace(candlestick)
-            
-            # ===== SUPPORTI E RESISTENZE =====
-            if include_analysis and data.get('support_resistance'):
-                sr_levels = data['support_resistance']
-                logger.info(f"Aggiungendo {len(sr_levels)} livelli S&R per {ticker}")
-                
-                for level in sr_levels:
-                    color = '#28a745' if level.get('type') == 'support' else '#dc3545'
-                    level_value = level.get('level')
-                    
-                    if level_value is not None:
-                        # Aggiungi linea orizzontale
-                        if has_volume:
-                            fig.add_hline(
-                                y=level_value,
-                                line_dash="dash",
-                                line_color=color,
-                                line_width=2,
-                                annotation_text=f"{level.get('type', '').title()} ${level_value:.2f}",
-                                annotation_position="top right",
-                                row=1, col=1
-                            )
-                        else:
-                            fig.add_hline(
-                                y=level_value,
-                                line_dash="dash", 
-                                line_color=color,
-                                line_width=2,
-                                annotation_text=f"{level.get('type', '').title()} ${level_value:.2f}",
-                                annotation_position="top right"
-                            )
-            
-            # ===== ZONE SKORUPINSKI =====
-            if include_analysis and data.get('skorupinski_zones'):
-                skorupinski_data = data['skorupinski_zones']
-                
-                # Gestisci diversi formati di dati Skorupinski
-                if isinstance(skorupinski_data, list):
-                    # Formato: lista di zone direttamente dal CSV
-                    logger.info(f"Processando {len(skorupinski_data)} zone Skorupinski (formato lista)")
-                    
-                    demand_zones = []
-                    supply_zones = []
-                    
-                    for zone in skorupinski_data:
-                        if isinstance(zone, dict):
-                            zone_type = zone.get('type', '').lower()
-                            if 'demand' in zone_type or 'support' in zone_type:
-                                demand_zones.append(zone)
-                            elif 'supply' in zone_type or 'resistance' in zone_type:
-                                supply_zones.append(zone)
-                    
-                    # Aggiungi zone di domanda
-                    for i, zone in enumerate(demand_zones):
-                        zone_bottom = zone.get('zone_bottom') or zone.get('bottom') or zone.get('low')
-                        zone_top = zone.get('zone_top') or zone.get('top') or zone.get('high')
-                        
-                        if zone_bottom is not None and zone_top is not None:
-                            if has_volume:
-                                fig.add_hrect(
-                                    y0=zone_bottom,
-                                    y1=zone_top,
-                                    fillcolor="rgba(40, 167, 69, 0.2)",
-                                    line_color="rgba(40, 167, 69, 0.8)",
-                                    line_width=1,
-                                    annotation_text=f"Demand {i+1}",
-                                    annotation_position="top left",
-                                    row=1, col=1
-                                )
-                            else:
-                                fig.add_hrect(
-                                    y0=zone_bottom,
-                                    y1=zone_top,
-                                    fillcolor="rgba(40, 167, 69, 0.2)",
-                                    line_color="rgba(40, 167, 69, 0.8)",
-                                    line_width=1,
-                                    annotation_text=f"Demand {i+1}",
-                                    annotation_position="top left"
-                                )
-                    
-                    # Aggiungi zone di offerta
-                    for i, zone in enumerate(supply_zones):
-                        zone_bottom = zone.get('zone_bottom') or zone.get('bottom') or zone.get('low')
-                        zone_top = zone.get('zone_top') or zone.get('top') or zone.get('high')
-                        
-                        if zone_bottom is not None and zone_top is not None:
-                            if has_volume:
-                                fig.add_hrect(
-                                    y0=zone_bottom,
-                                    y1=zone_top,
-                                    fillcolor="rgba(220, 53, 69, 0.2)",
-                                    line_color="rgba(220, 53, 69, 0.8)",
-                                    line_width=1,
-                                    annotation_text=f"Supply {i+1}",
-                                    annotation_position="top left",
-                                    row=1, col=1
-                                )
-                            else:
-                                fig.add_hrect(
-                                    y0=zone_bottom,
-                                    y1=zone_top,
-                                    fillcolor="rgba(220, 53, 69, 0.2)",
-                                    line_color="rgba(220, 53, 69, 0.8)",
-                                    line_width=1,
-                                    annotation_text=f"Supply {i+1}",
-                                    annotation_position="top left"
-                                )
-                    
-                    logger.info(f"Zone aggiunte: {len(demand_zones)} demand, {len(supply_zones)} supply")
-                    
-                elif isinstance(skorupinski_data, dict):
-                    # Formato: dizionario con demand_zones e supply_zones
-                    logger.info("Processando zone Skorupinski (formato dizionario)")
-                    
-                    # Zone di domanda
-                    if skorupinski_data.get('demand_zones'):
-                        for i, zone in enumerate(skorupinski_data['demand_zones']):
-                            if has_volume:
-                                fig.add_hrect(
-                                    y0=zone['zone_bottom'],
-                                    y1=zone['zone_top'],
-                                    fillcolor="rgba(40, 167, 69, 0.2)",
-                                    line_color="rgba(40, 167, 69, 0.8)",
-                                    line_width=1,
-                                    annotation_text=f"Demand {i+1}",
-                                    annotation_position="top left",
-                                    row=1, col=1
-                                )
-                            else:
-                                fig.add_hrect(
-                                    y0=zone['zone_bottom'],
-                                    y1=zone['zone_top'],
-                                    fillcolor="rgba(40, 167, 69, 0.2)",
-                                    line_color="rgba(40, 167, 69, 0.8)",
-                                    line_width=1,
-                                    annotation_text=f"Demand {i+1}",
-                                    annotation_position="top left"
-                                )
-                    
-                    # Zone di offerta
-                    if skorupinski_data.get('supply_zones'):
-                        for i, zone in enumerate(skorupinski_data['supply_zones']):
-                            if has_volume:
-                                fig.add_hrect(
-                                    y0=zone['zone_bottom'],
-                                    y1=zone['zone_top'],
-                                    fillcolor="rgba(220, 53, 69, 0.2)",
-                                    line_color="rgba(220, 53, 69, 0.8)",
-                                    line_width=1,
-                                    annotation_text=f"Supply {i+1}",
-                                    annotation_position="top left",
-                                    row=1, col=1
-                                )
-                            else:
-                                fig.add_hrect(
-                                    y0=zone['zone_bottom'],
-                                    y1=zone['zone_top'],
-                                    fillcolor="rgba(220, 53, 69, 0.2)",
-                                    line_color="rgba(220, 53, 69, 0.8)",
-                                    line_width=1,
-                                    annotation_text=f"Supply {i+1}",
-                                    annotation_position="top left"
-                                )
-            
-            # ===== VOLUME (se disponibile) =====
-            if has_volume:
-                volumes = [item.get('volume', 0) for item in data['price_data']]
-                colors = ['#00C851' if closes[i] >= opens[i] else '#FF4444' for i in range(len(closes))]
-                
-                volume_trace = go.Bar(
-                    x=dates,
-                    y=volumes,
-                    name='Volume',
-                    marker_color=colors,
-                    opacity=0.6
-                )
-                fig.add_trace(volume_trace, row=2, col=1)
-            
-            # ===== LAYOUT E STILE =====
-            fig.update_layout(
-                title={
-                    'text': f'{ticker} - Analisi Tecnica Completa',
-                    'x': 0.5,
-                    'xanchor': 'center',
-                    'font': {'size': 20}
-                },
-                template='plotly_white',
-                showlegend=True,
-                height=700 if has_volume else 600,
-                hovermode='x unified',
-                xaxis_rangeslider_visible=False,
-                margin=dict(l=50, r=50, t=80, b=50)
-            )
-            
-            # Personalizza assi
-            if has_volume:
-                fig.update_xaxes(
-                    type='date',
-                    tickformat='%d/%m/%Y',
-                    title_text='Data',
-                    row=2, col=1
-                )
-                fig.update_yaxes(
-                    title_text='Prezzo ($)',
-                    row=1, col=1
-                )
-                fig.update_yaxes(
-                    title_text='Volume',
-                    row=2, col=1
-                )
-            else:
-                fig.update_xaxes(
-                    type='date',
-                    tickformat='%d/%m/%Y',
-                    title_text='Data'
-                )
-                fig.update_yaxes(
-                    title_text='Prezzo ($)'
-                )
-            
-            # Converti in JSON per il frontend
-            chart_json = json.dumps(fig, cls=plotly.utils.PlotlyJSONEncoder)
-            
-            logger.info(f"Grafico Plotly generato con successo per {ticker}")
-            
-            # Calcola statistiche zone
-            demand_count = 0
-            supply_count = 0
-            
-            if isinstance(data.get('skorupinski_zones'), list):
-                for zone in data['skorupinski_zones']:
-                    zone_type = zone.get('type', '').lower()
-                    if 'demand' in zone_type or 'support' in zone_type:
-                        demand_count += 1
-                    elif 'supply' in zone_type or 'resistance' in zone_type:
-                        supply_count += 1
-            elif isinstance(data.get('skorupinski_zones'), dict):
-                demand_count = len(data['skorupinski_zones'].get('demand_zones', []))
-                supply_count = len(data['skorupinski_zones'].get('supply_zones', []))
-            
-            return {
-                'chart_json': chart_json,
-                'chart_config': {
-                    'displayModeBar': True,
-                    'displaylogo': False,
-                    'modeBarButtonsToRemove': ['pan2d', 'lasso2d', 'select2d'],
-                    'responsive': True
-                },
-                'data_info': {
-                    'ticker': ticker,
-                    'days': days,
-                    'data_points': len(data['price_data']),
-                    'first_date': dates[0] if dates else None,
-                    'last_date': dates[-1] if dates else None,
-                    'sr_levels': len(data.get('support_resistance', [])),
-                    'demand_zones': demand_count,
-                    'supply_zones': supply_count,
-                    'has_volume': has_volume
-                }
-            }
-            
-        except Exception as e:
-            logger.error(f"Errore generazione grafico Plotly per {ticker}: {e}")
-            import traceback
-            logger.error(f"Traceback completo: {traceback.format_exc()}")
-            raise
-            """
-            Genera un grafico Plotly con candlestick e analisi tecnica
-            """
-            try:
-                logger.info(f"Generazione grafico Plotly per {ticker}, {days} giorni")
-                
-                # Ottieni dati usando il metodo esistente
-                data = self.get_ticker_chart_data(ticker, days, include_analysis)
-                
-                if not data or 'price_data' not in data or not data['price_data']:
-                    raise ValueError(f"Nessun dato disponibile per {ticker}")
-                
-                # Crea subplot con volume opzionale
-                has_volume = 'volume' in data['price_data'][0] if data['price_data'] else False
-                
-                if has_volume:
-                    fig = make_subplots(
-                        rows=2, cols=1,
-                        shared_xaxes=True,
-                        vertical_spacing=0.1,
-                        subplot_titles=(f'{ticker} - Analisi Tecnica', 'Volume'),
-                        row_heights=[0.7, 0.3]
-                    )
-                else:
-                    fig = go.Figure()
-                
-                # ===== CANDLESTICK PRINCIPALE =====
-                dates = [item['date'] for item in data['price_data']]
-                opens = [item['open'] for item in data['price_data']]
-                highs = [item['high'] for item in data['price_data']]
-                lows = [item['low'] for item in data['price_data']]
-                closes = [item['close'] for item in data['price_data']]
-                
-                candlestick = go.Candlestick(
-                    x=dates,
-                    open=opens,
-                    high=highs,
-                    low=lows,
-                    close=closes,
-                    name=ticker,
-                    increasing_line_color='#00C851',
-                    decreasing_line_color='#FF4444',
-                    increasing_line_width=2,
-                    decreasing_line_width=2
-                )
-                
-                if has_volume:
-                    fig.add_trace(candlestick, row=1, col=1)
-                else:
-                    fig.add_trace(candlestick)
-                
-                # ===== SUPPORTI E RESISTENZE =====
-                if include_analysis and data.get('support_resistance'):
-                    logger.info(f"Aggiungendo {len(data['support_resistance'])} livelli S&R")
-                    
-                    for level in data['support_resistance']:
-                        color = '#28a745' if level['type'] == 'support' else '#dc3545'
-                        level_value = level['level']
-                        
-                        # Aggiungi linea orizzontale
-                        if has_volume:
-                            fig.add_hline(
-                                y=level_value,
-                                line_dash="dash",
-                                line_color=color,
-                                line_width=2,
-                                annotation_text=f"{level['type'].title()} ${level_value:.2f}",
-                                annotation_position="top right",
-                                row=1, col=1
-                            )
-                        else:
-                            fig.add_hline(
-                                y=level_value,
-                                line_dash="dash", 
-                                line_color=color,
-                                line_width=2,
-                                annotation_text=f"{level['type'].title()} ${level_value:.2f}",
-                                annotation_position="top right"
-                            )
-                
-                # ===== ZONE SKORUPINSKI =====
-                if include_analysis and data.get('skorupinski_zones'):
-                    logger.info("Aggiungendo zone Skorupinski")
-                    
-                    # Zone di domanda (support)
-                    if data['skorupinski_zones'].get('demand_zones'):
-                        for i, zone in enumerate(data['skorupinski_zones']['demand_zones']):
-                            if has_volume:
-                                fig.add_hrect(
-                                    y0=zone['zone_bottom'],
-                                    y1=zone['zone_top'],
-                                    fillcolor="rgba(40, 167, 69, 0.2)",
-                                    line_color="rgba(40, 167, 69, 0.8)",
-                                    line_width=1,
-                                    annotation_text=f"Demand {i+1}",
-                                    annotation_position="top left",
-                                    row=1, col=1
-                                )
-                            else:
-                                fig.add_hrect(
-                                    y0=zone['zone_bottom'],
-                                    y1=zone['zone_top'],
-                                    fillcolor="rgba(40, 167, 69, 0.2)",
-                                    line_color="rgba(40, 167, 69, 0.8)",
-                                    line_width=1,
-                                    annotation_text=f"Demand {i+1}",
-                                    annotation_position="top left"
-                                )
-                    
-                    # Zone di offerta (resistance)
-                    if data['skorupinski_zones'].get('supply_zones'):
-                        for i, zone in enumerate(data['skorupinski_zones']['supply_zones']):
-                            if has_volume:
-                                fig.add_hrect(
-                                    y0=zone['zone_bottom'],
-                                    y1=zone['zone_top'],
-                                    fillcolor="rgba(220, 53, 69, 0.2)",
-                                    line_color="rgba(220, 53, 69, 0.8)",
-                                    line_width=1,
-                                    annotation_text=f"Supply {i+1}",
-                                    annotation_position="top left",
-                                    row=1, col=1
-                                )
-                            else:
-                                fig.add_hrect(
-                                    y0=zone['zone_bottom'],
-                                    y1=zone['zone_top'],
-                                    fillcolor="rgba(220, 53, 69, 0.2)",
-                                    line_color="rgba(220, 53, 69, 0.8)",
-                                    line_width=1,
-                                    annotation_text=f"Supply {i+1}",
-                                    annotation_position="top left"
-                                )
-                
-                # ===== VOLUME (se disponibile) =====
-                if has_volume:
-                    volumes = [item.get('volume', 0) for item in data['price_data']]
-                    colors = ['#00C851' if closes[i] >= opens[i] else '#FF4444' for i in range(len(closes))]
-                    
-                    volume_trace = go.Bar(
-                        x=dates,
-                        y=volumes,
-                        name='Volume',
-                        marker_color=colors,
-                        opacity=0.6
-                    )
-                    fig.add_trace(volume_trace, row=2, col=1)
-                
-                # ===== LAYOUT E STILE =====
-                fig.update_layout(
-                    title={
-                        'text': f'{ticker} - Analisi Tecnica Completa',
-                        'x': 0.5,
-                        'xanchor': 'center',
-                        'font': {'size': 20}
-                    },
-                    template='plotly_white',
-                    showlegend=True,
-                    height=700 if has_volume else 600,
-                    hovermode='x unified',
-                    xaxis_rangeslider_visible=False,
-                    margin=dict(l=50, r=50, t=80, b=50)
-                )
-                
-                # Personalizza assi
-                if has_volume:
-                    fig.update_xaxes(
-                        type='date',
-                        tickformat='%d/%m/%Y',
-                        title_text='Data',
-                        row=2, col=1
-                    )
-                    fig.update_yaxes(
-                        title_text='Prezzo ($)',
-                        row=1, col=1
-                    )
-                    fig.update_yaxes(
-                        title_text='Volume',
-                        row=2, col=1
-                    )
-                else:
-                    fig.update_xaxes(
-                        type='date',
-                        tickformat='%d/%m/%Y',
-                        title_text='Data'
-                    )
-                    fig.update_yaxes(
-                        title_text='Prezzo ($)'
-                    )
-                
-                # Converti in JSON per il frontend
-                chart_json = json.dumps(fig, cls=plotly.utils.PlotlyJSONEncoder)
-                
-                logger.info(f"Grafico Plotly generato con successo per {ticker}")
-                
-                return {
-                    'chart_json': chart_json,
-                    'chart_config': {
-                        'displayModeBar': True,
-                        'displaylogo': False,
-                        'modeBarButtonsToRemove': ['pan2d', 'lasso2d', 'select2d'],
-                        'responsive': True
-                    },
-                    'data_info': {
-                        'ticker': ticker,
-                        'days': days,
-                        'data_points': len(data['price_data']),
-                        'first_date': dates[0] if dates else None,
-                        'last_date': dates[-1] if dates else None,
-                        'sr_levels': len(data.get('support_resistance', [])),
-                        'demand_zones': len(data.get('skorupinski_zones', {}).get('demand_zones', [])),
-                        'supply_zones': len(data.get('skorupinski_zones', {}).get('supply_zones', [])),
-                        'has_volume': has_volume
-                    }
-                }
-                
-            except Exception as e:
-                logger.error(f"Errore generazione grafico Plotly per {ticker}: {e}")
-                raise
-                """
-                Genera un grafico Plotly con candlestick e analisi tecnica
-                """
-                try:
-                    # Ottieni dati
-                    data = self.get_ticker_chart_data(ticker, days, include_analysis)
-                    
-                    # Crea subplot con volume (opzionale)
-                    fig = make_subplots(
-                        rows=2, cols=1,
-                        shared_xaxes=True,
-                        vertical_spacing=0.1,
-                        subplot_titles=(f'{ticker} - Analisi Tecnica', 'Volume'),
-                        row_width=[0.7, 0.3]
-                    )
-                    
-                    # ===== CANDLESTICK PRINCIPALE =====
-                    candlestick = go.Candlestick(
-                        x=[item['date'] for item in data['price_data']],
-                        open=[item['open'] for item in data['price_data']],
-                        high=[item['high'] for item in data['price_data']],
-                        low=[item['low'] for item in data['price_data']],
-                        close=[item['close'] for item in data['price_data']],
-                        name=ticker,
-                        increasing_line_color='#00C851',
-                        decreasing_line_color='#FF4444'
-                    )
-                    fig.add_trace(candlestick, row=1, col=1)
-                    
-                    # ===== SUPPORTI E RESISTENZE =====
-                    if include_analysis and data.get('support_resistance'):
-                        for level in data['support_resistance']:
-                            color = '#28a745' if level['type'] == 'support' else '#dc3545'
-                            fig.add_hline(
-                                y=level['level'],
-                                line_dash="dash",
-                                line_color=color,
-                                annotation_text=f"{level['type'].title()} ${level['level']:.2f}",
-                                annotation_position="top right",
-                                row=1, col=1
-                            )
-                    
-                    # ===== ZONE SKORUPINSKI =====
-                    if include_analysis and data.get('skorupinski_zones'):
-                        # Zone di domanda (support)
-                        if data['skorupinski_zones'].get('demand_zones'):
-                            for zone in data['skorupinski_zones']['demand_zones']:
-                                fig.add_hrect(
-                                    y0=zone['zone_bottom'],
-                                    y1=zone['zone_top'],
-                                    fillcolor="rgba(40, 167, 69, 0.2)",
-                                    line_color="rgba(40, 167, 69, 0.8)",
-                                    annotation_text=f"Demand Zone",
-                                    annotation_position="top left",
-                                    row=1, col=1
-                                )
-                        
-                        # Zone di offerta (resistance)
-                        if data['skorupinski_zones'].get('supply_zones'):
-                            for zone in data['skorupinski_zones']['supply_zones']:
-                                fig.add_hrect(
-                                    y0=zone['zone_bottom'],
-                                    y1=zone['zone_top'],
-                                    fillcolor="rgba(220, 53, 69, 0.2)",
-                                    line_color="rgba(220, 53, 69, 0.8)",
-                                    annotation_text=f"Supply Zone",
-                                    annotation_position="top left",
-                                    row=1, col=1
-                                )
-                    
-                    # ===== VOLUME (se disponibile) =====
-                    if 'volume' in data['price_data'][0]:
-                        volume = go.Bar(
-                            x=[item['date'] for item in data['price_data']],
-                            y=[item.get('volume', 0) for item in data['price_data']],
-                            name='Volume',
-                            marker_color='rgba(0, 123, 255, 0.6)'
-                        )
-                        fig.add_trace(volume, row=2, col=1)
-                    
-                    # ===== LAYOUT E STILE =====
-                    fig.update_layout(
-                        title=f'{ticker} - Analisi Tecnica Completa',
-                        yaxis_title='Prezzo ($)',
-                        xaxis_title='Data',
-                        template='plotly_white',
-                        showlegend=True,
-                        height=600,
-                        hovermode='x unified',
-                        xaxis_rangeslider_visible=False
-                    )
-                    
-                    # Personalizza assi
-                    fig.update_xaxes(
-                        type='date',
-                        tickformat='%d/%m/%Y',
-                        row=1, col=1
-                    )
-                    
-                    # Converti in JSON per il frontend
-                    chart_json = json.dumps(fig, cls=plotly.utils.PlotlyJSONEncoder)
-                    
-                    return {
-                        'chart_json': chart_json,
-                        'chart_config': {
-                            'displayModeBar': True,
-                            'displaylogo': False,
-                            'modeBarButtonsToRemove': ['pan2d', 'lasso2d', 'select2d']
-                        },
-                        'data_info': {
-                            'ticker': ticker,
-                            'days': days,
-                            'data_points': len(data['price_data']),
-                            'sr_levels': len(data.get('support_resistance', [])),
-                            'demand_zones': len(data.get('skorupinski_zones', {}).get('demand_zones', [])),
-                            'supply_zones': len(data.get('skorupinski_zones', {}).get('supply_zones', []))
-                        }
-                    }
-                    
-                except Exception as e:
-                    logger.error(f"Errore generazione grafico Plotly: {e}")
-                    raise
-
-    def clean_data_for_json(self, data):
-        """
-        Pulisce i dati per la serializzazione JSON, convertendo NaN in None.
-        """
-        import pandas as pd
-        import numpy as np
+        Ottiene tutti i livelli di supporto e resistenza.
         
-        if isinstance(data, dict):
-            return {key: self.clean_data_for_json(value) for key, value in data.items()}
-        elif isinstance(data, list):
-            return [self.clean_data_for_json(item) for item in data]
-        elif isinstance(data, (pd.Series, pd.DataFrame)):
-            # Converti pandas in dict/list e pulisci
-            if isinstance(data, pd.DataFrame):
-                return self.clean_data_for_json(data.to_dict('records'))
-            else:
-                return self.clean_data_for_json(data.tolist())
-        elif pd.isna(data) or (isinstance(data, float) and (np.isnan(data) or np.isinf(data))):
-            return None
-        elif isinstance(data, (np.integer, np.floating)):
-            # Converti numpy numbers in Python numbers
-            if np.isnan(data) or np.isinf(data):
-                return None
-            return float(data) if isinstance(data, np.floating) else int(data)
-        else:
-            return data
+        Returns:
+            Lista di dizionari con i livelli
+        """
+        ticker_config = self._load_ticker_config()
+        tickers = ticker_config.get('tickers', [])
+        
+        all_levels = []
+        
+        for ticker in tickers:
+            sr_file = self.sr_output_dir / f"{ticker}_SR.csv"
+            if sr_file.exists():
+                try:
+                    sr_data = pd.read_csv(sr_file)
+                    sr_data['ticker'] = ticker  # Aggiungi ticker ai dati
+                    all_levels.extend(sr_data.to_dict('records'))
+                except Exception as e:
+                    logger.error(f"Errore nel leggere file S&R per {ticker}: {e}")
+        
+        return all_levels
+    
+    def get_all_skorupinski_zones(self) -> List[Dict]:
+        """
+        Ottiene tutte le zone Skorupinski.
+        
+        Returns:
+            Lista di dizionari con le zone
+        """
+        ticker_config = self._load_ticker_config()
+        tickers = ticker_config.get('tickers', [])
+        
+        all_zones = []
+        
+        for ticker in tickers:
+            sz_file = self.skorupinski_output_dir / f"{ticker}_SkorupinkiZones.csv"
+            if sz_file.exists():
+                try:
+                    sz_data = pd.read_csv(sz_file)
+                    sz_data['ticker'] = ticker  # Aggiungi ticker ai dati
+                    all_zones.extend(sz_data.to_dict('records'))
+                except Exception as e:
+                    logger.error(f"Errore nel leggere file zone per {ticker}: {e}")
+        
+        return all_zones
 
-    def get_ticker_chart_data(self, ticker: str, days: int = 100, include_analysis: bool = True) -> Dict:
-        """
-        Ottiene dati per grafico di un ticker con analisi tecnica.
-        VERSIONE MIGLIORATA CON GESTIONE NaN
-        """
+
+# ===== FUNZIONI DI UTILITÀ =====
+
+def get_technical_analysis_manager(base_dir='resources') -> TechnicalAnalysisManager:
+    """
+    Factory function per ottenere un'istanza del manager.
+    
+    Args:
+        base_dir: directory base del progetto
+        
+    Returns:
+        Istanza di TechnicalAnalysisManager
+    """
+    return TechnicalAnalysisManager(base_dir)
+
+
+def run_complete_technical_analysis(base_dir='resources', use_adjusted=True) -> Dict:
+    """
+    Esegue un'analisi tecnica completa per tutti i ticker configurati.
+    
+    Args:
+        base_dir: directory base del progetto
+        use_adjusted: se usare dati adjusted o not adjusted
+        
+    Returns:
+        Dict con risultati dell'analisi
+    """
+    manager = get_technical_analysis_manager(base_dir)
+    return manager.run_full_analysis(use_adjusted)
+
+
+# ===== MAIN PER TEST =====
+if __name__ == "__main__":
+    # Test del manager
+    print("🧪 Test TechnicalAnalysisManager")
+    
+    manager = TechnicalAnalysisManager()
+    
+    # Test summary
+    summary = manager.get_analysis_summary()
+    print(f"📊 Summary: {summary}")
+    
+    # Test con ticker di esempio (se disponibile)
+    ticker_config = manager._load_ticker_config()
+    if ticker_config.get('tickers'):
+        test_ticker = ticker_config['tickers'][0]
+        print(f"\n📈 Test grafico per {test_ticker}")
+        
         try:
-            if self.sr_manager.input_folder_prices == self.data_dir:
-                price_file = self.data_dir / f"{ticker}.csv"
-                data_type = "adjusted"
-            else:
-                price_file = self.data_dir_not_adj / f"{ticker}_notAdjusted.csv"
-                data_type = "notAdjusted"
-            
-            if not price_file.exists():
-                raise FileNotFoundError(f"File dati non trovato: {price_file}")
-            
-            # Carica e filtra dati
-            df = pd.read_csv(price_file, parse_dates=['Date'])
-            df = df.tail(days).copy()  # Ultimi N giorni
-            
-            # ===== PULISCI DATI PREZZO =====
-            # Rimuovi righe con tutti NaN
-            df = df.dropna(subset=['Close'])
-            
-            # Sostituisci NaN con valori ragionevoli
-            df['Open'] = df['Open'].fillna(df['Close'])
-            df['High'] = df['High'].fillna(df['Close'])
-            df['Low'] = df['Low'].fillna(df['Close'])
-            df['Volume'] = df['Volume'].fillna(0)
-            
-            result = {
-                'ticker': ticker,
-                'data_type': data_type,
-                'price_data': [],
-                'support_resistance': [],
-                'skorupinski_zones': []
-            }
-            
-            # Converti dati prezzi in formato compatibile con grafici
-            for _, row in df.iterrows():
-                # Verifica che i valori siano validi
-                if pd.notna(row['Close']) and row['Close'] > 0:
-                    price_record = {
-                        'date': row['Date'].strftime('%Y-%m-%d'),
-                        'open': float(row['Open']) if pd.notna(row['Open']) else float(row['Close']),
-                        'high': float(row['High']) if pd.notna(row['High']) else float(row['Close']),
-                        'low': float(row['Low']) if pd.notna(row['Low']) else float(row['Close']),
-                        'close': float(row['Close']),
-                        'volume': int(row.get('Volume', 0)) if pd.notna(row.get('Volume', 0)) else 0
-                    }
-                    result['price_data'].append(price_record)
-            
-            if include_analysis:
-                # Aggiungi supporti e resistenze
-                try:
-                    sr_data = self.sr_manager.get_current_levels(ticker, max_days_old=60, min_strength=1.5)
-                    if sr_data is not None and not sr_data.empty:
-                        # Pulisci dati S&R
-                        sr_cleaned = []
-                        for _, row in sr_data.iterrows():
-                            if pd.notna(row['level']) and row['level'] > 0:
-                                sr_record = {
-                                    'type': str(row['type']),
-                                    'level': float(row['level']),
-                                    'strength': float(row['strength']) if pd.notna(row['strength']) else 1.0,
-                                    'date': row['date'].strftime('%Y-%m-%d') if pd.notna(row.get('date')) else None
-                                }
-                                sr_cleaned.append(sr_record)
-                        result['support_resistance'] = sr_cleaned
-                except Exception as e:
-                    print(f"⚠️ Errore caricamento S&R per {ticker}: {e}")
-                    result['support_resistance'] = []
-                
-                # Aggiungi zone Skorupinski
-                try:
-                    analysis_data = self.get_ticker_analysis_data(ticker, 'skorupinski')
-                    zones_data = analysis_data.get('skorupinski_zones', [])
-                    
-                    # Pulisci dati zone
-                    zones_cleaned = []
-                    for zone in zones_data:
-                        if (isinstance(zone, dict) and 
-                            pd.notna(zone.get('zone_bottom')) and 
-                            pd.notna(zone.get('zone_top')) and
-                            zone.get('zone_bottom', 0) > 0):
-                            
-                            zone_record = {
-                                'pattern': str(zone.get('pattern', 'Unknown')),
-                                'type': str(zone.get('type', 'Unknown')),
-                                'zone_bottom': float(zone['zone_bottom']),
-                                'zone_top': float(zone['zone_top']),
-                                'zone_center': float(zone.get('zone_center', (zone['zone_bottom'] + zone['zone_top']) / 2)),
-                                'strength_score': float(zone.get('strength_score', 1.0)) if pd.notna(zone.get('strength_score')) else 1.0,
-                                'date': zone.get('date', '').strftime('%Y-%m-%d') if pd.notna(zone.get('date')) else None
-                            }
-                            zones_cleaned.append(zone_record)
-                    
-                    result['skorupinski_zones'] = zones_cleaned
-                except Exception as e:
-                    print(f"⚠️ Errore caricamento zone per {ticker}: {e}")
-                    result['skorupinski_zones'] = []
-            
-            # ===== PULIZIA FINALE =====
-            # Applica pulizia ricorsiva per essere sicuri
-            result = self.clean_data_for_json(result)
-            
-            return result
-            
+            chart_data = manager.generate_plotly_chart(test_ticker, days=50)
+            print(f"✅ Grafico generato per {test_ticker}")
+            print(f"📊 Info: {chart_data.get('data_info', {})}")
+            if 'zone_legend' in chart_data:
+                print(f"🎯 Zone in leggenda: {len(chart_data['zone_legend'])}")
         except Exception as e:
-            print(f"❌ Errore nel caricamento dati grafico per {ticker}: {str(e)}")
-            return {
-                'ticker': ticker,
-                'error': str(e),
-                'price_data': [],
-                'support_resistance': [],
-                'skorupinski_zones': []
-            }                
+            print(f"❌ Errore test grafico: {e}")
+    
+    print("✅ Test completato")

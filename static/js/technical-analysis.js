@@ -1,7 +1,7 @@
 /**
  * technical-analysis.js
  * JavaScript per la gestione dell'analisi tecnica con supporti/resistenze e zone Skorupinski
- * VERSIONE COMPLETA E CORRETTA - FINALE
+ * VERSIONE FINALE CON LEGGENDA INTERATTIVA
  */
 
 class TechnicalAnalysisManager {
@@ -13,15 +13,14 @@ class TechnicalAnalysisManager {
         this.levelsTableManager = null;
         
         this.init();
-
     }
 
     init() {
         console.log('🔧 Inizializzazione Technical Analysis Manager...');
         this.setupEventListeners();
         this.loadInitialData();
-         // Inizializza dopo che il DOM è pronto
-         document.addEventListener('DOMContentLoaded', () => {
+        // Inizializza dopo che il DOM è pronto
+        document.addEventListener('DOMContentLoaded', () => {
             this.initializeEnhancedTables();
         });
         console.log('✅ Technical Analysis Manager inizializzato');
@@ -61,7 +60,7 @@ class TechnicalAnalysisManager {
             }
         });
 
-        // NUOVO: Listener per dropdown giorni
+        // Listener per dropdown giorni
         const daysSelect = document.getElementById('daysSelect') || document.getElementById('chartDaysSelect');
         if (daysSelect) {
             daysSelect.addEventListener('change', (e) => {
@@ -109,8 +108,7 @@ class TechnicalAnalysisManager {
         console.log('✅ Event listeners configurati');
     }
 
-     // 2. CORREGGI il metodo initializeEnhancedTables (chiamalo DOPO che tutto è caricato):
-     initializeEnhancedTables() {
+    initializeEnhancedTables() {
         console.log('🔧 Inizializzazione Enhanced Tables...');
         
         // Verifica che la classe EnhancedTableManager sia disponibile
@@ -145,7 +143,151 @@ class TechnicalAnalysisManager {
         }
     }
 
-    // METODO CORRETTO per loadInitialData
+    // Funzione per creare la leggenda interattiva delle zone
+    createZoneLegend(zoneLegendData) {
+        let legendContainer = document.getElementById('zone-legend-container');
+        
+        if (!legendContainer) {
+            // Crea il container se non esiste
+            const container = document.createElement('div');
+            container.id = 'zone-legend-container';
+            container.className = 'zone-legend-panel';
+            container.style.cssText = `
+                position: fixed;
+                top: 100px;
+                right: 20px;
+                background: rgba(255, 255, 255, 0.95);
+                backdrop-filter: blur(10px);
+                border: 1px solid #ddd;
+                border-radius: 12px;
+                padding: 15px;
+                box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+                max-height: 400px;
+                overflow-y: auto;
+                z-index: 1000;
+                min-width: 200px;
+                transition: all 0.3s ease;
+            `;
+            document.body.appendChild(container);
+            legendContainer = container;
+        }
+        
+        if (!zoneLegendData || zoneLegendData.length === 0) {
+            legendContainer.style.display = 'none';
+            return;
+        }
+        
+        legendContainer.style.display = 'block';
+        
+        // Separa zone per tipo
+        const demandZones = zoneLegendData.filter(z => z.type === 'Demand');
+        const supplyZones = zoneLegendData.filter(z => z.type === 'Supply');
+        
+        legendContainer.innerHTML = `
+            <div class="legend-header">
+                <h6>🎯 Zone Skorupinski</h6>
+                <button class="btn btn-sm btn-outline-secondary" onclick="window.toggleAllZones()">
+                    Toggle All
+                </button>
+            </div>
+            
+            ${demandZones.length > 0 ? `
+            <div class="legend-section">
+                <h6 class="text-success">🟢 Zone Demand</h6>
+                ${demandZones.map(zone => `
+                    <div class="legend-item" data-zone-id="${zone.id}">
+                        <label class="form-check-label d-flex align-items-center">
+                            <input type="checkbox" 
+                                class="form-check-input me-2 zone-checkbox" 
+                                data-zone-id="${zone.id}"
+                                ${zone.visible ? 'checked' : ''}>
+                            <span class="zone-price">$${zone.center.toFixed(2)}</span>
+                            ${zone.strength ? `<small class="ms-2 text-muted">(${zone.strength.toFixed(1)})</small>` : ''}
+                        </label>
+                    </div>
+                `).join('')}
+            </div>
+            ` : ''}
+            
+            ${supplyZones.length > 0 ? `
+            <div class="legend-section">
+                <h6 class="text-danger">🔴 Zone Supply</h6>
+                ${supplyZones.map(zone => `
+                    <div class="legend-item" data-zone-id="${zone.id}">
+                        <label class="form-check-label d-flex align-items-center">
+                            <input type="checkbox" 
+                                class="form-check-input me-2 zone-checkbox" 
+                                data-zone-id="${zone.id}"
+                                ${zone.visible ? 'checked' : ''}>
+                            <span class="zone-price">$${zone.center.toFixed(2)}</span>
+                            ${zone.strength ? `<small class="ms-2 text-muted">(${zone.strength.toFixed(1)})</small>` : ''}
+                        </label>
+                    </div>
+                `).join('')}
+            </div>
+            ` : ''}
+        `;
+    
+        // Aggiungi event listeners per le checkbox
+        const checkboxes = legendContainer.querySelectorAll('.zone-checkbox');
+        checkboxes.forEach(checkbox => {
+            checkbox.addEventListener('change', function() {
+                const zoneId = this.getAttribute('data-zone-id');
+                const isVisible = this.checked;
+                window.toggleZoneVisibility(zoneId, isVisible);
+            });
+        });
+        
+        console.log(`🎯 Leggenda creata con ${zoneLegendData.length} zone`);
+    }
+
+    // Funzione per mostrare/nascondere una singola zona
+    toggleZoneVisibility(zoneId, isVisible) {
+        const chartDiv = document.getElementById('technicalChart');
+        if (!chartDiv || !chartDiv.data || !chartDiv.layout) {
+            console.warn('Grafico non trovato per toggle zona');
+            return;
+        }
+        
+        try {
+            // Trova le shapes (rettangoli delle zone) corrispondenti al zone_id
+            const updatedShapes = chartDiv.layout.shapes.map(shape => {
+                if (shape.name && shape.name.includes(zoneId.replace('_', '_zone_'))) {
+                    return {
+                        ...shape,
+                        visible: isVisible
+                    };
+                }
+                return shape;
+            });
+            
+            // Trova le annotations (etichette) corrispondenti
+            const updatedAnnotations = chartDiv.layout.annotations.map(annotation => {
+                if (annotation.text && (
+                    (zoneId.includes('demand') && annotation.text.includes('Demand')) ||
+                    (zoneId.includes('supply') && annotation.text.includes('Supply'))
+                )) {
+                    return {
+                        ...annotation,
+                        visible: isVisible
+                    };
+                }
+                return annotation;
+            });
+            
+            // Aggiorna il layout del grafico
+            Plotly.relayout(chartDiv, {
+                shapes: updatedShapes,
+                annotations: updatedAnnotations
+            });
+            
+            console.log(`🎯 Zona ${zoneId} ${isVisible ? 'mostrata' : 'nascosta'}`);
+            
+        } catch (error) {
+            console.error('Errore toggle zona:', error);
+        }
+    }
+
     async loadInitialData() {
         try {
             console.log('🔄 Caricamento dati iniziali...');
@@ -156,7 +298,7 @@ class TechnicalAnalysisManager {
             // Inizializza dropdown ticker (gestisce i suoi errori internamente)
             await this.initializeTickerDropdown();
             
-            // NUOVO: Inizializza dropdown giorni
+            // Inizializza dropdown giorni
             this.initializeDaysDropdown();
             
             this.showLog('✅ Inizializzazione completata', 'success');
@@ -235,7 +377,6 @@ class TechnicalAnalysisManager {
         }
     }
 
-    // NUOVO METODO per inizializzare/aggiornare il dropdown giorni
     initializeDaysDropdown() {
         const daysSelect = document.getElementById('daysSelect') || document.getElementById('chartDaysSelect');
         
@@ -272,19 +413,18 @@ class TechnicalAnalysisManager {
         console.log(`✅ Dropdown giorni inizializzato con ${daysOptions.length} opzioni`);
     }
 
-    // NUOVO METODO per convertire la selezione in giorni effettivi
     convertDaysSelection(selection) {
         const selectionLower = selection.toLowerCase();
         
         // Mappa le selezioni ai giorni effettivi
         const daysMap = {
             '100 giorni': 100,
-            '6 mesi': 180,      // ~6 mesi
-            '1 anno': 365,      // 1 anno
-            '2 anni': 730,      // 2 anni  
-            '3 anni': 1095,     // 3 anni
-            '5 anni': 1825,     // 5 anni
-            '10 anni': 3650     // 10 anni
+            '6 mesi': 180,
+            '1 anno': 365,
+            '2 anni': 730,
+            '3 anni': 1095,
+            '5 anni': 1825,
+            '10 anni': 3650
         };
         
         // Cerca corrispondenza esatta
@@ -521,14 +661,14 @@ class TechnicalAnalysisManager {
         console.log('📊 Valori summary impostati su fallback (endpoint mancanti)');
     }
 
-    // METODO PRINCIPALE AGGIORNATO per loadChart
+    // METODO PRINCIPALE AGGIORNATO per loadChart con leggenda
     async loadChart(ticker) {
         this.showChartLoading(true);
         
         try {
             console.log(`📊 Caricamento grafico Plotly per ${ticker}...`);
             
-            // IMPORTANTE: Leggi lo stato delle checkbox E i giorni dal dropdown
+            // Leggi lo stato delle checkbox E i giorni dal dropdown
             const showSRCheckbox = document.getElementById('showSRLevels');
             const showZonesCheckbox = document.getElementById('showZones');
             const daysSelect = document.getElementById('daysSelect') || document.getElementById('chartDaysSelect');
@@ -560,12 +700,31 @@ class TechnicalAnalysisManager {
             // Renderizza con Plotly
             await this.renderPlotlyChart(filteredData);
             
-            // Ottieni anche i dati completi per info dettagliate
-            const fullDataResponse = await fetch(`/api/technical-analysis/chart/${ticker}?days=${selectedDays}&include_analysis=true`);
-            const fullData = fullDataResponse.ok ? await fullDataResponse.json() : null;
+            // NUOVO: Crea la leggenda se ci sono dati delle zone
+            if (data && data.zone_legend) {
+                console.log('📊 Creazione leggenda zone:', data.zone_legend);
+                this.createZoneLegend(data.zone_legend);
+                
+                // Aggiorna i contatori zone
+                if (typeof window.updateZoneCounts === 'function') {
+                    window.updateZoneCounts(data.zone_legend);
+                }
+            } else {
+                console.log('⚠️ Nessun dato zone_legend ricevuto');
+                // Nasconde la leggenda se non ci sono zone
+                const legendContainer = document.getElementById('zone-legend-container');
+                if (legendContainer) {
+                    legendContainer.style.display = 'none';
+                }
+                
+                // Reset contatori
+                if (typeof window.updateZoneCounts === 'function') {
+                    window.updateZoneCounts([]);
+                }
+            }
             
             // Aggiorna info grafico
-            this.updateChartInfo(filteredData.data_info || data.data_info, fullData);
+            this.updateChartInfo(filteredData.data_info || data.data_info);
             
             this.showLog(`✅ Grafico ${ticker} caricato (${selectedDays} giorni, S&R: ${showSR}, Zone: ${showZones})`, 'success');
             
@@ -578,7 +737,40 @@ class TechnicalAnalysisManager {
         }
     }
 
-    // NUOVO METODO per filtrare i dati del grafico in base alle checkbox
+    // Funzione helper per estrarre dati delle zone dal grafico esistente
+    extractZoneDataFromChart(chartDiv) {
+        const zoneLegendData = [];
+        
+        if (chartDiv.layout && chartDiv.layout.shapes) {
+            chartDiv.layout.shapes.forEach((shape, index) => {
+                if (shape.type === 'rect' && shape.fillcolor) {
+                    let type = 'Unknown';
+                    let color = shape.line?.color || shape.fillcolor;
+                    
+                    if (shape.fillcolor.includes('rgba(40, 167, 69')) {
+                        type = 'Demand';
+                    } else if (shape.fillcolor.includes('rgba(220, 53, 69')) {
+                        type = 'Supply';
+                    }
+                    
+                    if (type !== 'Unknown') {
+                        const center = (shape.y0 + shape.y1) / 2;
+                        zoneLegendData.push({
+                            id: `${type.toLowerCase()}_${index}`,
+                            type: type,
+                            center: center,
+                            label: `${type} $${center.toFixed(2)}`,
+                            visible: shape.visible !== false,
+                            color: color
+                        });
+                    }
+                }
+            });
+        }
+        
+        return zoneLegendData;
+    }
+    
     filterChartDataByCheckboxes(data, showSR, showZones) {
         try {
             // Parse del JSON del grafico
@@ -596,20 +788,18 @@ class TechnicalAnalysisManager {
                     return true;
                 }
                 
-                // FILTRAGGIO AGGRESSIVO per supporti e resistenze
+                // FILTRAGGIO per supporti e resistenze
                 if (trace.name) {
                     const traceName = trace.name.toLowerCase();
                     
-                    // Filtra supporti e resistenze (controllo molto specifico)
                     if (traceName.includes('support') || traceName.includes('resistance') || 
                         traceName.includes('supporto') || traceName.includes('resistenza') ||
                         traceName.includes('livello') || traceName.includes('level') ||
-                        traceName.match(/\d+\.\d+/) !== null) { // Linee con valori numerici nel nome
+                        traceName.match(/\d+\.\d+/) !== null) {
                         console.log(`${showSR ? '✅ Mantieni' : '❌ Rimuovi'} S&R trace: ${trace.name}`);
                         return showSR;
                     }
                     
-                    // Filtra zone Skorupinski nei traces (se presenti)
                     if (traceName.includes('demand') || traceName.includes('supply') ||
                         traceName.includes('domanda') || traceName.includes('offerta') ||
                         traceName.includes('zona')) {
@@ -618,68 +808,28 @@ class TechnicalAnalysisManager {
                     }
                 }
                 
-                // FILTRAGGIO AGGIUNTIVO: Controlla le proprietà del trace
-                // Le linee S&R sono spesso linee orizzontali con dash
-                if (trace.mode === 'lines' && trace.line) {
-                    const hasHorizontalLine = trace.y && Array.isArray(trace.y) && 
-                        trace.y.length > 1 && trace.y.every(val => val === trace.y[0]); // Tutti i valori Y uguali = linea orizzontale
-                    
-                    const isDashedLine = trace.line.dash === 'dash' || 
-                        trace.line.dash === 'dashdot' || 
-                        (Array.isArray(trace.line.dash) && trace.line.dash.length > 0);
-                    
-                    if (hasHorizontalLine || isDashedLine) {
-                        console.log(`${showSR ? '✅ Mantieni' : '❌ Rimuovi'} linea orizzontale/dash: ${trace.name || 'unnamed'}`);
-                        return showSR;
-                    }
-                }
-                
-                // Filtra traces di tipo text (etichette come traces)
-                if (trace.mode && trace.mode.includes('text')) {
-                    const text = (trace.text || []).join(' ').toLowerCase();
-                    
-                    // Testo relativo a S&R
-                    if (text.includes('support') || text.includes('resistance') || 
-                        text.includes('supporto') || text.includes('resistenza')) {
-                        console.log(`${showSR ? '✅ Mantieni' : '❌ Rimuovi'} testo S&R: ${text.substring(0, 50)}...`);
-                        return showSR;
-                    }
-                    
-                    // Testo relativo a zone
-                    if (text.includes('demand') || text.includes('supply') ||
-                        text.includes('domanda') || text.includes('offerta')) {
-                        console.log(`${showZones ? '✅ Mantieni' : '❌ Rimuovi'} testo zone: ${text.substring(0, 50)}...`);
-                        return showZones;
-                    }
-                }
-                
                 // Mantieni altri traces per sicurezza
                 return true;
             });
             
-            // Filtra le shapes (zone Skorupinski E supporti/resistenze) nel layout
+            // Filtra le shapes nel layout
             let filteredShapes = [];
             if (figure.layout.shapes) {
                 filteredShapes = figure.layout.shapes.filter(shape => {
                     // Zone Skorupinski: shapes rettangolari con colori specifici
                     if (shape.type === 'rect' && 
-                        (shape.fillcolor?.includes('rgba(40, 167, 69') || // Zone verdi (demand)
-                         shape.fillcolor?.includes('rgba(220, 53, 69'))) { // Zone rosse (supply)
+                        (shape.fillcolor?.includes('rgba(40, 167, 69') || 
+                         shape.fillcolor?.includes('rgba(220, 53, 69'))) {
                         console.log(`${showZones ? '✅ Mantieni' : '❌ Rimuovi'} zona Skorupinski shape`);
                         return showZones;
                     }
                     
                     // Supporti/Resistenze: linee orizzontali
                     if (shape.type === 'line') {
-                        // Linea orizzontale se y0 === y1 (stessa altezza)
                         const isHorizontalLine = shape.y0 === shape.y1;
-                        
-                        // Controlla se ha colori tipici di S&R (rosso, verde, blu)
                         const srColors = ['red', 'green', 'blue', '#dc3545', '#28a745', '#007bff'];
                         const hasSRColor = shape.line?.color && 
                             srColors.some(color => shape.line.color.includes(color));
-                        
-                        // Controlla se ha dash tipico di S&R
                         const isDashed = shape.line?.dash === 'dash' || 
                             shape.line?.dash === 'dashdot' ||
                             (Array.isArray(shape.line?.dash) && shape.line.dash.length > 0);
@@ -690,7 +840,6 @@ class TechnicalAnalysisManager {
                         }
                     }
                     
-                    // Mantieni altre shapes
                     return true;
                 });
             }
@@ -701,14 +850,12 @@ class TechnicalAnalysisManager {
                 filteredAnnotations = figure.layout.annotations.filter(annotation => {
                     const annotationText = annotation.text || '';
                     
-                    // Filtra etichette supporti/resistenze
                     if (annotationText.includes('Support') || annotationText.includes('Resistance') || 
                         annotationText.includes('Supporto') || annotationText.includes('Resistenza')) {
                         console.log(`${showSR ? '✅ Mantieni' : '❌ Rimuovi'} etichetta S&R: ${annotationText}`);
                         return showSR;
                     }
                     
-                    // Filtra etichette zone Skorupinski  
                     if (annotationText.includes('Demand') || annotationText.includes('Supply') ||
                         annotationText.includes('Domanda') || annotationText.includes('Offerta') ||
                         annotationText.includes('Zone')) {
@@ -716,7 +863,6 @@ class TechnicalAnalysisManager {
                         return showZones;
                     }
                     
-                    // Mantieni altre annotations
                     return true;
                 });
             }
@@ -731,7 +877,6 @@ class TechnicalAnalysisManager {
                 }
             };
             
-            // Restituisci i dati modificati
             return {
                 ...data,
                 chart_json: JSON.stringify(filteredFigure)
@@ -739,14 +884,12 @@ class TechnicalAnalysisManager {
             
         } catch (error) {
             console.error('❌ Errore filtraggio dati:', error);
-            // In caso di errore, restituisci i dati originali
             return data;
         }
     }
 
-    // METODO AGGIORNATO per refreshChart
     refreshChart() {
-        const tickerSelect = document.getElementById('chartTickerSelect'); // Corretto!
+        const tickerSelect = document.getElementById('chartTickerSelect');
         if (tickerSelect && tickerSelect.value) {
             console.log('🔄 Refresh forzato del grafico...');
             this.loadChart(tickerSelect.value);
@@ -755,7 +898,6 @@ class TechnicalAnalysisManager {
         }
     }
 
-    // Nuovo metodo per renderizzare con Plotly
     async renderPlotlyChart(data) {
         const chartDiv = document.getElementById('technicalChart');
         
@@ -763,27 +905,20 @@ class TechnicalAnalysisManager {
             throw new Error('Elemento technicalChart non trovato');
         }
         
-        // Verifica che Plotly sia disponibile
         if (typeof Plotly === 'undefined') {
             throw new Error('Plotly.js non disponibile');
         }
         
         try {
-            // Converti il JSON del grafico
             const figure = JSON.parse(data.chart_json);
-            
-            // Renderizza con Plotly
             await Plotly.newPlot(chartDiv, figure.data, figure.layout, data.chart_config);
-            
             console.log('✅ Grafico Plotly renderizzato con successo');
-            
         } catch (error) {
             console.error('❌ Errore rendering Plotly:', error);
             throw error;
         }
     }
 
-    // Metodi helper e di utilità...
     showChartLoading(show) {
         const loading = document.getElementById('chartLoading');
         const container = document.getElementById('chartContainer');
@@ -804,10 +939,8 @@ class TechnicalAnalysisManager {
         const chartDiv = document.getElementById('technicalChart');
         if (!chartDiv) return;
         
-        // Pulisci il div
         chartDiv.innerHTML = '';
         
-        // Crea messaggio di errore
         const errorDiv = document.createElement('div');
         errorDiv.className = 'alert alert-danger text-center';
         errorDiv.innerHTML = `
@@ -817,18 +950,6 @@ class TechnicalAnalysisManager {
         `;
         
         chartDiv.appendChild(errorDiv);
-    }
-
-    destroyExistingChart() {
-        const chartDiv = document.getElementById('technicalChart');
-        if (chartDiv && typeof Plotly !== 'undefined') {
-            try {
-                Plotly.purge(chartDiv);
-                console.log('✅ Grafico Plotly distrutto');
-            } catch (error) {
-                console.warn('⚠️ Errore distruzione Plotly:', error);
-            }
-        }
     }
 
     updateChartInfo(dataInfo, fullData = null) {
@@ -874,13 +995,10 @@ class TechnicalAnalysisManager {
         }
     }
 
-
-    // 3. AGGIORNA i metodi loadZonesTable e loadLevelsTable per debug migliore:
     async loadZonesTable() {
         try {
             console.log('📊 Caricamento tabella zone Skorupinski...');
             
-            // Inizializza enhanced table se non esiste
             if (!this.zonesTableManager && document.getElementById('zonesTable')) {
                 console.log('🔧 Inizializzazione tardiva zonesTableManager...');
                 this.initializeEnhancedTables();
@@ -918,7 +1036,6 @@ class TechnicalAnalysisManager {
         try {
             console.log('📏 Caricamento tabella supporti/resistenze...');
             
-            // Inizializza enhanced table se non esiste
             if (!this.levelsTableManager && document.getElementById('levelsTable')) {
                 console.log('🔧 Inizializzazione tardiva levelsTableManager...');
                 this.initializeEnhancedTables();
@@ -1016,7 +1133,7 @@ class TechnicalAnalysisManager {
                 <td><span class="badge bg-secondary">${zone.zone_thickness_pct?.toFixed(2) || 'N/A'}%</span></td>
                 <td><small class="text-muted">${zone.strength_score?.toFixed(1) || 'N/A'}</small></td>
                 <td class="font-monospace small"><span class="text-muted">${zone.distance_from_current?.toFixed(2) || 'N/A'}%</span></td>
-                <td><button class="btn btn-outline-primary btn-sm"><i class="bi bi-eye"></i></button></td>
+                <td><button class="btn btn-outline-primary btn-sm" onclick="window.taManager?.loadChart('${zone.ticker}')"><i class="bi bi-eye"></i></button></td>
             </tr>
         `).join('');
     }
@@ -1045,7 +1162,7 @@ class TechnicalAnalysisManager {
             <td><small class="text-muted">${level.strength?.toFixed(1) || 'N/A'}</small></td>
             <td class="small">${level.touches || 0} volte</td>
             <td class="small">${level.days_from_end || 'N/A'} giorni</td>
-            <td><button class="btn btn-outline-primary btn-sm"><i class="bi bi-eye"></i></button></td>
+            <td><button class="btn btn-outline-primary btn-sm" onclick="window.taManager?.loadChart('${level.ticker}')"><i class="bi bi-eye"></i></button></td>
             </tr>
         `).join('');
     }
@@ -1090,7 +1207,6 @@ class TechnicalAnalysisManager {
         }, 5000);
     }
 
- // 4. AGGIORNA il metodo onTabChanged per inizializzare le tabelle quando necessario:
     onTabChanged(target) {
         console.log(`🔄 Cambio tab: ${target}`);
         
@@ -1098,14 +1214,12 @@ class TechnicalAnalysisManager {
             case '#chart':
                 break;
             case '#zones':
-                // Inizializza enhanced table se non esiste
                 if (!this.zonesTableManager && document.getElementById('zonesTable')) {
                     this.initializeEnhancedTables();
                 }
                 this.loadZonesTable();
                 break;
             case '#levels':
-                // Inizializza enhanced table se non esiste
                 if (!this.levelsTableManager && document.getElementById('levelsTable')) {
                     this.initializeEnhancedTables();
                 }
@@ -1152,7 +1266,6 @@ class TechnicalAnalysisManager {
         const logDiv = document.getElementById('analysisLog');
         if (!logDiv) return;
 
-        // Pulisci placeholder se esiste
         if (logDiv.children.length === 1 && logDiv.querySelector('.text-center')) {
             logDiv.innerHTML = '';
         }
@@ -1175,18 +1288,58 @@ class TechnicalAnalysisManager {
         logDiv.appendChild(entry);
         logDiv.scrollTop = logDiv.scrollHeight;
 
-        // Mantieni solo 50 voci
         while (logDiv.children.length > 50) {
             logDiv.removeChild(logDiv.firstChild);
         }
     }
 }
 
-// ===== INIZIALIZZAZIONE UNICA E PULITA =====
+// ===== FUNZIONI GLOBALI PER LA LEGGENDA =====
+
+// Rendi le funzioni globali per l'accesso dai controlli HTML
+window.toggleZoneVisibility = function(zoneId, isVisible) {
+    if (window.taManager && typeof window.taManager.toggleZoneVisibility === 'function') {
+        window.taManager.toggleZoneVisibility(zoneId, isVisible);
+    }
+};
+
+window.toggleAllZones = function() {
+    const checkboxes = document.querySelectorAll('#zone-legend-container .zone-checkbox');
+    const allChecked = Array.from(checkboxes).every(cb => cb.checked);
+    
+    // Se tutte sono selezionate, deseleziona tutte. Altrimenti seleziona tutte.
+    const newState = !allChecked;
+    
+    checkboxes.forEach(checkbox => {
+        if (checkbox.checked !== newState) {
+            checkbox.checked = newState;
+            const zoneId = checkbox.getAttribute('data-zone-id');
+            window.toggleZoneVisibility(zoneId, newState);
+        }
+    });
+};
+
+// Funzione per aggiornare i contatori zone (definita globalmente)
+window.updateZoneCounts = function(zoneLegendData) {
+    if (!zoneLegendData) return;
+    
+    const demandCount = zoneLegendData.filter(z => z.type === 'Demand').length;
+    const supplyCount = zoneLegendData.filter(z => z.type === 'Supply').length;
+    const totalCount = demandCount + supplyCount;
+    
+    const demandCountEl = document.getElementById('demandZoneCount');
+    const supplyCountEl = document.getElementById('supplyZoneCount');
+    const totalCountEl = document.getElementById('totalZoneCount');
+    
+    if (demandCountEl) demandCountEl.textContent = demandCount;
+    if (supplyCountEl) supplyCountEl.textContent = supplyCount;
+    if (totalCountEl) totalCountEl.textContent = totalCount;
+};
+
+// ===== INIZIALIZZAZIONE =====
 document.addEventListener('DOMContentLoaded', function() {
     console.log('🔄 DOM loaded - Inizializzazione Technical Analysis...');
     
-    // Controlla se siamo nella pagina di analisi tecnica
     if (document.getElementById('analysisNavTabs')) {
         console.log('✅ Pagina Technical Analysis rilevata');
         
@@ -1194,53 +1347,12 @@ document.addEventListener('DOMContentLoaded', function() {
         window.taManager = new TechnicalAnalysisManager();
         window.TechnicalAnalysisInstance = window.taManager; // Alias per compatibilità
         
-        // IMPORTANTE: Inizializza le enhanced tables DOPO che tutto è pronto
         setTimeout(() => {
             console.log('🕐 Inizializzazione delayed enhanced tables...');
             if (window.taManager) {
                 window.taManager.initializeEnhancedTables();
             }
-        }, 500); // Delay di 500ms per essere sicuri che tutto sia caricato
-        
-        // Event listeners per checkbox
-        const showSRCheckbox = document.getElementById('showSRLevels');
-        if (showSRCheckbox) {
-            showSRCheckbox.addEventListener('change', function() {
-                console.log(`📊 Checkbox S&R: ${this.checked}`);
-                const currentTicker = document.getElementById('chartTickerSelect')?.value;
-                if (currentTicker && window.taManager) {
-                    window.taManager.loadChart(currentTicker);
-                }
-            });
-        }
-        
-        const showZonesCheckbox = document.getElementById('showZones');
-        if (showZonesCheckbox) {
-            showZonesCheckbox.addEventListener('change', function() {
-                console.log(`🎯 Checkbox Zone: ${this.checked}`);
-                const currentTicker = document.getElementById('chartTickerSelect')?.value;
-                if (currentTicker && window.taManager) {
-                    window.taManager.loadChart(currentTicker);
-                }
-            });
-        }
-        
-        const loadChartBtn = document.getElementById('loadChartBtn');
-        if (loadChartBtn) {
-            loadChartBtn.addEventListener('click', function() {
-                console.log('🔄 Bottone aggiorna cliccato');
-                if (window.taManager) {
-                    window.taManager.refreshChart();
-                }
-            });
-        }
-        
-        // Carica dati iniziali se siamo nella tab overview
-        const overviewTab = document.getElementById('overview-tab');
-        if (overviewTab && overviewTab.classList.contains('active')) {
-            console.log('📊 Tab overview attiva - caricamento dati...');
-            window.taManager.loadOverviewData();
-        }
+        }, 500);
         
         console.log('✅ Technical Analysis Manager inizializzato completamente');
     } else {
@@ -1269,41 +1381,6 @@ window.debugCheckboxState = function() {
     }
 };
 
-window.debugDaysConversion = function() {
-    const testValues = ['100 giorni', '1 anno', '3 anni', '5 anni', '365', 'invalid'];
-    
-    console.log('🔍 TEST Conversione Giorni:');
-    testValues.forEach(value => {
-        const days = window.taManager?.convertDaysSelection(value);
-        console.log(`"${value}" → ${days} giorni`);
-    });
-    
-    // Mostra valore corrente
-    const daysSelect = document.getElementById('daysSelect') || document.getElementById('chartDaysSelect');
-    if (daysSelect && window.taManager) {
-        const currentValue = daysSelect.value;
-        const currentDays = window.taManager.convertDaysSelection(currentValue);
-        console.log(`📅 Valore corrente: "${currentValue}" = ${currentDays} giorni`);
-    }
-};
-
-window.debugPlotlyContent = function() {
-    const chartDiv = document.getElementById('technicalChart');
-    if (chartDiv && chartDiv.data && chartDiv.layout) {
-        console.log('🔍 DEBUG Contenuto Plotly:');
-        console.log('📊 Traces:', chartDiv.data.map((trace, i) => ({
-            index: i,
-            name: trace.name,
-            type: trace.type,
-            mode: trace.mode,
-            visible: trace.visible
-        })));
-        console.log('🔳 Shapes:', (chartDiv.layout.shapes || []).length);
-        console.log('📝 Annotations:', (chartDiv.layout.annotations || []).length);
-    } else {
-        console.log('❌ Nessun grafico Plotly trovato');
-    }
-};
-
 console.log('✅ Technical Analysis module caricato completamente');
-console.log('🧪 Funzioni debug disponibili: debugCheckboxState(), debugDaysConversion(), debugPlotlyContent()');
+console.log('🧪 Funzioni debug disponibili: debugCheckboxState(), window.toggleAllZones(), window.updateZoneCounts()');
+console.log('🎯 Funzioni leggenda: window.toggleZoneVisibility(), window.toggleAllZones()');

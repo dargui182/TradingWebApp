@@ -1,4 +1,4 @@
-/* Dashboard Custom Styles */
+/* ===== DASHBOARD CUSTOM STYLES ===== */
 
 /* Body adjustments for fixed navbar */
 body {
@@ -203,538 +203,248 @@ body {
     background-color: #f6c23e !important;
 }
 
-/* Responsive adjustments */
-@media (max-width: 767.98px) {
-    .sidebar {
-        position: static;
-        height: auto;
-    }
-    
-    .main-content {
-        margin-left: 0;
-    }
-    
-    .chart-area {
-        height: 300px;
-    }
+/* ===== STILI SPECIFICI PER ZONE SKORUPINSKI ===== */
+
+/* Pannello leggenda zone principale */
+.zone-legend-panel {
+    position: fixed;
+    top: 120px;
+    right: 20px;
+    background: rgba(255, 255, 255, 0.98);
+    backdrop-filter: blur(12px);
+    border: 1px solid rgba(0, 123, 255, 0.2);
+    border-radius: 12px;
+    padding: 16px;
+    box-shadow: 
+        0 8px 32px rgba(0, 0, 0, 0.12),
+        0 2px 8px rgba(0, 123, 255, 0.1);
+    max-height: 450px;
+    overflow-y: auto;
+    z-index: 1050;
+    min-width: 220px;
+    max-width: 300px;
+    font-size: 0.9em;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    transform: translateY(0);
 }
 
-/* Loading spinner */
-.spinner-border-sm {
-    width: 1rem;
-    height: 1rem;
+.zone-legend-panel:hover {
+    box-shadow: 
+        0 12px 48px rgba(0, 0, 0, 0.15),
+        0 4px 16px rgba(0, 123, 255, 0.15);
+    transform: translateY(-2px);
 }
 
-/* Alert customization */
-.alert {
-    border: none;
-    border-radius: 0.35rem;
+/* Header della leggenda */
+.zone-legend-panel .legend-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 12px;
+    padding-bottom: 10px;
+    border-bottom: 2px solid rgba(0, 123, 255, 0.1);
 }
 
-/* Table responsive */
-.table-responsive {
-    border-radius: 0.35rem;
+.zone-legend-panel .legend-header h6 {
+    margin: 0;
+    color: #495057;
+    font-weight: 600;
+    font-size: 1em;
 }
 
-/* Footer */
-.footer {
-    background-color: #f8f9fa;
-    padding: 1rem 0;
-    margin-top: 2rem;
-    border-top: 1px solid #e3e6f0;
-}
-
-/* Animation classes */
-.fade-in {
-    animation: fadeIn 0.5s ease-in;
-}
-
-@keyframes fadeIn {
-    from { opacity: 0; transform: translateY(20px); }
-    to { opacity: 1; transform: translateY(0); }
-}
-
-.slide-in-left {
-    animation: slideInLeft 0.5s ease-out;
-}
-
-@keyframes slideInLeft {
-    from { transform: translateX(-100%); }
-    to { transform: translateX(0); }
-}
-
-/* Print styles */
-@media print {
-    .sidebar,
-    .navbar,
-    .btn,
-    .dropdown {
-        display: none !important;
-    }
-    
-    .main-content {
-        margin-left: 0 !important;
-    }
-}
-
-/* Stili CSS aggiuntivi per la tabella ticker */
-/* Aggiungi questo contenuto al file dashboard.css esistente */
-
-/* Table Enhancement Styles */
-.sortable {
-    cursor: pointer;
-    user-select: none;
-    position: relative;
-    transition: background-color 0.2s ease;
-}
-
-.sortable:hover {
-    background-color: #f8f9fa;
-}
-
-.sort-icon {
-    font-size: 0.8rem;
-    opacity: 0.5;
+.zone-legend-panel .legend-header button {
+    font-size: 0.75rem;
+    padding: 4px 8px;
+    border-radius: 6px;
     transition: all 0.2s ease;
 }
 
-.sortable:hover .sort-icon {
-    opacity: 1;
+.zone-legend-panel .legend-header button:hover {
+    transform: scale(1.05);
 }
 
-.sortable.asc .sort-icon::before {
-    content: "\f143"; /* bi-chevron-up */
-    opacity: 1;
-    color: #007bff;
+/* Sezioni zone */
+.zone-legend-panel .legend-section {
+    margin-bottom: 16px;
 }
 
-.sortable.desc .sort-icon::before {
-    content: "\f140"; /* bi-chevron-down */
-    opacity: 1;
-    color: #007bff;
-}
-
-.table-hover tbody tr:hover {
-    background-color: rgba(0, 123, 255, 0.05);
-}
-
-.highlighted {
-    background-color: yellow;
-    font-weight: bold;
-}
-
-.ticker-symbol {
-    color: #007bff;
-    font-family: monospace;
-    font-weight: 600;
-}
-
-.company-name {
-    font-weight: 500;
-}
-
-.sector-info {
-    font-size: 0.8rem;
-}
-
-.industry-info {
-    font-size: 0.75rem;
-}
-
-.record-count {
-    font-family: monospace;
-    font-size: 0.9rem;
-}
-
-.status-badge {
-    font-size: 0.8rem;
-}
-
-.pagination-sm .page-link {
-    font-size: 0.875rem;
-}
-
-#tickerSearchInput:focus {
-    border-color: #007bff;
-    box-shadow: 0 0 0 0.2rem rgba(0, 123, 255, 0.25);
-}
-
-/* Animazioni */
-.fade-in {
-    animation: fadeIn 0.3s ease-in;
-}
-
-@keyframes fadeIn {
-    from { 
-        opacity: 0; 
-        transform: translateY(10px); 
-    }
-    to { 
-        opacity: 1; 
-        transform: translateY(0); 
-    }
-}
-
-.fade-in-down {
-    animation: fadeInDown 0.3s ease-out;
-}
-
-@keyframes fadeInDown {
-    from {
-        opacity: 0;
-        transform: translateY(-10px);
-    }
-    to {
-        opacity: 1;
-        transform: translateY(0);
-    }
-}
-
-/* Modal styles */
-.modal-content {
-    border: none;
-    border-radius: 0.5rem;
-    box-shadow: 0 0.5rem 2rem rgba(0, 0, 0, 0.15);
-}
-
-.modal-header {
-    border-bottom: 1px solid #e9ecef;
-    border-radius: 0.5rem 0.5rem 0 0;
-}
-
-.modal-footer {
-    border-top: 1px solid #e9ecef;
-    border-radius: 0 0 0.5rem 0.5rem;
-}
-
-/* Progress bar styling */
-.progress {
-    height: 1rem;
-    border-radius: 0.5rem;
-    background-color: #e9ecef;
-}
-
-.progress-bar {
-    border-radius: 0.5rem;
-    transition: width 0.3s ease;
-}
-
-/* Log styling */
-.activity-log {
-    max-height: 300px;
-    overflow-y: auto;
-    border: 1px solid #e9ecef;
-    border-radius: 0.5rem;
-    padding: 1rem;
-    background-color: #f8f9fa;
-}
-
-.log-entry {
-    animation: fadeInDown 0.3s ease-out;
-    border-left: 4px solid;
-    padding: 0.5rem 1rem;
-    margin-bottom: 0.5rem;
-    background-color: #ffffff;
-    border-radius: 0.25rem;
-    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
-}
-
-.log-entry:last-child {
+.zone-legend-panel .legend-section:last-child {
     margin-bottom: 0;
 }
 
-/* Notification styling */
-.toast-notification {
-    animation: slideInRight 0.3s ease-out;
-    border: none;
-    border-radius: 0.5rem;
-    box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.15);
+.zone-legend-panel .legend-section h6 {
+    margin-bottom: 10px;
+    font-size: 0.9em;
+    font-weight: 600;
+    display: flex;
+    align-items: center;
+    gap: 6px;
 }
 
-@keyframes slideInRight {
-    from {
-        transform: translateX(100%);
-        opacity: 0;
-    }
-    to {
-        transform: translateX(0);
-        opacity: 1;
-    }
+/* Elementi individuali zone */
+.zone-legend-panel .legend-item {
+    margin-bottom: 8px;
+    padding: 6px 8px;
+    border-radius: 8px;
+    transition: all 0.2s ease;
+    position: relative;
 }
 
-/* Button loading states */
-.btn[disabled] {
-    cursor: not-allowed;
-    opacity: 0.65;
+.zone-legend-panel .legend-item:hover {
+    background-color: rgba(0, 123, 255, 0.05);
+    transform: translateX(2px);
 }
 
-/* File input styling */
-.form-control[type="file"] {
-    border: 2px dashed #dee2e6;
-    border-radius: 0.5rem;
-    padding: 1rem;
+.zone-legend-panel .legend-item label {
+    cursor: pointer;
+    margin-bottom: 0;
+    width: 100%;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+/* Prezzi delle zone */
+.zone-legend-panel .zone-price {
+    font-family: 'Consolas', 'Monaco', 'Courier New', monospace;
+    font-weight: 600;
+    font-size: 0.9em;
+    color: #495057;
     transition: all 0.2s ease;
 }
 
-.form-control[type="file"]:hover {
-    border-color: #007bff;
-    background-color: #f8f9fa;
+.zone-legend-panel .legend-item:hover .zone-price {
+    color: #007bff;
+    transform: scale(1.02);
 }
 
-.form-control[type="file"]:focus {
+/* Checkbox delle zone */
+.zone-legend-panel .form-check-input {
+    margin-top: 0;
+    transform: scale(1.1);
+    border-width: 2px;
+    transition: all 0.2s ease;
+}
+
+.zone-legend-panel .form-check-input:checked {
+    background-color: #007bff;
     border-color: #007bff;
     box-shadow: 0 0 0 0.2rem rgba(0, 123, 255, 0.25);
 }
 
-/* Quick add section */
-#quickAddCard {
-    border: none;
-    border-radius: 0.5rem;
-    box-shadow: 0 0.15rem 1.75rem 0 rgba(58, 59, 69, 0.15);
-    transition: transform 0.2s ease, box-shadow 0.2s ease;
+.zone-legend-panel .form-check-input:hover {
+    transform: scale(1.15);
 }
 
-#quickAddCard:hover {
+/* Pannello informazioni zone nel grafico */
+.zone-info-card {
+    border: 2px solid rgba(0, 123, 255, 0.2);
+    transition: all 0.3s ease;
+}
+
+.zone-info-card:hover {
+    border-color: rgba(0, 123, 255, 0.4);
+    transform: translateY(-3px);
+    box-shadow: 0 8px 25px rgba(0, 123, 255, 0.15);
+}
+
+.zone-info-card .card-header {
+    background: linear-gradient(135deg, #007bff 0%, #0056b3 100%);
+    border-bottom: none;
+    border-radius: 0.5rem 0.5rem 0 0 !important;
+}
+
+/* Contatori zone */
+.zone-counter {
+    position: relative;
+    transition: all 0.3s ease;
+}
+
+.zone-counter:hover {
     transform: translateY(-2px);
-    box-shadow: 0 0.25rem 2rem 0 rgba(58, 59, 69, 0.2);
 }
 
-/* Table responsive improvements */
-.table-responsive {
-    border-radius: 0.5rem;
-    box-shadow: 0 0.15rem 1.75rem 0 rgba(58, 59, 69, 0.15);
+.zone-counter .badge {
+    font-size: 1.1rem;
+    padding: 8px 12px;
+    border-radius: 10px;
+    font-weight: 700;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    transition: all 0.3s ease;
 }
 
-.table thead th {
-    border-bottom: 2px solid #dee2e6;
-    font-weight: 600;
-    color: #495057;
-    text-transform: uppercase;
-    font-size: 0.8rem;
-    letter-spacing: 0.5px;
+.zone-counter .badge:hover {
+    transform: scale(1.1);
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.2);
 }
 
-.table tbody td {
-    vertical-align: middle;
-    border-bottom: 1px solid #e9ecef;
+/* Animazione aggiornamento contatori */
+.animate-update {
+    animation: pulseUpdate 0.6s ease-in-out;
 }
 
-/* No results message */
-#noResultsMessage {
-    animation: fadeIn 0.5s ease-in;
+@keyframes pulseUpdate {
+    0% { transform: scale(1); }
+    50% { transform: scale(1.2); background-color: #ffc107; }
+    100% { transform: scale(1); }
 }
 
-/* CSV preview table */
-#csvPreview .table {
-    font-size: 0.85rem;
+/* Badge dimensioni speciali */
+.badge-lg {
+    font-size: 1rem;
+    padding: 0.5rem 0.75rem;
 }
 
-#csvPreview .table th {
-    background-color: #f8f9fa;
-    font-weight: 600;
-    border-bottom: 2px solid #dee2e6;
-}
-
-/* Historical data table */
-#historicalDataContainer .table {
-    font-size: 0.9rem;
-}
-
-#historicalDataContainer .table thead th {
-    position: sticky;
-    top: 0;
-    background-color: #f8f9fa;
-    z-index: 10;
-}
-
-/* Responsive adjustments */
-@media (max-width: 768px) {
-    .btn-group-sm .btn {
-        font-size: 0.7rem;
-        padding: 0.25rem 0.5rem;
+/* ===== RESPONSIVE DESIGN PER ZONE ===== */
+@media (max-width: 1400px) {
+    .zone-legend-panel {
+        right: 10px;
+        min-width: 200px;
+        max-width: 250px;
     }
-    
-    .table-responsive {
-        font-size: 0.85rem;
-    }
-    
-    .modal-dialog {
-        margin: 0.5rem;
-    }
-    
-    #quickAddCard .btn {
-        width: 100%;
-        margin-top: 0.5rem;
-    }
-    
-    .toast-notification {
+}
+
+@media (max-width: 1200px) {
+    .zone-legend-panel {
+        position: fixed;
+        top: auto;
+        bottom: 20px;
         right: 10px;
         left: 10px;
+        max-height: 200px;
+        max-width: none;
         min-width: auto;
     }
-}
-
-/* Accessibility improvements */
-.btn:focus,
-.form-control:focus,
-.form-select:focus {
-    outline: 2px solid #007bff;
-    outline-offset: 2px;
-}
-
-/* Print styles */
-@media print {
-    .btn,
-    .modal,
-    .toast-notification,
-    #quickAddCard,
-    .pagination,
-    #downloadLog {
-        display: none !important;
+    
+    .zone-legend-panel .legend-section {
+        margin-bottom: 10px;
     }
     
-    .table {
-        font-size: 0.8rem;
-    }
-    
-    .card {
-        border: 1px solid #000;
-        box-shadow: none;
+    .zone-legend-panel .legend-item {
+        margin-bottom: 4px;
+        padding: 4px 6px;
     }
 }
 
-/* Dark mode support (optional) */
-@media (prefers-color-scheme: dark) {
-    .table {
-        color: #fff;
-    }
-    
-    .table thead th {
-        border-color: #495057;
-        color: #adb5bd;
-    }
-    
-    .table tbody td {
-        border-color: #495057;
-    }
-    
-    .card {
-        background-color: #343a40;
-        color: #fff;
-    }
-    
-    .modal-content {
-        background-color: #343a40;
-        color: #fff;
-    }
-    
-    .form-control {
-        background-color: #495057;
-        border-color: #6c757d;
-        color: #fff;
-    }
-    
-    .form-control:focus {
-        background-color: #495057;
-        border-color: #007bff;
-        color: #fff;
-    }
-}
-
-/* Stili per le tabelle technical analysis */
-.table-hover tbody tr:hover {
-    background-color: rgba(0, 123, 255, 0.05);
-}
-
-/* Badge personalizzati per pattern */
-.badge.bg-danger { background-color: #dc3545 !important; }
-.badge.bg-dark { background-color: #212529 !important; }
-.badge.bg-success { background-color: #198754 !important; }
-.badge.bg-primary { background-color: #0d6efd !important; }
-
-/* Progress bar per strength score */
-.progress {
-    background-color: #e9ecef;
-}
-
-.progress-bar.bg-success { background-color: #198754 !important; }
-.progress-bar.bg-warning { background-color: #ffc107 !important; }
-.progress-bar.bg-danger { background-color: #dc3545 !important; }
-
-/* Zone vergini evidenziate */
-.table tbody tr.fw-bold {
-    font-weight: 600 !important;
-    border-left: 3px solid #0d6efd;
-}
-
-/* Responsive miglioramenti */
 @media (max-width: 768px) {
-    .table-responsive {
-        font-size: 0.875rem;
+    .zone-legend-panel {
+        font-size: 0.8em;
+        padding: 12px;
+        bottom: 10px;
+        max-height: 160px;
     }
     
-    .btn-group-sm .btn {
-        padding: 0.25rem 0.5rem;
-        font-size: 0.75rem;
+    .zone-legend-panel .zone-price {
+        font-size: 0.8em;
+    }
+    
+    .zone-counter .badge {
+        font-size: 0.9rem;
+        padding: 6px 10px;
     }
 }
 
-/* Indicatori di stato */
-.text-success { color: #198754 !important; }
-.text-danger { color: #dc3545 !important; }
-.text-warning { color: #f57c00 !important; }
-.text-info { color: #0dcaf0 !important; }
-
-/* Miglioramenti tooltip */
-[data-bs-toggle="tooltip"] {
-    cursor: help;
-}
-
-/* Loading spinner per le tabelle */
-.table-loading {
-    position: relative;
-}
-
-.table-loading::after {
-    content: "";
-    position: absolute;
-    top: 50%;
-    left: 50%;
-    width: 2rem;
-    height: 2rem;
-    margin-top: -1rem;
-    margin-left: -1rem;
-    border: 2px solid #f3f3f3;
-    border-top: 2px solid #0d6efd;
-    border-radius: 50%;
-    animation: spin 1s linear infinite;
-}
-
-@keyframes spin {
-    0% { transform: rotate(0deg); }
-    100% { transform: rotate(360deg); }
-}
-
-/* Evidenziazione righe importanti */
-.table tbody tr.table-success {
-    background-color: rgba(25, 135, 84, 0.1) !important;
-}
-
-.table tbody tr.table-danger {
-    background-color: rgba(220, 53, 69, 0.1) !important;
-}
-
-.table tbody tr.table-warning {
-    background-color: rgba(255, 193, 7, 0.1) !important;
-}
-
-.table tbody tr.table-info {
-    background-color: rgba(13, 202, 240, 0.1) !important;
-}
-
-/* Aggiungi questo CSS a static/css/dashboard.css */
-
-/* === STILI PER TABELLE POTENZIATE === */
+/* ===== STILI TABELLE ENHANCED ===== */
 
 /* Colonne ordinabili */
 .sortable {
@@ -809,7 +519,7 @@ body {
     color: #6c757d;
 }
 
-/* Indicatori di caricamento per tabelle */
+/* Loading spinner per le tabelle */
 .table-loading {
     position: relative;
     opacity: 0.6;
@@ -831,6 +541,12 @@ body {
     animation: spin 1s linear infinite;
     z-index: 10;
 }
+
+/* Badge personalizzati per pattern */
+.badge.bg-danger { background-color: #dc3545 !important; }
+.badge.bg-dark { background-color: #212529 !important; }
+.badge.bg-success { background-color: #198754 !important; }
+.badge.bg-primary { background-color: #0d6efd !important; }
 
 /* Evidenziazione righe filtrate */
 .table tbody tr.filtered-match {
@@ -860,55 +576,7 @@ body {
     }
 }
 
-/* Animazioni per transizioni */
-.table tbody tr {
-    transition: background-color 0.2s ease;
-}
-
-.fade-in {
-    animation: fadeIn 0.3s ease-in;
-}
-
-@keyframes fadeIn {
-    from { opacity: 0; transform: translateY(-10px); }
-    to { opacity: 1; transform: translateY(0); }
-}
-
-@keyframes spin {
-    0% { transform: rotate(0deg); }
-    100% { transform: rotate(360deg); }
-}
-
-/* Badge migliorati */
-.badge {
-    font-size: 0.75rem;
-    padding: 0.35em 0.65em;
-}
-
-/* Input range personalizzato per forza */
-.form-range::-webkit-slider-thumb {
-    background-color: #0d6efd;
-}
-
-.form-range::-moz-range-thumb {
-    background-color: #0d6efd;
-    border: none;
-}
-
-/* Stili per stati vuoti */
-.empty-state {
-    padding: 3rem 1rem;
-    text-align: center;
-    color: #6c757d;
-}
-
-.empty-state i {
-    font-size: 3rem;
-    margin-bottom: 1rem;
-    opacity: 0.5;
-}
-
-/* === TOOLTIP PERSONALIZZATI === */
+/* ===== TOOLTIP PERSONALIZZATI ===== */
 .tooltip {
     font-size: 0.875rem;
     z-index: 1070;
@@ -950,47 +618,219 @@ body {
     transform: scale(1.1);
 }
 
-/* Tooltip per righe */
-.table tbody tr[data-bs-toggle="tooltip"] {
-    transition: all 0.3s ease;
-    cursor: help;
+/* ===== ANIMAZIONI GENERALI ===== */
+
+/* Animazioni per transizioni */
+.table tbody tr {
+    transition: background-color 0.2s ease;
 }
 
-.table tbody tr[data-bs-toggle="tooltip"]:hover {
-    transform: translateX(3px);
-    box-shadow: 0 0.25rem 0.5rem rgba(0, 0, 0, 0.1);
-    border-left: 3px solid #0d6efd;
+.fade-in {
+    animation: fadeIn 0.3s ease-in;
 }
 
-/* Tooltip per celle specifiche */
-.badge[data-bs-toggle="tooltip"] {
-    transition: all 0.2s ease;
-    cursor: help;
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(-10px); }
+    to { opacity: 1; transform: translateY(0); }
 }
 
-.badge[data-bs-toggle="tooltip"]:hover {
-    transform: scale(1.05);
-    box-shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.2);
+.fade-in-down {
+    animation: fadeInDown 0.3s ease-out;
 }
 
-/* Animazioni tooltip */
-.tooltip.fade {
-    transition: opacity 0.3s ease;
+@keyframes fadeInDown {
+    from {
+        opacity: 0;
+        transform: translateY(-10px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
 }
 
-.tooltip.show {
-    opacity: 0.95;
+@keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
 }
 
-/* Responsive */
-@media (max-width: 768px) {
-    .tooltip-inner {
-        font-size: 0.8rem;
-        max-width: 280px;
-        padding: 0.4rem 0.6rem;
+/* ===== RESPONSIVE GENERALE ===== */
+@media (max-width: 767.98px) {
+    .sidebar {
+        position: static;
+        height: auto;
     }
     
-    .table thead th[data-bs-toggle="tooltip"]::after {
+    .main-content {
+        margin-left: 0;
+    }
+    
+    .chart-area {
+        height: 300px;
+    }
+    
+    .btn-group-sm .btn {
         font-size: 0.7rem;
+        padding: 0.25rem 0.5rem;
+    }
+    
+    .table-responsive {
+        font-size: 0.85rem;
+    }
+    
+    .modal-dialog {
+        margin: 0.5rem;
+    }
+}
+
+/* ===== STILI PER STATI VUOTI ===== */
+.empty-state {
+    padding: 3rem 1rem;
+    text-align: center;
+    color: #6c757d;
+}
+
+.empty-state i {
+    font-size: 3rem;
+    margin-bottom: 1rem;
+    opacity: 0.5;
+}
+
+/* ===== LOG STYLING ===== */
+.activity-log {
+    max-height: 300px;
+    overflow-y: auto;
+    border: 1px solid #e9ecef;
+    border-radius: 0.5rem;
+    padding: 1rem;
+    background-color: #f8f9fa;
+}
+
+.log-entry {
+    animation: fadeInDown 0.3s ease-out;
+    border-left: 4px solid;
+    padding: 0.5rem 1rem;
+    margin-bottom: 0.5rem;
+    background-color: #ffffff;
+    border-radius: 0.25rem;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+}
+
+.log-entry:last-child {
+    margin-bottom: 0;
+}
+
+/* ===== NOTIFICATION STYLING ===== */
+.toast-notification {
+    animation: slideInRight 0.3s ease-out;
+    border: none;
+    border-radius: 0.5rem;
+    box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.15);
+}
+
+@keyframes slideInRight {
+    from {
+        transform: translateX(100%);
+        opacity: 0;
+    }
+    to {
+        transform: translateX(0);
+        opacity: 1;
+    }
+}
+
+/* ===== ACCESSIBILITY IMPROVEMENTS ===== */
+.btn:focus,
+.form-control:focus,
+.form-select:focus {
+    outline: 2px solid #007bff;
+    outline-offset: 2px;
+}
+
+/* Form range personalizzato */
+.form-range::-webkit-slider-thumb {
+    background-color: #0d6efd;
+}
+
+.form-range::-moz-range-thumb {
+    background-color: #0d6efd;
+    border: none;
+}
+
+/* ===== PRINT STYLES ===== */
+@media print {
+    .btn,
+    .modal,
+    .toast-notification,
+    .pagination,
+    .zone-legend-panel,
+    .sidebar,
+    .navbar {
+        display: none !important;
+    }
+    
+    .main-content {
+        margin-left: 0 !important;
+    }
+    
+    .table {
+        font-size: 0.8rem;
+    }
+    
+    .card {
+        border: 1px solid #000;
+        box-shadow: none;
+    }
+}
+
+/* ===== DARK MODE SUPPORT (OPZIONALE) ===== */
+@media (prefers-color-scheme: dark) {
+    .zone-legend-panel {
+        background: rgba(33, 37, 41, 0.98);
+        border-color: rgba(255, 255, 255, 0.2);
+        color: #f8f9fa;
+    }
+    
+    .zone-legend-panel .zone-price {
+        color: #e9ecef;
+    }
+    
+    .zone-legend-panel .legend-header h6 {
+        color: #f8f9fa;
+    }
+    
+    .table {
+        color: #fff;
+    }
+    
+    .table thead th {
+        border-color: #495057;
+        color: #adb5bd;
+    }
+    
+    .table tbody td {
+        border-color: #495057;
+    }
+    
+    .card {
+        background-color: #343a40;
+        color: #fff;
+    }
+    
+    .modal-content {
+        background-color: #343a40;
+        color: #fff;
+    }
+    
+    .form-control {
+        background-color: #495057;
+        border-color: #6c757d;
+        color: #fff;
+    }
+    
+    .form-control:focus {
+        background-color: #495057;
+        border-color: #007bff;
+        color: #fff;
     }
 }
