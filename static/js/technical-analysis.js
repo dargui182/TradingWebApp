@@ -389,80 +389,7 @@ class TechnicalAnalysisManager {
         console.log('📊 Valori summary impostati su fallback (endpoint mancanti)');
     }
 
-    async loadChart(ticker) {
-        try {
-            this.showChartLoading(true);
-            
-            const days = document.getElementById('chartDaysSelect')?.value || 100;
-            const showSR = document.getElementById('showSRLevels')?.checked || false;
-            const showZones = document.getElementById('showZones')?.checked || false;
 
-            console.log(`📊 Caricamento grafico per ${ticker} (${days} giorni)...`);
-
-            // Ottieni dati dal backend
-            const response = await fetch(`/api/technical-analysis/chart/${ticker}?days=${days}&include_analysis=true`);
-            
-            if (!response.ok) {
-                throw new Error(`HTTP ${response.status}: ${response.statusText}`);
-            }
-            
-            // Leggi la risposta come testo prima per debug
-            const responseText = await response.text();
-            console.log('📊 Risposta raw (primi 200 char):', responseText.substring(0, 200));
-            
-            // Prova a riparare i NaN prima del parsing
-            const cleanedResponseText = responseText.replace(/:\s*NaN/g, ': null').replace(/NaN/g, 'null');
-            
-            let data;
-            try {
-                data = JSON.parse(cleanedResponseText);
-            } catch (parseError) {
-                console.error('❌ Errore parsing JSON anche dopo cleanup:', parseError);
-                console.error('🔍 Testo problematico:', responseText.substring(0, 500));
-                throw new Error(`Errore parsing dati: ${parseError.message}`);
-            }
-            
-            if (data.error) {
-                throw new Error(data.error);
-            }
-
-            // Verifica che i dati siano validi
-            if (!data.price_data || !Array.isArray(data.price_data) || data.price_data.length === 0) {
-                throw new Error('Dati prezzo non validi o mancanti');
-            }
-
-            console.log('📊 Dati caricati:', {
-                ticker: data.ticker,
-                price_records: data.price_data.length,
-                sr_levels: data.support_resistance?.length || 0,
-                zones: data.skorupinski_zones?.length || 0
-            });
-
-            // Pulisci eventuali NaN nei dati
-            data.price_data = this.cleanPriceData(data.price_data);
-            
-            if (data.support_resistance) {
-                data.support_resistance = this.cleanSRData(data.support_resistance);
-            }
-
-            // Aggiorna info grafico
-            this.updateChartInfo(data);
-
-            // Crea il grafico
-            this.renderChart(ticker, data, showSR, showZones);
-            
-            this.showLog(`✅ Grafico ${ticker} caricato`, 'success');
-
-        } catch (error) {
-            console.error('❌ Errore caricamento grafico:', error);
-            this.showLog(`❌ Errore grafico: ${error.message}`, 'error');
-            
-            // Mostra errore nel canvas
-            this.showChartError(ticker, error.message);
-        } finally {
-            this.showChartLoading(false);
-        }
-    }
 
     // Nuovo metodo per pulire i dati prezzo
     cleanPriceData(priceData) {
@@ -559,19 +486,7 @@ class TechnicalAnalysisManager {
         }, 200);
     }
 
-    destroyExistingChart() {
-        try {
-            if (this.chart && typeof this.chart.destroy === 'function') {
-                console.log('🗑️ Distruzione grafico esistente...');
-                this.chart.destroy();
-                this.chart = null;
-                console.log('✅ Grafico distrutto');
-            }
-        } catch (error) {
-            console.warn('⚠️ Errore durante distruzione:', error);
-            this.chart = null;
-        }
-    }
+
 
     createChart(ticker, data, showSR, showZones) {
         const ctx = document.getElementById('technicalChart');
@@ -872,7 +787,8 @@ class TechnicalAnalysisManager {
         }
     }
 
-    updateChartInfo(data) {
+    
+  /*   updateChartInfo(data) {
         const priceInfo = document.getElementById('priceInfo');
         const srInfo = document.getElementById('srInfo');
         const zonesInfo = document.getElementById('zonesInfo');
@@ -908,7 +824,8 @@ class TechnicalAnalysisManager {
                 <div>🎯 Totale: ${zonesData.length}</div>
             `;
         }
-    }
+    } */
+    
 
     async loadZonesTable() {
         try {
@@ -1302,6 +1219,142 @@ class TechnicalAnalysisManager {
             logDiv.removeChild(logDiv.firstChild);
         }
     }
+
+    // Sostituzione del metodo loadChart per usare Plotly invece di Chart.js
+async loadChart(ticker) {
+    this.showChartLoading(true);
+    
+    try {
+        console.log(`📊 Caricamento grafico Plotly per ${ticker}...`);
+        
+        // Chiama l'API Plotly invece di quella Chart.js
+        const response = await fetch(`/api/technical-analysis/chart-plotly/${ticker}?days=100&include_analysis=true`);
+        
+        if (!response.ok) {
+            throw new Error(`Errore API: ${response.status}`);
+        }
+        
+        const data = await response.json();
+        
+        if (data.error) {
+            throw new Error(data.error);
+        }
+        
+        // Usa Plotly invece di Chart.js
+        await this.renderPlotlyChart(data);
+        
+        // Aggiorna info grafico
+        this.updateChartInfo(data.data_info);
+        
+        this.showLog(`✅ Grafico Plotly ${ticker} caricato`, 'success');
+        
+    } catch (error) {
+        console.error('❌ Errore caricamento grafico Plotly:', error);
+        this.showLog(`❌ Errore grafico: ${error.message}`, 'error');
+        this.showPlotlyError(ticker, error.message);
+    } finally {
+        this.showChartLoading(false);
+    }
+}
+
+// Nuovo metodo per renderizzare con Plotly
+async renderPlotlyChart(data) {
+    const chartDiv = document.getElementById('technicalChart');
+    
+    if (!chartDiv) {
+        throw new Error('Elemento technicalChart non trovato');
+    }
+    
+    // Verifica che Plotly sia disponibile
+    if (typeof Plotly === 'undefined') {
+        throw new Error('Plotly.js non disponibile');
+    }
+    
+    try {
+        // Converti il JSON del grafico
+        const figure = JSON.parse(data.chart_json);
+        
+        // Renderizza con Plotly
+        await Plotly.newPlot(chartDiv, figure.data, figure.layout, data.chart_config);
+        
+        console.log('✅ Grafico Plotly renderizzato con successo');
+        
+    } catch (error) {
+        console.error('❌ Errore rendering Plotly:', error);
+        throw error;
+    }
+}
+
+// Metodo per mostrare errori Plotly
+showPlotlyError(ticker, errorMessage) {
+    const chartDiv = document.getElementById('technicalChart');
+    if (!chartDiv) return;
+    
+    // Pulisci il div
+    chartDiv.innerHTML = '';
+    
+    // Crea messaggio di errore
+    const errorDiv = document.createElement('div');
+    errorDiv.className = 'alert alert-danger text-center';
+    errorDiv.innerHTML = `
+        <h5><i class="bi bi-exclamation-triangle"></i> Errore Grafico ${ticker}</h5>
+        <p class="mb-0">${errorMessage}</p>
+        <small class="text-muted">Controlla la console per maggiori dettagli</small>
+    `;
+    
+    chartDiv.appendChild(errorDiv);
+}
+
+// Metodo per distruggere grafico Plotly (invece di Chart.js)
+destroyExistingChart() {
+    const chartDiv = document.getElementById('technicalChart');
+    if (chartDiv && typeof Plotly !== 'undefined') {
+        try {
+            Plotly.purge(chartDiv);
+            console.log('✅ Grafico Plotly distrutto');
+        } catch (error) {
+            console.warn('⚠️ Errore distruzione Plotly:', error);
+        }
+    }
+}
+
+// Aggiorna le info del grafico
+updateChartInfo(dataInfo) {
+    const chartInfoDiv = document.getElementById('chartInfo');
+    if (!chartInfoDiv) return;
+    
+    chartInfoDiv.innerHTML = `
+        <div class="row g-2">
+            <div class="col-md-3">
+                <small class="text-muted">Ticker:</small><br>
+                <strong>${dataInfo.ticker}</strong>
+            </div>
+            <div class="col-md-3">
+                <small class="text-muted">Punti dati:</small><br>
+                <strong>${dataInfo.data_points}</strong>
+            </div>
+            <div class="col-md-3">
+                <small class="text-muted">Livelli S&R:</small><br>
+                <strong>${dataInfo.sr_levels}</strong>
+            </div>
+            <div class="col-md-3">
+                <small class="text-muted">Zone:</small><br>
+                <strong>${dataInfo.demand_zones + dataInfo.supply_zones}</strong>
+                <small>(${dataInfo.demand_zones}D/${dataInfo.supply_zones}S)</small>
+            </div>
+        </div>
+        <div class="row g-2 mt-2">
+            <div class="col-md-6">
+                <small class="text-muted">Primo:</small>
+                <span class="ms-1">${dataInfo.first_date}</span>
+            </div>
+            <div class="col-md-6">
+                <small class="text-muted">Ultimo:</small>
+                <span class="ms-1">${dataInfo.last_date}</span>
+            </div>
+        </div>
+    `;
+}
 }
 
 // ===== INIZIALIZZAZIONE COMPLETA =====
@@ -1400,6 +1453,8 @@ document.addEventListener('DOMContentLoaded', function() {
 
     console.log('✅ Tutti gli event listeners per technical analysis configurati');
 });
+
+
 
 // ===== DEBUG HELPER =====
 // Aggiungi funzione di debug per verificare lo stato
