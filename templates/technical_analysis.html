@@ -332,7 +332,9 @@
                     </div>
                 </div>
                 
-<!-- Zone Skorupinski Tab con controlli potenziati -->
+<!-- SOSTITUISCI le sezioni delle tabelle in technical_analysis.html con queste versioni con tooltip -->
+
+<!-- Zone Skorupinski Tab con tooltip -->
 <div class="tab-pane fade" id="zones" role="tabpanel">
     <div class="d-flex justify-content-between align-items-center mb-3">
         <h5 class="mb-0">🎯 Zone Skorupinski</h5>
@@ -393,37 +395,69 @@
         </div>
     </div>
     
-    <!-- Tabella Zone -->
+    <!-- Tabella Zone con Tooltip -->
     <div class="table-responsive">
         <table class="table table-hover" id="zonesTable">
             <thead class="table-light">
                 <tr>
-                    <th class="sortable" data-column="ticker">
+                    <th class="sortable" data-column="ticker" 
+                        data-bs-toggle="tooltip" 
+                        data-bs-placement="top" 
+                        title="📊 Simbolo del titolo azionario (es. AAPL per Apple Inc.)">
                         Ticker <i class="bi bi-arrow-down-up sort-icon"></i>
                     </th>
-                    <th class="sortable" data-column="date">
+                    <th class="sortable" data-column="date"
+                        data-bs-toggle="tooltip" 
+                        data-bs-placement="top" 
+                        title="📅 Data di formazione della zona Skorupinski">
                         Data <i class="bi bi-arrow-down-up sort-icon"></i>
                     </th>
-                    <th class="sortable" data-column="pattern">
+                    <th class="sortable" data-column="pattern"
+                        data-bs-toggle="tooltip" 
+                        data-bs-placement="top" 
+                        title="🎯 Tipo di pattern: RBD (Rise-Base-Drop), DBD (Drop-Base-Drop), DBR (Drop-Base-Rise), RBR (Rise-Base-Rise)">
                         Pattern <i class="bi bi-arrow-down-up sort-icon"></i>
                     </th>
-                    <th class="sortable" data-column="type">
+                    <th class="sortable" data-column="type"
+                        data-bs-toggle="tooltip" 
+                        data-bs-placement="top" 
+                        title="⚡ Tipo di zona: Supply (venditori attivi) o Demand (compratori attivi)">
                         Tipo <i class="bi bi-arrow-down-up sort-icon"></i>
                     </th>
-                    <th>Zona</th>
-                    <th class="sortable" data-column="zone_center">
+                    <th data-bs-toggle="tooltip" 
+                        data-bs-placement="top" 
+                        title="📏 Range di prezzi che compone la zona (Minimo - Massimo)">
+                        Zona
+                    </th>
+                    <th class="sortable" data-column="zone_center"
+                        data-bs-toggle="tooltip" 
+                        data-bs-placement="top" 
+                        title="🎯 Prezzo centrale della zona (punto medio tra minimo e massimo)">
                         Centro <i class="bi bi-arrow-down-up sort-icon"></i>
                     </th>
-                    <th class="sortable" data-column="zone_thickness_pct">
+                    <th class="sortable" data-column="zone_thickness_pct"
+                        data-bs-toggle="tooltip" 
+                        data-bs-placement="top" 
+                        title="📐 Spessore della zona come percentuale del prezzo (zone sottili sono più precise)">
                         Spessore <i class="bi bi-arrow-down-up sort-icon"></i>
                     </th>
-                    <th class="sortable" data-column="strength_score">
+                    <th class="sortable" data-column="strength_score"
+                        data-bs-toggle="tooltip" 
+                        data-bs-placement="top" 
+                        title="💪 Punteggio di forza della zona (0-10): considera volume, velocità impulso e qualità pattern">
                         Forza <i class="bi bi-arrow-down-up sort-icon"></i>
                     </th>
-                    <th class="sortable" data-column="distance_from_current">
+                    <th class="sortable" data-column="distance_from_current"
+                        data-bs-toggle="tooltip" 
+                        data-bs-placement="top" 
+                        title="📍 Distanza percentuale dal prezzo corrente del titolo (+/- %)">
                         Distanza % <i class="bi bi-arrow-down-up sort-icon"></i>
                     </th>
-                    <th>Azioni</th>
+                    <th data-bs-toggle="tooltip" 
+                        data-bs-placement="top" 
+                        title="🔧 Azioni disponibili: visualizza grafico, analizza dettagli">
+                        Azioni
+                    </th>
                 </tr>
             </thead>
             <tbody id="zonesTableBody">
@@ -440,7 +474,7 @@
     </nav>
 </div>
 
-<!-- Support/Resistance Tab con controlli potenziati -->
+<!-- Support/Resistance Tab con tooltip -->
 <div class="tab-pane fade" id="levels" role="tabpanel">
     <div class="d-flex justify-content-between align-items-center mb-3">
         <h5 class="mb-0">📏 Livelli Supporti e Resistenze</h5>
@@ -469,7 +503,10 @@
                 </div>
                 <div class="col-md-3">
                     <input type="range" class="form-range" id="levelsStrengthFilter" 
-                           min="0" max="10" step="0.5" value="0">
+                           min="0" max="10" step="0.5" value="0"
+                           data-bs-toggle="tooltip" 
+                           data-bs-placement="top" 
+                           title="💪 Filtra per forza minima del livello (0 = tutti, 10 = solo i più forti)">
                     <small class="text-muted">Forza min: <span id="strengthValue">0</span></small>
                 </div>
                 <div class="col-md-2">
@@ -497,36 +534,64 @@
         </div>
     </div>
     
-    <!-- Tabella Livelli -->
+    <!-- Tabella Livelli con Tooltip -->
     <div class="table-responsive">
         <table class="table table-hover" id="levelsTable">
             <thead class="table-light">
                 <tr>
-                    <th class="sortable" data-column="ticker">
+                    <th class="sortable" data-column="ticker"
+                        data-bs-toggle="tooltip" 
+                        data-bs-placement="top" 
+                        title="📊 Simbolo del titolo azionario (es. AAPL per Apple Inc.)">
                         Ticker <i class="bi bi-arrow-down-up sort-icon"></i>
                     </th>
-                    <th class="sortable" data-column="date">
+                    <th class="sortable" data-column="date"
+                        data-bs-toggle="tooltip" 
+                        data-bs-placement="top" 
+                        title="📅 Data di formazione del livello di supporto o resistenza">
                         Data <i class="bi bi-arrow-down-up sort-icon"></i>
                     </th>
-                    <th class="sortable" data-column="type">
+                    <th class="sortable" data-column="type"
+                        data-bs-toggle="tooltip" 
+                        data-bs-placement="top" 
+                        title="⚡ Tipo: Support (supporto, livello di rimbalzo) o Resistance (resistenza, livello di respinta)">
                         Tipo <i class="bi bi-arrow-down-up sort-icon"></i>
                     </th>
-                    <th class="sortable" data-column="level">
+                    <th class="sortable" data-column="level"
+                        data-bs-toggle="tooltip" 
+                        data-bs-placement="top" 
+                        title="💰 Prezzo esatto del livello di supporto o resistenza">
                         Livello <i class="bi bi-arrow-down-up sort-icon"></i>
                     </th>
-                    <th class="sortable" data-column="strength">
+                    <th class="sortable" data-column="strength"
+                        data-bs-toggle="tooltip" 
+                        data-bs-placement="top" 
+                        title="💪 Forza del livello (1-10): considera numero tocchi, volume e recency">
                         Forza <i class="bi bi-arrow-down-up sort-icon"></i>
                     </th>
-                    <th class="sortable" data-column="touches">
+                    <th class="sortable" data-column="touches"
+                        data-bs-toggle="tooltip" 
+                        data-bs-placement="top" 
+                        title="👆 Numero di volte che il prezzo ha toccato questo livello (più tocchi = più significativo)">
                         Tocchi <i class="bi bi-arrow-down-up sort-icon"></i>
                     </th>
-                    <th class="sortable" data-column="days_from_end">
+                    <th class="sortable" data-column="days_from_end"
+                        data-bs-toggle="tooltip" 
+                        data-bs-placement="top" 
+                        title="📅 Giorni trascorsi dalla formazione del livello (livelli recenti sono più rilevanti)">
                         Giorni Formazione <i class="bi bi-arrow-down-up sort-icon"></i>
                     </th>
-                    <th class="sortable" data-column="avg_range">
+                    <th class="sortable" data-column="avg_range"
+                        data-bs-toggle="tooltip" 
+                        data-bs-placement="top" 
+                        title="📊 Range medio giornaliero del titolo (High - Low medio) durante l'analisi">
                         Range Medio <i class="bi bi-arrow-down-up sort-icon"></i>
                     </th>
-                    <th>Azioni</th>
+                    <th data-bs-toggle="tooltip" 
+                        data-bs-placement="top" 
+                        title="🔧 Azioni disponibili: visualizza grafico, analizza dettagli">
+                        Azioni
+                    </th>
                 </tr>
             </thead>
             <tbody id="levelsTableBody">
@@ -542,8 +607,6 @@
         </ul>
     </nav>
 </div>
-              
-
             </div>
         </div>
     </div>

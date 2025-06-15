@@ -482,4 +482,147 @@ class EnhancedTableManager {
         };
         return classes[pattern] || 'bg-secondary';
     }
+
+// Metodi helper per tooltip descrittivi
+getDetailedStrengthDescription(strength) {
+    if (!strength && strength !== 0) return 'Forza non calcolata';
+    
+    if (strength >= 9) return `Eccellente (${strength?.toFixed(1)}/10) - Zona molto affidabile con impulso forte`;
+    if (strength >= 8) return `Molto forte (${strength?.toFixed(1)}/10) - Zona affidabile con buon volume`;
+    if (strength >= 6) return `Forte (${strength?.toFixed(1)}/10) - Zona discreta con impulso discreto`;
+    if (strength >= 4) return `Media (${strength?.toFixed(1)}/10) - Zona normale, da confermare`;
+    if (strength >= 2) return `Debole (${strength?.toFixed(1)}/10) - Zona poco affidabile`;
+    return `Molto debole (${strength?.toFixed(1)}/10) - Zona da ignorare`;
+}
+
+getDetailedDistanceDescription(distance) {
+    if (!distance && distance !== 0) return 'Distanza non calcolata';
+    
+    const absDistance = Math.abs(distance);
+    const direction = distance > 0 ? 'sopra' : 'sotto';
+    const directionIcon = distance > 0 ? '⬆️' : '⬇️';
+    
+    if (absDistance < 0.5) return `${directionIcon} Molto vicina (${distance?.toFixed(1)}% ${direction}) - Attenzione immediata`;
+    if (absDistance < 1) return `${directionIcon} Vicinissima (${distance?.toFixed(1)}% ${direction}) - Altamente rilevante`;
+    if (absDistance < 2) return `${directionIcon} Vicina (${distance?.toFixed(1)}% ${direction}) - Molto rilevante`;
+    if (absDistance < 5) return `${directionIcon} A distanza media (${distance?.toFixed(1)}% ${direction}) - Rilevante`;
+    if (absDistance < 10) return `${directionIcon} Distante (${distance?.toFixed(1)}% ${direction}) - Poco rilevante`;
+    return `${directionIcon} Molto distante (${distance?.toFixed(1)}% ${direction}) - Non rilevante`;
+}
+
+getDetailedPatternDescription(pattern) {
+    const descriptions = {
+        'RBD': {
+            name: 'Rise-Base-Drop',
+            description: 'Salita → Consolidamento → Discesa',
+            type: 'Supply Zone (vendita)',
+            strategy: 'Aspetta re-test della zona per vendite',
+            reliability: 'Alta se impulso down è forte'
+        },
+        'DBD': {
+            name: 'Drop-Base-Drop',
+            description: 'Discesa → Consolidamento → Discesa',
+            type: 'Supply Zone (vendita)',
+            strategy: 'Conferma debolezza, vendite aggressive',
+            reliability: 'Media, verifica volume'
+        },
+        'DBR': {
+            name: 'Drop-Base-Rise',
+            description: 'Discesa → Consolidamento → Salita',
+            type: 'Demand Zone (acquisto)',
+            strategy: 'Aspetta re-test della zona per acquisti',
+            reliability: 'Alta se impulso up è forte'
+        },
+        'RBR': {
+            name: 'Rise-Base-Rise',
+            description: 'Salita → Consolidamento → Salita',
+            type: 'Demand Zone (acquisto)',
+            strategy: 'Conferma forza, acquisti aggressivi',
+            reliability: 'Media, verifica volume'
+        }
+    };
+    
+    const info = descriptions[pattern];
+    if (!info) return `Pattern ${pattern} non riconosciuto`;
+    
+    return `${info.name}: ${info.description}
+Tipo: ${info.type}
+Strategia: ${info.strategy}
+Affidabilità: ${info.reliability}`;
+}
+
+getDetailedTouchesDescription(touches) {
+    if (!touches) return 'Nessun test registrato';
+    
+    if (touches >= 6) return `Molto testato (${touches} tocchi) - Livello estremamente affidabile, probabilmente forte reazione`;
+    if (touches >= 4) return `Ben testato (${touches} tocchi) - Livello molto affidabile, aspettati reazione`;
+    if (touches >= 3) return `Testato (${touches} tocchi) - Livello affidabile, buona probabilità di reazione`;
+    if (touches >= 2) return `Poco testato (${touches} tocchi) - Livello da confermare, cautela`;
+    return `Non testato (${touches} tocco) - Livello debole, alta probabilità di rottura`;
+}
+
+getDetailedAgeDescription(days) {
+    if (!days && days !== 0) return 'Età non disponibile';
+    
+    if (days <= 3) return `Freschissimo (${days} giorni) - Massima rilevanza, alta probabilità reazione`;
+    if (days <= 7) return `Molto recente (${days} giorni) - Alta rilevanza, buona probabilità reazione`;
+    if (days <= 21) return `Recente (${days} giorni) - Buona rilevanza, discreta probabilità reazione`;
+    if (days <= 60) return `Medio termine (${days} giorni) - Media rilevanza, verifica con altri fattori`;
+    if (days <= 120) return `Datato (${days} giorni) - Bassa rilevanza, probabilmente superato`;
+    return `Molto vecchio (${days} giorni) - Rilevanza minima, probabilmente irrilevante`;
+}
+
+// Genera tooltip avanzato per zone
+generateZoneTooltip(zone) {
+    const strengthDesc = this.getDetailedStrengthDescription(zone.strength_score);
+    const distanceDesc = this.getDetailedDistanceDescription(zone.distance_from_current);
+    const patternDesc = this.getDetailedPatternDescription(zone.pattern);
+    
+    return `🎯 ${zone.ticker} - ${zone.type} Zone
+📅 Formata: ${this.formatDate(zone.date)}
+${patternDesc}
+
+💪 Forza: ${strengthDesc}
+
+📍 Posizione: ${distanceDesc}
+
+🎯 Centro zona: ${zone.zone_center?.toFixed(4)}
+📏 Range: ${zone.zone_bottom?.toFixed(4)} - ${zone.zone_top?.toFixed(4)}
+📐 Spessore: ${zone.zone_thickness_pct?.toFixed(2)}%
+
+💡 Più spessa è la zona, meno precisa è la reazione`;
+}
+
+// Genera tooltip avanzato per livelli S/R
+generateLevelTooltip(level) {
+    const strengthDesc = this.getDetailedStrengthDescription(level.strength);
+    const touchesDesc = this.getDetailedTouchesDescription(level.touches);
+    const ageDesc = this.getDetailedAgeDescription(level.days_from_end);
+    
+    const typeDesc = level.type === 'Resistance' ? 
+        'Resistenza: Area dove venditori sono attivi (pressione ribassista)' :
+        'Supporto: Area dove compratori sono attivi (pressione rialzista)';
+    
+    return `📏 ${level.ticker} - ${level.type}
+📅 Formata: ${this.formatDate(level.date)}
+${typeDesc}
+
+💰 Livello esatto: ${level.level?.toFixed(4)}
+
+💪 Forza: ${strengthDesc}
+
+👆 Test: ${touchesDesc}
+
+📅 Età: ${ageDesc}
+
+📊 Range medio: ${level.avg_range?.toFixed(4)}
+
+💡 Più tocchi = maggiore probabilità di reazione`;
+}
+
+
+
+
+
+
 }
