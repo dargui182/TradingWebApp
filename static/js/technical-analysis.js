@@ -679,6 +679,10 @@ async createChart(ticker) {
     }
 }
 
+
+// ===== FIX per loadChart e renderPlotlyChart =====
+// Sostituisci questi metodi nel tuo TechnicalAnalysisManager
+
 // Sostituzione del metodo loadChart per leggere stato checkbox
 async loadChart(ticker) {
     this.showChartLoading(true);
@@ -773,17 +777,39 @@ filterChartDataByCheckboxes(data, showSR, showZones) {
             return true;
         });
         
-        // Filtra le shapes (zone Skorupinski) nel layout
+        // Filtra le shapes (zone Skorupinski E supporti/resistenze) nel layout
         let filteredShapes = [];
         if (figure.layout.shapes) {
             filteredShapes = figure.layout.shapes.filter(shape => {
-                // Le zone Skorupinski sono shapes rettangolari con colori specifici
+                // Zone Skorupinski: shapes rettangolari con colori specifici
                 if (shape.type === 'rect' && 
                     (shape.fillcolor?.includes('rgba(40, 167, 69') || // Zone verdi (demand)
                      shape.fillcolor?.includes('rgba(220, 53, 69'))) { // Zone rosse (supply)
-                    console.log(`${showZones ? '✅ Mantieni' : '❌ Rimuovi'} zona Skorupinski`);
+                    console.log(`${showZones ? '✅ Mantieni' : '❌ Rimuovi'} zona Skorupinski shape`);
                     return showZones;
                 }
+                
+                // Supporti/Resistenze: linee orizzontali
+                if (shape.type === 'line') {
+                    // Linea orizzontale se y0 === y1 (stessa altezza)
+                    const isHorizontalLine = shape.y0 === shape.y1;
+                    
+                    // Controlla se ha colori tipici di S&R (rosso, verde, blu)
+                    const srColors = ['red', 'green', 'blue', '#dc3545', '#28a745', '#007bff'];
+                    const hasSRColor = shape.line?.color && 
+                        srColors.some(color => shape.line.color.includes(color));
+                    
+                    // Controlla se ha dash tipico di S&R
+                    const isDashed = shape.line?.dash === 'dash' || 
+                        shape.line?.dash === 'dashdot' ||
+                        (Array.isArray(shape.line?.dash) && shape.line.dash.length > 0);
+                    
+                    if (isHorizontalLine && (hasSRColor || isDashed)) {
+                        console.log(`${showSR ? '✅ Mantieni' : '❌ Rimuovi'} S&R shape line (${shape.y0})`);
+                        return showSR;
+                    }
+                }
+                
                 // Mantieni altre shapes
                 return true;
             });
@@ -900,8 +926,6 @@ async loadChartWithAPIFiltering(ticker) {
         this.showChartLoading(false);
     }
 }
-
-
 
 
 
@@ -1667,6 +1691,11 @@ document.addEventListener('DOMContentLoaded', function() {
             });
         }
 
+console.log('✅ Fix checkbox Plotly installato - usa debugCheckboxState() per test');
+
+// Aggiorna anche gli event listeners delle checkbox per logging migliore
+// Sostituisci la sezione degli event listeners nel DOMContentLoaded:
+
 // Event listener per checkbox Supporti/Resistenze - VERSIONE MIGLIORATA
 const showSRCheckbox = document.getElementById('showSRLevels');
 if (showSRCheckbox) {
@@ -1725,14 +1754,48 @@ window.debugPlotlyContent = function() {
     const chartDiv = document.getElementById('technicalChart');
     if (chartDiv && chartDiv.data && chartDiv.layout) {
         console.log('🔍 DEBUG Contenuto Plotly:');
-        console.log('📊 Traces:', chartDiv.data.map(trace => ({
+        console.log('📊 Traces:', chartDiv.data.map((trace, i) => ({
+            index: i,
             name: trace.name,
             type: trace.type,
-            visible: trace.visible
+            mode: trace.mode,
+            visible: trace.visible,
+            line: trace.line ? {
+                color: trace.line.color,
+                dash: trace.line.dash,
+                width: trace.line.width
+            } : null,
+            isHorizontal: trace.y && Array.isArray(trace.y) ? 
+                trace.y.length > 1 && trace.y.every(val => val === trace.y[0]) : false
         })));
-        console.log('🔳 Shapes:', chartDiv.layout.shapes?.length || 0);
-        console.log('📝 Annotations:', chartDiv.layout.annotations?.map(ann => ann.text) || []);
+        console.log('🔳 Shapes:', (chartDiv.layout.shapes || []).map((shape, i) => ({
+            index: i,
+            type: shape.type,
+            y0: shape.y0,
+            y1: shape.y1,
+            isHorizontal: shape.y0 === shape.y1,
+            color: shape.line?.color || shape.fillcolor,
+            dash: shape.line?.dash
+        })));
+        console.log('📝 Annotations:', (chartDiv.layout.annotations || []).map((ann, i) => ({
+            index: i,
+            text: ann.text,
+            x: ann.x,
+            y: ann.y
+        })));
         console.log('🏷️ Legend entries:', chartDiv.data.filter(trace => trace.showlegend !== false).length);
+        
+        // Identifica potenziali S&R
+        const potentialSR = chartDiv.data.filter(trace => {
+            const isHorizontal = trace.y && Array.isArray(trace.y) && 
+                trace.y.length > 1 && trace.y.every(val => val === trace.y[0]);
+            const isDashed = trace.line?.dash === 'dash' || trace.line?.dash === 'dashdot';
+            return isHorizontal || isDashed;
+        });
+        
+        if (potentialSR.length > 0) {
+            console.log('🎯 Potenziali S&R trovati:', potentialSR.map(t => t.name));
+        }
     } else {
         console.log('❌ Nessun grafico Plotly trovato');
     }
@@ -1740,12 +1803,6 @@ window.debugPlotlyContent = function() {
 
 console.log('✅ Fix checkbox Plotly installato - usa debugCheckboxState() per test');
 console.log('🔍 Usa debugPlotlyContent() per ispezionare il contenuto del grafico');
-
-
-
-
-
-console.log('✅ Fix checkbox Plotly installato - usa debugCheckboxState() per test');
 
     // Controlla se siamo nella pagina di analisi tecnica
     if (document.getElementById('analysisNavTabs')) {
