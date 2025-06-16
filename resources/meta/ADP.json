@@ -2,24 +2,17 @@
   "ticker": "ADP",
   "info": {
     "symbol": "ADP",
-    "name": "Automatic Data Processing",
-    "sector": "Industrials",
-    "industry": "Human Resource & Employment Services",
+    "name": "Automatic Data Processing, Inc.",
+    "sector": "Technology",
+    "industry": "Software - Application",
     "currency": "USD",
-    "exchange": "N/A",
-    "country": "N/A",
-    "source": "CSV"
+    "exchange": "NMS",
+    "country": "United States"
   },
-  "last_close_date": null,
-  "first_date": null,
-  "total_records": 0,
-  "last_updated": "2025-06-14T17:18:49.012913",
-  "csv_import": {
-    "imported_at": "2025-06-14T17:18:49.012913",
-    "company": "Automatic Data Processing",
-    "sector": "Industrials",
-    "industry": "Human Resource & Employment Services"
-  },
+  "last_close_date": "2025-06-16",
+  "total_records": 11406,
+  "first_date": "1980-03-17",
+  "last_updated": "2025-06-16T21:22:24.159098",
   "files": {
     "adjusted": "resources\\data\\daily\\ADP.csv",
     "not_adjusted": "resources\\data\\daily_notAdjusted\\ADP_notAdjusted.csv"

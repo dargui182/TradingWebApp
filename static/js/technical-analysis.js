@@ -1,7 +1,7 @@
 /**
  * technical-analysis.js
  * JavaScript per la gestione dell'analisi tecnica con supporti/resistenze e zone Skorupinski
- * VERSIONE FINALE CON LEGGENDA INTERATTIVA
+ * VERSIONE FINALE CON LEGGENDA INTERATTIVA E FIX FULLSCREEN
  */
 
 class TechnicalAnalysisManager {
@@ -11,6 +11,10 @@ class TechnicalAnalysisManager {
         // Inizializza gestori tabelle potenziate
         this.zonesTableManager = null;
         this.levelsTableManager = null;
+        
+        // NUOVO: Variabili per gestione fullscreen
+        this.originalChartDimensions = null;
+        this.resizeTimeout = null;
         
         this.init();
     }
@@ -42,6 +46,33 @@ class TechnicalAnalysisManager {
 
         document.getElementById('runSkorupinkiOnlyBtn')?.addEventListener('click', () => {
             this.runAnalysis('skorupinski');
+        });
+
+        // NUOVO: Event listener per bottone fullscreen
+        document.getElementById('fullscreenChartBtn')?.addEventListener('click', () => {
+            this.toggleFullscreen();
+        });
+
+        // NUOVO: Event listener per bottone export
+        document.getElementById('exportChartBtn')?.addEventListener('click', () => {
+            this.exportChart();
+        });
+
+        // MIGLIORATO: Event listener per resize window
+        window.addEventListener('resize', () => {
+            this.handleWindowResize();
+        });
+
+        // NUOVO: Event listener per fullscreen change
+        document.addEventListener('fullscreenchange', () => {
+            this.handleFullscreenChange();
+        });
+
+        // NUOVO: Event listener per ESC key
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'Escape' && document.fullscreenElement) {
+                this.forceExitFullscreen();
+            }
         });
 
         // Data source dropdown
@@ -141,6 +172,855 @@ class TechnicalAnalysisManager {
         } else {
             console.warn('⚠️ Elemento levelsTable non trovato');
         }
+    }
+
+    // ===== FUNZIONI FULLSCREEN MIGLIORATE =====
+
+    /**
+     * Toggle fullscreen per il grafico (VERSIONE MIGLIORATA)
+     */
+    toggleFullscreen() {
+        const chartContainer = document.getElementById('chartContainer');
+        const chartDiv = document.getElementById('technicalChart');
+        
+        if (!chartContainer || !chartDiv) {
+            console.warn('Elementi chart non trovati per fullscreen');
+            return;
+        }
+
+        try {
+            if (!document.fullscreenElement) {
+                // ENTRA IN FULLSCREEN
+                chartContainer.requestFullscreen().then(() => {
+                    console.log('📺 Modalità fullscreen attivata');
+                    
+                    // Aggiungi classe per styling
+                    chartContainer.classList.add('fullscreen-chart');
+                    document.body.classList.add('fullscreen-active');
+                    
+                    // Salva le dimensioni originali per il ripristino
+                    this.originalChartDimensions = {
+                        width: chartDiv.style.width,
+                        height: chartDiv.style.height,
+                        containerHeight: chartContainer.style.height
+                    };
+                    
+                    // Imposta dimensioni fullscreen con delay progressivo
+                    setTimeout(() => {
+                        this.setFullscreenDimensions();
+                    }, 50);
+                    
+                    setTimeout(() => {
+                        this.resizeChartRobust();
+                    }, 150);
+                    
+                    // Aggiorna UI
+                    this.updateFullscreenButton(true);
+                    
+                }).catch(err => {
+                    console.error('❌ Errore attivazione fullscreen:', err);
+                    this.showNotification('Errore attivazione fullscreen', 'error');
+                });
+                
+            } else {
+                // ESCE DA FULLSCREEN
+                document.exitFullscreen().then(() => {
+                    console.log('📱 Modalità fullscreen disattivata');
+                    
+                    // Rimuove classe fullscreen
+                    chartContainer.classList.remove('fullscreen-chart');
+                    document.body.classList.remove('fullscreen-active');
+                    
+                    // Ripristina dimensioni originali
+                    setTimeout(() => {
+                        this.restoreOriginalDimensions();
+                    }, 50);
+                    
+                    // Ridimensiona con delay progressivo e meccanismo di retry
+                    setTimeout(() => {
+                        this.resizeChartRobust();
+                    }, 150);
+                    
+                    setTimeout(() => {
+                        this.resizeChartRobust();
+                    }, 300);
+                    
+                    // Aggiorna UI
+                    this.updateFullscreenButton(false);
+                    
+                }).catch(err => {
+                    console.error('❌ Errore uscita fullscreen:', err);
+                    this.forceExitFullscreen(); // Fallback
+                });
+            }
+            
+        } catch (error) {
+            console.error('❌ Errore toggle fullscreen:', error);
+            this.showNotification('Browser non supporta fullscreen', 'warning');
+        }
+    }
+
+    /**
+     * Imposta dimensioni fullscreen ottimali
+     */
+    setFullscreenDimensions() {
+        const chartDiv = document.getElementById('technicalChart');
+        const chartContainer = document.getElementById('chartContainer');
+        
+        if (!chartDiv || !chartContainer) return;
+        
+        try {
+            // Calcola dimensioni ottimali
+            const screenWidth = window.screen.width;
+            const screenHeight = window.screen.height;
+            
+            // Padding per evitare overflow
+            const padding = 40;
+            const optimalWidth = screenWidth - padding;
+            const optimalHeight = screenHeight - padding;
+            
+            // Applica dimensioni
+            chartContainer.style.width = `${optimalWidth}px`;
+            chartContainer.style.height = `${optimalHeight}px`;
+            
+            chartDiv.style.width = `${optimalWidth - 20}px`;
+            chartDiv.style.height = `${optimalHeight - 60}px`;
+            
+            console.log(`🖥️ Dimensioni fullscreen: ${optimalWidth}x${optimalHeight}`);
+            
+        } catch (error) {
+            console.error('❌ Errore impostazione dimensioni fullscreen:', error);
+        }
+    }
+
+    /**
+     * Ripristina dimensioni originali
+     */
+    restoreOriginalDimensions() {
+        const chartDiv = document.getElementById('technicalChart');
+        const chartContainer = document.getElementById('chartContainer');
+        
+        if (!chartDiv || !chartContainer || !this.originalChartDimensions) return;
+        
+        try {
+            // Ripristina dimensioni del container
+            chartContainer.style.height = this.originalChartDimensions.containerHeight || '700px';
+            chartContainer.style.width = '';
+            
+            // Ripristina dimensioni del grafico
+            chartDiv.style.width = this.originalChartDimensions.width || '100%';
+            chartDiv.style.height = this.originalChartDimensions.height || '600px';
+            
+            // Rimuovi stili fullscreen residui
+            chartContainer.style.position = '';
+            chartContainer.style.top = '';
+            chartContainer.style.left = '';
+            chartContainer.style.zIndex = '';
+            
+            console.log('🔄 Dimensioni originali ripristinate');
+            
+        } catch (error) {
+            console.error('❌ Errore ripristino dimensioni:', error);
+        }
+    }
+
+    /**
+     * Ridimensiona il grafico con meccanismo robusto e fix dimensioni
+     */
+    resizeChartRobust() {
+        const chartDiv = document.getElementById('technicalChart');
+        
+        if (!chartDiv || typeof Plotly === 'undefined') {
+            console.warn('⚠️ Elementi per resize non disponibili');
+            return;
+        }
+        
+        // Se il grafico non ha dati, skip
+        if (!chartDiv.data || !chartDiv.layout) {
+            console.warn('⚠️ Grafico senza dati - skip resize');
+            return;
+        }
+        
+        const attemptResize = (attempt = 1) => {
+            try {
+                console.log(`📏 Tentativo resize #${attempt}...`);
+                
+                // APPLICA FIX DIMENSIONI PRIMA DEL RESIZE
+                this.applyDimensionsFix();
+                
+                // Verifica che il container sia visibile
+                const isVisible = chartDiv.offsetWidth > 0 && chartDiv.offsetHeight > 0;
+                if (!isVisible) {
+                    console.warn(`⚠️ Container non visibile al tentativo ${attempt}`);
+                    if (attempt < 3) {
+                        setTimeout(() => attemptResize(attempt + 1), 200);
+                    }
+                    return;
+                }
+                
+                // Calcola dimensioni ottimali
+                const { width, height } = this.getOptimalChartDimensions();
+                
+                // Aggiorna layout con dimensioni specifiche
+                Plotly.relayout(chartDiv, {
+                    'autosize': true,
+                    'responsive': true,
+                    'width': width,
+                    'height': height
+                }).then(() => {
+                    // Effettua il resize standard
+                    return Plotly.Plots.resize(chartDiv);
+                }).then(() => {
+                    console.log(`✅ Resize completato (tentativo ${attempt})`);
+                    
+                    // Verifica dimensioni finali
+                    const newWidth = chartDiv.offsetWidth;
+                    const newHeight = chartDiv.offsetHeight;
+                    console.log(`📐 Dimensioni finali: ${newWidth}x${newHeight}`);
+                    
+                    // Se le dimensioni sembrano errate, retry
+                    if ((newWidth < 400 || newHeight < 400) && attempt < 3) {
+                        console.warn(`⚠️ Dimensioni sospette - retry ${attempt + 1}`);
+                        setTimeout(() => attemptResize(attempt + 1), 300);
+                    }
+                    
+                }).catch(error => {
+                    console.error(`❌ Errore Plotly resize tentativo ${attempt}:`, error);
+                    
+                    // Fallback: re-render completo se resize fallisce
+                    if (attempt === 1) {
+                        console.log('🔄 Fallback: re-render completo...');
+                        this.fallbackChartRerender();
+                    }
+                });
+                
+            } catch (error) {
+                console.error(`❌ Errore nel tentativo resize ${attempt}:`, error);
+                
+                if (attempt < 3) {
+                    setTimeout(() => attemptResize(attempt + 1), 300);
+                } else {
+                    console.log('🔄 Fallback finale: re-render completo...');
+                    this.fallbackChartRerender();
+                }
+            }
+        };
+        
+        // Avvia il processo di resize
+        attemptResize();
+    }
+
+    /**
+     * Forza il resize del grafico
+     */
+    forceChartResize() {
+        const chartDiv = document.getElementById('technicalChart');
+        
+        if (!chartDiv || typeof Plotly === 'undefined') {
+            return;
+        }
+        
+        try {
+            // Ottieni dimensioni container
+            const container = chartDiv.parentElement;
+            const containerRect = container.getBoundingClientRect();
+            
+            // Calcola dimensioni ottimali
+            const optimalWidth = containerRect.width - 20;
+            const optimalHeight = Math.max(containerRect.height - 20, 600);
+            
+            console.log(`📏 Force resize: ${optimalWidth}x${optimalHeight}`);
+            
+            // Aggiorna layout con nuove dimensioni
+            Plotly.relayout(chartDiv, {
+                'autosize': true,
+                'width': optimalWidth,
+                'height': optimalHeight
+            }).then(() => {
+                // Seconda passata di resize
+                return Plotly.Plots.resize(chartDiv);
+            }).then(() => {
+                console.log('✅ Force resize completato');
+            }).catch(error => {
+                console.error('❌ Errore force resize:', error);
+            });
+            
+        } catch (error) {
+            console.error('❌ Errore forceChartResize:', error);
+        }
+    }
+
+    /**
+     * Setup ResizeObserver per monitorare cambiamenti dimensioni
+     */
+    setupResizeObserver(chartDiv) {
+        if (this.resizeObserver) {
+            this.resizeObserver.disconnect();
+        }
+        
+        this.resizeObserver = new ResizeObserver(entries => {
+            for (let entry of entries) {
+                const { width, height } = entry.contentRect;
+                
+                console.log(`👁️ ResizeObserver: ${width}x${height}`);
+                
+                // Debounce il resize
+                clearTimeout(this.resizeDebounceTimeout);
+                this.resizeDebounceTimeout = setTimeout(() => {
+                    if (typeof Plotly !== 'undefined' && chartDiv.data) {
+                        Plotly.Plots.resize(chartDiv);
+                    }
+                }, 200);
+            }
+        });
+        
+        this.resizeObserver.observe(chartDiv);
+        this.resizeObserver.observe(chartDiv.parentElement);
+    }
+
+    /**
+     * Ottiene dimensioni ottimali per il grafico in base al container
+     */
+    getOptimalChartDimensions() {
+        const container = document.getElementById('chartContainer');
+        if (!container) return { width: 800, height: 600 };
+        
+        const containerRect = container.getBoundingClientRect();
+        const isFullscreen = !!document.fullscreenElement;
+        
+        if (isFullscreen) {
+            return {
+                width: window.screen.width - 40,
+                height: window.screen.height - 80
+            };
+        } else {
+            // Calcola dimensioni ottimali per modalità normale
+            const width = Math.max(containerRect.width - 40, 600);
+            const height = Math.max(containerRect.height - 40, 600);
+            
+            return { width, height };
+        }
+    }
+
+    /**
+     * Applica fix dimensioni dopo il caricamento
+     */
+    applyDimensionsFix() {
+        const chartDiv = document.getElementById('technicalChart');
+        const chartContainer = document.getElementById('chartContainer');
+        
+        if (!chartDiv || !chartContainer) return;
+        
+        try {
+            // RESET STILI che potrebbero interferire
+            chartDiv.style.removeProperty('max-height');
+            chartDiv.style.removeProperty('max-width');
+            
+            // FORZA DIMENSIONI CONTAINER
+            chartContainer.style.height = '700px';
+            chartContainer.style.minHeight = '700px';
+            chartContainer.style.width = '100%';
+            
+            // FORZA DIMENSIONI GRAFICO
+            chartDiv.style.height = '100%';
+            chartDiv.style.minHeight = '660px';
+            chartDiv.style.width = '100%';
+            
+            // APPLICA AI FIGLI PLOTLY
+            const plotlyElements = chartDiv.querySelectorAll('.js-plotly-plot, .plotly, .main-svg');
+            plotlyElements.forEach(element => {
+                element.style.width = '100%';
+                element.style.height = '100%';
+                element.style.minHeight = '660px';
+            });
+            
+            console.log('✅ Fix dimensioni applicato');
+            
+            // TRIGGER RESIZE DOPO UN BREVE DELAY
+            setTimeout(() => {
+                this.forceChartResize();
+            }, 150);
+            
+        } catch (error) {
+            console.error('❌ Errore applicazione fix dimensioni:', error);
+        }
+    }
+
+    /**
+     * Setup strumenti di disegno per Plotly (versione compatibile)
+     */
+    setupDrawingTools(chartDiv) {
+        if (!chartDiv || typeof Plotly === 'undefined') {
+            return;
+        }
+        
+        try {
+            // Configurazione base per supportare il disegno con modalità standard
+            const drawingConfig = {
+                // Permetti editing delle shapes
+                editable: true,
+                
+                // Modalità iniziale
+                dragmode: 'zoom'
+            };
+            
+            // Applica configurazione
+            Plotly.relayout(chartDiv, drawingConfig);
+            
+            // Setup event listeners per strumenti disegno
+            this.setupDrawingEventListeners(chartDiv);
+            
+            console.log('✅ Strumenti di disegno configurati (modalità base)');
+            
+        } catch (error) {
+            console.error('❌ Errore setup strumenti disegno:', error);
+        }
+    }
+    
+    /**
+     * Setup event listeners per strumenti di disegno
+     */
+    setupDrawingEventListeners(chartDiv) {
+        // Event listener per quando viene aggiunta una shape
+        chartDiv.on('plotly_relayout', (eventData) => {
+            if (eventData.shapes) {
+                console.log('📝 Shape aggiunta/modificata:', eventData.shapes.length);
+                this.onShapeAdded(eventData.shapes);
+            }
+        });
+        
+        // Event listener per selezione shapes
+        chartDiv.on('plotly_selected', (eventData) => {
+            if (eventData && eventData.points) {
+                console.log('🎯 Elementi selezionati:', eventData.points.length);
+            }
+        });
+        
+        // Event listener per deselection
+        chartDiv.on('plotly_deselect', () => {
+            console.log('❌ Selezione rimossa');
+        });
+    }
+    
+    /**
+     * Callback quando viene aggiunta una shape
+     */
+    onShapeAdded(shapes) {
+        const lastShape = shapes[shapes.length - 1];
+        if (lastShape) {
+            console.log('📝 Nuova shape aggiunta:', {
+                type: lastShape.type,
+                coordinates: lastShape.type === 'line' ? 
+                    `(${lastShape.x0}, ${lastShape.y0}) → (${lastShape.x1}, ${lastShape.y1})` :
+                    `(${lastShape.x0}, ${lastShape.y0}) - (${lastShape.x1}, ${lastShape.y1})`
+            });
+        }
+    }
+    
+    /**
+     * Imposta modalità disegno (versione compatibile)
+     */
+    setDrawingMode(mode) {
+        const chartDiv = document.getElementById('technicalChart');
+        if (!chartDiv) return;
+        
+        // Usa solo modalità standard supportate da tutte le versioni Plotly
+        const standardModes = {
+            'zoom': 'zoom',
+            'pan': 'pan',
+            'select': 'select',
+            'lasso': 'lasso'
+        };
+        
+        const dragmode = standardModes[mode] || 'zoom';
+        
+        try {
+            Plotly.relayout(chartDiv, { dragmode: dragmode });
+            console.log(`✏️ Modalità impostata: ${mode} (${dragmode})`);
+        } catch (error) {
+            console.error(`❌ Errore impostazione modalità ${mode}:`, error);
+        }
+    }
+    
+    /**
+     * Cancella tutte le shape disegnate (versione sicura)
+     */
+    clearAllShapes() {
+        const chartDiv = document.getElementById('technicalChart');
+        if (!chartDiv) return;
+        
+        try {
+            // Mantieni solo le shapes originali dell'analisi tecnica
+            const originalShapes = chartDiv.layout.shapes?.filter(shape => 
+                shape.name && (
+                    shape.name.includes('zone_') || 
+                    shape.name.includes('supply_') ||
+                    shape.name.includes('demand_') ||
+                    shape.name.includes('support_') || 
+                    shape.name.includes('resistance_')
+                )
+            ) || [];
+            
+            Plotly.relayout(chartDiv, { 
+                shapes: originalShapes,
+                dragmode: 'zoom'
+            });
+            
+            console.log('🧹 Shape disegnate cancellate (mantenute quelle dell\'analisi)');
+        } catch (error) {
+            console.error('❌ Errore cancellazione shapes:', error);
+        }
+    }
+    
+    /**
+     * Esporta shapes disegnate
+     */
+    exportDrawnShapes() {
+        const chartDiv = document.getElementById('technicalChart');
+        if (!chartDiv || !chartDiv.layout.shapes) {
+            console.log('⚠️ Nessuna shape da esportare');
+            return;
+        }
+        
+        try {
+            // Filtra solo le shapes disegnate dall'utente
+            const drawnShapes = chartDiv.layout.shapes.filter(shape => 
+                !shape.name || (!shape.name.includes('zone_') && 
+                               !shape.name.includes('supply_') &&
+                               !shape.name.includes('demand_') &&
+                               !shape.name.includes('support_') && 
+                               !shape.name.includes('resistance_'))
+            );
+            
+            if (drawnShapes.length === 0) {
+                console.log('⚠️ Nessuna shape disegnata dall\'utente');
+                return;
+            }
+            
+            const exportData = {
+                timestamp: new Date().toISOString(),
+                ticker: chartDiv.layout.title?.text || 'unknown',
+                shapes: drawnShapes,
+                count: drawnShapes.length
+            };
+            
+            // Download come JSON
+            const blob = new Blob([JSON.stringify(exportData, null, 2)], { 
+                type: 'application/json' 
+            });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `drawn_shapes_${new Date().toISOString().split('T')[0]}.json`;
+            a.click();
+            URL.revokeObjectURL(url);
+            
+            console.log(`📤 Esportate ${drawnShapes.length} shape disegnate`);
+        } catch (error) {
+            console.error('❌ Errore export shapes:', error);
+        }
+    }
+
+    /**
+     * Funzione debug per controllare dimensioni
+     */
+    debugChartDimensions() {
+        const chartDiv = document.getElementById('technicalChart');
+        const chartContainer = document.getElementById('chartContainer');
+        
+        if (!chartDiv || !chartContainer) {
+            console.log('❌ Elementi non trovati');
+            return;
+        }
+        
+        const chartRect = chartDiv.getBoundingClientRect();
+        const containerRect = chartContainer.getBoundingClientRect();
+        
+        console.log('🔍 DEBUG DIMENSIONI:');
+        console.log('📦 Container:', {
+            width: containerRect.width,
+            height: containerRect.height,
+            style: {
+                width: chartContainer.style.width,
+                height: chartContainer.style.height,
+                minHeight: chartContainer.style.minHeight
+            }
+        });
+        console.log('📊 Chart:', {
+            width: chartRect.width,
+            height: chartRect.height,
+            style: {
+                width: chartDiv.style.width,
+                height: chartDiv.style.height,
+                minHeight: chartDiv.style.minHeight
+            }
+        });
+        
+        // Controlla elementi Plotly
+        const plotlyElement = chartDiv.querySelector('.js-plotly-plot');
+        if (plotlyElement) {
+            const plotlyRect = plotlyElement.getBoundingClientRect();
+            console.log('🎯 Plotly Element:', {
+                width: plotlyRect.width,
+                height: plotlyRect.height
+            });
+        }
+        
+        // Debug toolbar
+        const toolbar = chartDiv.querySelector('.modebar');
+        if (toolbar) {
+            const toolbarRect = toolbar.getBoundingClientRect();
+            console.log('🛠️ Toolbar:', {
+                width: toolbarRect.width,
+                height: toolbarRect.height,
+                buttons: toolbar.querySelectorAll('.modebar-btn').length
+            });
+        }
+    }
+    
+
+    /**
+     * Re-render completo del grafico come fallback
+     */
+    fallbackChartRerender() {
+        try {
+            const chartDiv = document.getElementById('technicalChart');
+            const currentTicker = document.getElementById('chartTickerSelect')?.value;
+            
+            if (!chartDiv || !currentTicker) {
+                console.warn('⚠️ Dati insufficienti per re-render');
+                return;
+            }
+            
+            console.log('🔄 Esecuzione re-render completo...');
+            
+            // Salva i dati attuali se disponibili
+            const currentData = chartDiv.data;
+            const currentLayout = chartDiv.layout;
+            
+            if (currentData && currentLayout) {
+                // Re-render con dati esistenti
+                setTimeout(() => {
+                    Plotly.newPlot(chartDiv, currentData, currentLayout, {
+                        displayModeBar: true,
+                        displaylogo: false,
+                        modeBarButtonsToRemove: ['pan2d', 'lasso2d', 'select2d'],
+                        responsive: true
+                    }).then(() => {
+                        console.log('✅ Re-render fallback completato');
+                    }).catch(error => {
+                        console.error('❌ Errore re-render fallback:', error);
+                        
+                        // Ultimo resort: ricarica tutto
+                        console.log('🔄 Ultimo resort: ricarica completa grafico...');
+                        this.loadChart(currentTicker);
+                    });
+                }, 100);
+            } else {
+                // Ricarica completa
+                console.log('🔄 Ricarica completa necessaria...');
+                this.loadChart(currentTicker);
+            }
+            
+        } catch (error) {
+            console.error('❌ Errore fallback re-render:', error);
+        }
+    }
+
+    /**
+     * Gestisce eventi di cambio fullscreen del browser
+     */
+    handleFullscreenChange() {
+        const isFullscreen = !!document.fullscreenElement;
+        console.log(`🔄 Fullscreen change event: ${isFullscreen ? 'ENTER' : 'EXIT'}`);
+        
+        if (!isFullscreen) {
+            // Assicurati che l'uscita sia gestita correttamente
+            const chartContainer = document.getElementById('chartContainer');
+            if (chartContainer && chartContainer.classList.contains('fullscreen-chart')) {
+                console.log('🔧 Cleanup forzato uscita fullscreen...');
+                
+                chartContainer.classList.remove('fullscreen-chart');
+                document.body.classList.remove('fullscreen-active');
+                this.restoreOriginalDimensions();
+                
+                setTimeout(() => {
+                    this.resizeChartRobust();
+                }, 200);
+                
+                this.updateFullscreenButton(false);
+            }
+        }
+    }
+
+    /**
+     * Forza l'uscita dal fullscreen in caso di errori
+     */
+    forceExitFullscreen() {
+        try {
+            const chartContainer = document.getElementById('chartContainer');
+            
+            if (chartContainer) {
+                chartContainer.classList.remove('fullscreen-chart');
+                document.body.classList.remove('fullscreen-active');
+                this.restoreOriginalDimensions();
+            }
+            
+            this.updateFullscreenButton(false);
+            
+            setTimeout(() => {
+                this.resizeChartRobust();
+            }, 200);
+            
+            console.log('🔧 Uscita fullscreen forzata completata');
+            
+        } catch (error) {
+            console.error('❌ Errore force exit fullscreen:', error);
+        }
+    }
+
+    /**
+     * Gestisce il resize della finestra con debouncing migliorato
+     */
+    handleWindowResize() {
+        // Debounce per evitare troppi resize
+        clearTimeout(this.resizeTimeout);
+        this.resizeTimeout = setTimeout(() => {
+            console.log('🪟 Window resize detected');
+            
+            // Solo se non siamo in fullscreen
+            if (!document.fullscreenElement) {
+                this.resizeChartRobust();
+            }
+        }, 300);
+    }
+
+    /**
+     * Aggiorna l'icona del bottone fullscreen
+     */
+    updateFullscreenButton(isFullscreen) {
+        const btn = document.getElementById('fullscreenChartBtn');
+        if (btn) {
+            const icon = btn.querySelector('i');
+            if (icon) {
+                if (isFullscreen) {
+                    icon.className = 'bi bi-fullscreen-exit';
+                    btn.title = 'Esci da fullscreen';
+                } else {
+                    icon.className = 'bi bi-arrows-fullscreen';
+                    btn.title = 'Fullscreen';
+                }
+            }
+        }
+    }
+
+    /**
+     * Verifica se il browser supporta fullscreen
+     */
+    isFullscreenSupported() {
+        return !!(
+            document.fullscreenEnabled ||
+            document.webkitFullscreenEnabled ||
+            document.mozFullScreenEnabled ||
+            document.msFullscreenEnabled
+        );
+    }
+
+    /**
+     * Ottiene le dimensioni ottimali per il grafico
+     */
+    getOptimalChartDimensions() {
+        const container = document.getElementById('chartContainer');
+        if (!container) return { width: 800, height: 600 };
+        
+        const containerRect = container.getBoundingClientRect();
+        const isFullscreen = !!document.fullscreenElement;
+        
+        if (isFullscreen) {
+            return {
+                width: window.screen.width - 40,
+                height: window.screen.height - 80
+            };
+        } else {
+            return {
+                width: containerRect.width || 800,
+                height: containerRect.height || 600
+            };
+        }
+    }
+
+    /**
+     * Esporta il grafico come immagine
+     */
+    async exportChart() {
+        const chartDiv = document.getElementById('technicalChart');
+        const ticker = document.getElementById('chartTickerSelect')?.value || 'chart';
+        
+        if (!chartDiv || !chartDiv.data) {
+            this.showNotification('Nessun grafico da esportare', 'warning');
+            return;
+        }
+
+        try {
+            console.log('💾 Esportazione grafico...');
+            
+            // Configura opzioni export
+            const exportOptions = {
+                format: 'png',
+                width: 1200,
+                height: 800,
+                filename: `${ticker}_technical_analysis_${new Date().toISOString().split('T')[0]}`
+            };
+
+            // Esporta con Plotly
+            await Plotly.downloadImage(chartDiv, exportOptions);
+            
+            this.showNotification('Grafico esportato con successo', 'success');
+            
+        } catch (error) {
+            console.error('❌ Errore esportazione:', error);
+            this.showNotification('Errore durante l\'esportazione', 'error');
+        }
+    }
+
+    /**
+     * Mostra notifiche all'utente
+     */
+    showNotification(message, type = 'info') {
+        // Cerca il container delle notifiche o crea un toast Bootstrap
+        const toastHtml = `
+            <div class="toast align-items-center text-white bg-${type === 'error' ? 'danger' : type === 'success' ? 'success' : type === 'warning' ? 'warning' : 'primary'} border-0" role="alert">
+                <div class="d-flex">
+                    <div class="toast-body">
+                        ${message}
+                    </div>
+                    <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast"></button>
+                </div>
+            </div>
+        `;
+        
+        // Trova o crea container toast
+        let toastContainer = document.querySelector('.toast-container');
+        if (!toastContainer) {
+            toastContainer = document.createElement('div');
+            toastContainer.className = 'toast-container position-fixed top-0 end-0 p-3';
+            document.body.appendChild(toastContainer);
+        }
+        
+        // Aggiungi toast
+        const toastElement = document.createElement('div');
+        toastElement.innerHTML = toastHtml;
+        const toast = toastElement.firstElementChild;
+        toastContainer.appendChild(toast);
+        
+        // Mostra toast
+        const bsToast = new bootstrap.Toast(toast);
+        bsToast.show();
+        
+        // Rimuovi dopo che si nasconde
+        toast.addEventListener('hidden.bs.toast', () => {
+            toast.remove();
+        });
     }
 
     // Funzione per creare la leggenda interattiva delle zone
@@ -726,6 +1606,9 @@ class TechnicalAnalysisManager {
             // Aggiorna info grafico
             this.updateChartInfo(filteredData.data_info || data.data_info);
             
+            // APPLICA FIX DIMENSIONI
+            this.applyDimensionsFix();
+            
             this.showLog(`✅ Grafico ${ticker} caricato (${selectedDays} giorni, S&R: ${showSR}, Zone: ${showZones})`, 'success');
             
         } catch (error) {
@@ -911,8 +1794,185 @@ class TechnicalAnalysisManager {
         
         try {
             const figure = JSON.parse(data.chart_json);
-            await Plotly.newPlot(chartDiv, figure.data, figure.layout, data.chart_config);
+            
+            // ===== CONFIGURAZIONE LAYOUT MIGLIORATA =====
+            const enhancedLayout = {
+                ...figure.layout,
+                
+                // DIMENSIONI OTTIMALI
+                autosize: true,
+                responsive: true,
+                
+                // MARGINI OTTIMIZZATI per utilizzare più spazio
+                margin: {
+                    l: 60,    // Margine sinistro ridotto
+                    r: 60,    // Margine destro ridotto  
+                    t: 80,    // Margine superiore ridotto
+                    b: 80,    // Margine inferiore ridotto
+                    pad: 5    // Padding interno ridotto
+                },
+                
+                // LAYOUT PRINCIPALE
+                height: null,  // Lascia che autosize gestisca l'altezza
+                width: null,   // Lascia che autosize gestisca la larghezza
+                
+                // MIGLIORAMENTI VISUALI
+                paper_bgcolor: 'white',
+                plot_bgcolor: 'white',
+                
+                // ASSI OTTIMIZZATI
+                xaxis: {
+                    ...figure.layout.xaxis,
+                    fixedrange: false,  // Permetti zoom/pan
+                    showgrid: true,
+                    gridwidth: 1,
+                    gridcolor: 'rgba(0,0,0,0.1)',
+                    zeroline: false,
+                    showline: true,
+                    linewidth: 1,
+                    linecolor: 'rgba(0,0,0,0.3)',
+                    tickfont: { size: 11 },
+                    title: {
+                        ...figure.layout.xaxis?.title,
+                        font: { size: 12 }
+                    }
+                },
+                
+                yaxis: {
+                    ...figure.layout.yaxis,
+                    fixedrange: false,  // Permetti zoom/pan
+                    showgrid: true,
+                    gridwidth: 1,
+                    gridcolor: 'rgba(0,0,0,0.1)',
+                    zeroline: false,
+                    showline: true,
+                    linewidth: 1,
+                    linecolor: 'rgba(0,0,0,0.3)',
+                    tickfont: { size: 11 },
+                    title: {
+                        ...figure.layout.yaxis?.title,
+                        font: { size: 12 }
+                    }
+                },
+                
+                // LEGGENDA OTTIMIZZATA
+                legend: {
+                    ...figure.layout.legend,
+                    orientation: "v",
+                    yanchor: "top",
+                    y: 0.99,
+                    xanchor: "left",
+                    x: 1.02,
+                    bgcolor: 'rgba(255,255,255,0.8)',
+                    bordercolor: 'rgba(0,0,0,0.1)',
+                    borderwidth: 1,
+                    font: { size: 10 }
+                },
+                
+                // TITOLO OTTIMIZZATO
+                title: {
+                    ...figure.layout.title,
+                    font: { size: 16 },
+                    y: 0.95,  // Posizione più in alto per dare più spazio al grafico
+                    yanchor: 'top'
+                }
+            };
+            
+            // ===== CONFIGURAZIONE AVANZATA =====
+            const enhancedConfig = {
+                ...data.chart_config,
+                
+                // RESPONSIVE E DIMENSIONI
+                responsive: true,
+                displayModeBar: true,
+                displaylogo: false,
+                
+                // TOOLBAR CON PULSANTI VALIDI DI PLOTLY
+                modeBarButtons: [
+                    // Gruppo 1: Zoom e Pan
+                    ['zoom2d', 'pan2d'],
+                    // Gruppo 2: Zoom avanzato  
+                    ['zoomIn2d', 'zoomOut2d', 'autoScale2d', 'resetScale2d'],
+                    // Gruppo 3: Selezione
+                    ['select2d', 'lasso2d'],
+                    // Gruppo 4: Hover e utilità
+                    ['toggleSpikelines', 'hoverClosestCartesian', 'hoverCompareCartesian'],
+                    // Gruppo 5: Export
+                    ['toImage']
+                ],
+                
+                // CONTROLLI RIMOSSI (nessuno - vogliamo tutti gli strumenti base)
+                modeBarButtonsToRemove: [
+                    // Rimuovi solo pulsanti che potrebbero dare problemi
+                ],
+                
+                // SCROLL ZOOM
+                scrollZoom: true,
+                
+                // DOUBLE CLICK BEHAVIOR
+                doubleClick: 'reset+autosize',
+                
+                // EDITABLE PER SUPPORTARE DISEGNO (ma senza pulsanti custom)
+                editable: true,
+                
+                // STATICPLOT
+                staticPlot: false,
+                
+                // CONFIGURAZIONE MODEBAR
+                modeBarStyle: {
+                    bgcolor: 'rgba(255,255,255,0.9)',
+                    color: '#444',
+                    activecolor: '#007bff'
+                },
+                
+                // DIMENSIONI PULSANTI TOOLBAR  
+                toImageButtonOptions: {
+                    format: 'png',
+                    filename: `technical_analysis_${new Date().toISOString().split('T')[0]}`,
+                    height: 800,
+                    width: 1200,
+                    scale: 1
+                }
+            };
+            
+            // ===== DIMENSIONI CONTAINER =====
+            const containerRect = chartDiv.getBoundingClientRect();
+            const parentRect = chartDiv.parentElement.getBoundingClientRect();
+            
+            console.log('📐 Dimensioni container:', {
+                chartDiv: `${containerRect.width}x${containerRect.height}`,
+                parent: `${parentRect.width}x${parentRect.height}`
+            });
+            
+            // FORZA DIMENSIONI SE NECESSARIO
+            if (containerRect.height < 500) {
+                console.warn('⚠️ Container troppo piccolo, forzando dimensioni...');
+                chartDiv.style.height = '650px';
+                chartDiv.style.minHeight = '650px';
+            }
+            
+            // ===== RENDERING PLOTLY =====
+            console.log('🎨 Rendering Plotly con configurazione ottimizzata...');
+            
+            await Plotly.newPlot(chartDiv, figure.data, enhancedLayout, enhancedConfig);
+            
+            // ===== CONFIGURAZIONE STRUMENTI DI DISEGNO =====
+            this.setupDrawingTools(chartDiv);
+            
+            // ===== POST-RENDER OPTIMIZATIONS =====
+            
+            // Forza resize dopo render
+            setTimeout(() => {
+                this.forceChartResize();
+            }, 100);
+            
+            // Aggiorna dimensioni quando il container cambia
+            if (window.ResizeObserver) {
+                this.setupResizeObserver(chartDiv);
+            }
+            
             console.log('✅ Grafico Plotly renderizzato con successo');
+            
         } catch (error) {
             console.error('❌ Errore rendering Plotly:', error);
             throw error;
@@ -1384,3 +2444,16 @@ window.debugCheckboxState = function() {
 console.log('✅ Technical Analysis module caricato completamente');
 console.log('🧪 Funzioni debug disponibili: debugCheckboxState(), window.toggleAllZones(), window.updateZoneCounts()');
 console.log('🎯 Funzioni leggenda: window.toggleZoneVisibility(), window.toggleAllZones()');
+
+// Funzione di debounce utility
+function debounce(func, wait) {
+    let timeout;
+    return function executedFunction(...args) {
+        const later = () => {
+            clearTimeout(timeout);
+            func(...args);
+        };
+        clearTimeout(timeout);
+        timeout = setTimeout(later, wait);
+    };
+}
