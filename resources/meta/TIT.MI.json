@@ -9,10 +9,10 @@
     "exchange": "MIL",
     "country": "Italy"
   },
-  "last_close_date": "2025-06-13",
-  "total_records": 9867,
+  "last_close_date": "2025-06-17",
+  "total_records": 9869,
   "first_date": "1987-02-12",
-  "last_updated": "2025-06-14T17:10:26.916332",
+  "last_updated": "2025-06-17T15:29:18.136571",
   "files": {
     "adjusted": "resources\\data\\daily\\TIT.MI.csv",
     "not_adjusted": "resources\\data\\daily_notAdjusted\\TIT.MI_notAdjusted.csv"

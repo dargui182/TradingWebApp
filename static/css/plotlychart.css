@@ -1,0 +1,706 @@
+/**
+ * PlotlyChart Component CSS
+ * Stili per il componente PlotlyChart modulare con toolbar e leggenda personalizzata
+ */
+
+/* ===== CONTAINER PRINCIPALE ===== */
+.plotly-chart-container {
+    position: relative;
+    background: white;
+    border-radius: 12px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    overflow: hidden;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    min-height: 400px;
+}
+
+.plotly-chart-container:hover {
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15);
+}
+
+/* ===== WRAPPER PRINCIPALE ===== */
+.plotly-chart-wrapper {
+    position: relative;
+    width: 100%;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+}
+
+.plotly-chart-main {
+    flex: 1;
+    min-height: 400px;
+    position: relative;
+    background: white;
+}
+
+/* ===== TOOLBAR PERSONALIZZATA ===== */
+.plotly-toolbar {
+    position: absolute;
+    z-index: 1000;
+    padding: 0.5rem;
+    background: rgba(255, 255, 255, 0.95);
+    backdrop-filter: blur(10px);
+    border-radius: 8px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    transition: all 0.3s ease;
+}
+
+/* Posizioni toolbar */
+.plotly-toolbar.top-right {
+    top: 1rem;
+    right: 1rem;
+}
+
+.plotly-toolbar.top-left {
+    top: 1rem;
+    left: 1rem;
+}
+
+.plotly-toolbar.bottom-right {
+    bottom: 1rem;
+    right: 1rem;
+}
+
+.plotly-toolbar.bottom-left {
+    bottom: 1rem;
+    left: 1rem;
+}
+
+/* Gruppo bottoni toolbar */
+.toolbar-group {
+    display: flex;
+    gap: 0.25rem;
+    align-items: center;
+}
+
+.plotly-toolbar-btn {
+    width: 36px;
+    height: 36px;
+    padding: 0;
+    border-radius: 6px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.875rem;
+    transition: all 0.2s ease;
+    border: 1px solid #dee2e6;
+    background: white;
+    color: #6c757d;
+}
+
+.plotly-toolbar-btn:hover {
+    background: #f8f9fa;
+    border-color: #007bff;
+    color: #007bff;
+    transform: translateY(-1px);
+    box-shadow: 0 2px 4px rgba(0, 123, 255, 0.2);
+}
+
+.plotly-toolbar-btn.active,
+.plotly-toolbar-btn:active {
+    background: #007bff;
+    border-color: #007bff;
+    color: white;
+    box-shadow: 0 2px 8px rgba(0, 123, 255, 0.3);
+}
+
+/* Dropdown toolbar */
+.plotly-toolbar .dropdown-menu {
+    border: none;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+    border-radius: 8px;
+    padding: 0.5rem 0;
+    min-width: 140px;
+}
+
+.plotly-toolbar .dropdown-item {
+    padding: 0.5rem 1rem;
+    font-size: 0.875rem;
+    transition: all 0.2s ease;
+    border-radius: 4px;
+    margin: 0 0.25rem;
+}
+
+.plotly-toolbar .dropdown-item:hover {
+    background: #f8f9fa;
+    color: #007bff;
+    transform: translateX(2px);
+}
+
+/* ===== LEGGENDA PERSONALIZZATA ===== */
+.plotly-legend-container {
+    position: absolute;
+    top: 1rem;
+    background: rgba(255, 255, 255, 0.95);
+    backdrop-filter: blur(10px);
+    border-radius: 8px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    border: 1px solid #e9ecef;
+    min-width: 180px;
+    max-width: 250px;
+    z-index: 999;
+    transition: all 0.3s ease;
+}
+
+/* Posizioni leggenda */
+.plotly-legend-container.right {
+    right: 1rem;
+    max-height: calc(100% - 2rem);
+    overflow-y: auto;
+}
+
+.plotly-legend-container.left {
+    left: 1rem;
+    max-height: calc(100% - 2rem);
+    overflow-y: auto;
+}
+
+.plotly-legend-container.top {
+    top: 1rem;
+    left: 50%;
+    transform: translateX(-50%);
+    max-width: calc(100% - 2rem);
+}
+
+.plotly-legend-container.bottom {
+    bottom: 1rem;
+    left: 50%;
+    transform: translateX(-50%);
+    max-width: calc(100% - 2rem);
+}
+
+/* Header leggenda */
+.custom-legend {
+    padding: 0;
+}
+
+.legend-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0.75rem 1rem;
+    background: #f8f9fa;
+    border-bottom: 1px solid #e9ecef;
+    border-radius: 8px 8px 0 0;
+}
+
+.legend-title {
+    margin: 0;
+    font-size: 0.875rem;
+    font-weight: 600;
+    color: #495057;
+}
+
+.legend-toggle {
+    width: 24px;
+    height: 24px;
+    padding: 0;
+    border: none;
+    background: none;
+    color: #6c757d;
+    border-radius: 4px;
+    transition: all 0.2s ease;
+}
+
+.legend-toggle:hover {
+    background: rgba(0, 123, 255, 0.1);
+    color: #007bff;
+}
+
+/* Contenuto leggenda */
+.legend-content {
+    padding: 0.5rem;
+    max-height: 300px;
+    overflow-y: auto;
+    transition: all 0.3s ease;
+}
+
+.legend-content.collapsed {
+    max-height: 0;
+    padding: 0 0.5rem;
+    overflow: hidden;
+}
+
+/* Item leggenda */
+.legend-item {
+    display: flex;
+    align-items: center;
+    padding: 0.5rem 0.75rem;
+    margin-bottom: 0.25rem;
+    border-radius: 6px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    gap: 0.5rem;
+}
+
+.legend-item:last-child {
+    margin-bottom: 0;
+}
+
+.legend-item:hover {
+    background: rgba(0, 123, 255, 0.05);
+    transform: translateX(2px);
+}
+
+.legend-item.hidden {
+    opacity: 0.5;
+}
+
+.legend-marker {
+    width: 16px;
+    height: 3px;
+    border-radius: 2px;
+    flex-shrink: 0;
+    position: relative;
+}
+
+.legend-marker::after {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: inherit;
+    box-shadow: 0 0 0 2px white, 0 0 0 3px currentColor;
+}
+
+.legend-label {
+    flex: 1;
+    font-size: 0.8rem;
+    font-weight: 500;
+    color: #495057;
+}
+
+.legend-visibility-toggle {
+    width: 24px;
+    height: 24px;
+    padding: 0;
+    border: none;
+    background: none;
+    color: #6c757d;
+    border-radius: 4px;
+    transition: all 0.2s ease;
+    opacity: 0;
+}
+
+.legend-item:hover .legend-visibility-toggle {
+    opacity: 1;
+}
+
+.legend-visibility-toggle:hover {
+    background: rgba(0, 123, 255, 0.1);
+    color: #007bff;
+}
+
+/* ===== LOADING OVERLAY ===== */
+.plotly-loading-overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(255, 255, 255, 0.95);
+    backdrop-filter: blur(4px);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 1001;
+    border-radius: 12px;
+}
+
+.loading-spinner {
+    text-align: center;
+}
+
+.loading-text {
+    font-size: 0.875rem;
+    color: #6c757d;
+    font-weight: 500;
+}
+
+/* ===== FULLSCREEN ===== */
+.plotly-chart-container.fullscreen-active {
+    position: fixed !important;
+    top: 0 !important;
+    left: 0 !important;
+    width: 100vw !important;
+    height: 100vh !important;
+    z-index: 9999 !important;
+    border-radius: 0 !important;
+    box-shadow: none !important;
+}
+
+.plotly-fullscreen-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    background: rgba(0, 0, 0, 0.95);
+    z-index: 9999;
+    display: flex;
+    flex-direction: column;
+}
+
+.fullscreen-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 1rem 2rem;
+    background: rgba(255, 255, 255, 0.1);
+    backdrop-filter: blur(10px);
+    border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+.fullscreen-title {
+    color: white;
+    font-size: 1.25rem;
+    font-weight: 600;
+}
+
+.fullscreen-close {
+    width: 40px;
+    height: 40px;
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.fullscreen-chart-container {
+    flex: 1;
+    padding: 1rem;
+}
+
+/* ===== ANIMAZIONI AVANZATE ===== */
+@keyframes chartFadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+@keyframes toolbarSlideIn {
+    from {
+        opacity: 0;
+        transform: translateY(-10px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+@keyframes legendSlideIn {
+    from {
+        opacity: 0;
+        transform: translateX(20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateX(0);
+    }
+}
+
+.plotly-chart-main {
+    animation: chartFadeIn 0.5s ease-out;
+}
+
+.plotly-toolbar {
+    animation: toolbarSlideIn 0.3s ease-out 0.2s both;
+}
+
+.plotly-legend-container {
+    animation: legendSlideIn 0.3s ease-out 0.4s both;
+}
+
+/* ===== TEMI ===== */
+
+/* Tema scuro */
+.plotly-chart-container[data-theme="dark"] {
+    background: #1a202c;
+    color: white;
+}
+
+.plotly-chart-container[data-theme="dark"] .plotly-chart-main {
+    background: #1a202c;
+}
+
+.plotly-chart-container[data-theme="dark"] .plotly-toolbar {
+    background: rgba(45, 55, 72, 0.95);
+    border: 1px solid #4a5568;
+}
+
+.plotly-chart-container[data-theme="dark"] .plotly-toolbar-btn {
+    background: #2d3748;
+    border-color: #4a5568;
+    color: #a0aec0;
+}
+
+.plotly-chart-container[data-theme="dark"] .plotly-toolbar-btn:hover {
+    background: #4a5568;
+    border-color: #63b3ed;
+    color: #63b3ed;
+}
+
+.plotly-chart-container[data-theme="dark"] .plotly-toolbar-btn.active {
+    background: #3182ce;
+    border-color: #3182ce;
+    color: white;
+}
+
+.plotly-chart-container[data-theme="dark"] .plotly-legend-container {
+    background: rgba(45, 55, 72, 0.95);
+    border-color: #4a5568;
+}
+
+.plotly-chart-container[data-theme="dark"] .legend-header {
+    background: #2d3748;
+    border-color: #4a5568;
+}
+
+.plotly-chart-container[data-theme="dark"] .legend-title {
+    color: #e2e8f0;
+}
+
+.plotly-chart-container[data-theme="dark"] .legend-item:hover {
+    background: rgba(99, 179, 237, 0.1);
+}
+
+.plotly-chart-container[data-theme="dark"] .legend-label {
+    color: #a0aec0;
+}
+
+.plotly-chart-container[data-theme="dark"] .plotly-loading-overlay {
+    background: rgba(26, 32, 44, 0.95);
+}
+
+/* ===== RESPONSIVE DESIGN ===== */
+@media (max-width: 768px) {
+    .plotly-chart-container {
+        border-radius: 8px;
+        min-height: 300px;
+    }
+    
+    .plotly-toolbar {
+        padding: 0.25rem;
+    }
+    
+    .plotly-toolbar-btn {
+        width: 32px;
+        height: 32px;
+        font-size: 0.75rem;
+    }
+    
+    .plotly-legend-container {
+        position: relative;
+        margin: 0.5rem;
+        max-width: none;
+        max-height: 200px;
+    }
+    
+    .plotly-legend-container.right,
+    .plotly-legend-container.left {
+        position: relative;
+        top: auto;
+        right: auto;
+        left: auto;
+        transform: none;
+    }
+    
+    .legend-content {
+        max-height: 150px;
+    }
+    
+    /* Stack toolbar e leggenda su mobile */
+    .plotly-chart-wrapper {
+        flex-direction: column;
+    }
+    
+    .plotly-toolbar.top-right,
+    .plotly-toolbar.top-left {
+        position: relative;
+        top: auto;
+        right: auto;
+        left: auto;
+        margin: 0.5rem;
+        align-self: flex-end;
+    }
+}
+
+@media (max-width: 576px) {
+    .plotly-chart-main {
+        min-height: 250px;
+    }
+    
+    .toolbar-group {
+        gap: 0.125rem;
+    }
+    
+    .plotly-toolbar-btn {
+        width: 28px;
+        height: 28px;
+    }
+    
+    .legend-item {
+        padding: 0.375rem 0.5rem;
+    }
+    
+    .legend-marker {
+        width: 12px;
+        height: 2px;
+    }
+    
+    .legend-label {
+        font-size: 0.75rem;
+    }
+}
+
+/* ===== SCROLLBAR PERSONALIZZATA PER LEGGENDA ===== */
+.legend-content::-webkit-scrollbar {
+    width: 4px;
+}
+
+.legend-content::-webkit-scrollbar-track {
+    background: transparent;
+}
+
+.legend-content::-webkit-scrollbar-thumb {
+    background: rgba(0, 0, 0, 0.2);
+    border-radius: 2px;
+}
+
+.legend-content::-webkit-scrollbar-thumb:hover {
+    background: rgba(0, 0, 0, 0.3);
+}
+
+/* ===== INTERAZIONI AVANZATE ===== */
+
+/* Effetto hover per toolbar */
+.plotly-toolbar:hover {
+    transform: scale(1.02);
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.15);
+}
+
+/* Effetto pulse per bottoni attivi */
+.plotly-toolbar-btn.active {
+    animation: buttonPulse 2s infinite;
+}
+
+@keyframes buttonPulse {
+    0%, 100% {
+        box-shadow: 0 2px 8px rgba(0, 123, 255, 0.3);
+    }
+    50% {
+        box-shadow: 0 2px 16px rgba(0, 123, 255, 0.5);
+    }
+}
+
+/* Transizioni fluide per la leggenda */
+.legend-item {
+    transform-origin: left center;
+}
+
+.legend-item:hover {
+    transform: translateX(4px) scale(1.02);
+}
+
+/* Effetto glass per overlay */
+.plotly-loading-overlay,
+.plotly-toolbar,
+.plotly-legend-container {
+    -webkit-backdrop-filter: blur(10px);
+    backdrop-filter: blur(10px);
+}
+
+/* ===== ACCESSIBILITÀ ===== */
+.plotly-toolbar-btn:focus,
+.legend-visibility-toggle:focus,
+.legend-toggle:focus {
+    outline: 2px solid #007bff;
+    outline-offset: 2px;
+    box-shadow: 0 0 0 4px rgba(0, 123, 255, 0.25);
+}
+
+/* Riduzione movimento per utenti con preferenze accessibility */
+@media (prefers-reduced-motion: reduce) {
+    .plotly-chart-container,
+    .plotly-toolbar-btn,
+    .legend-item,
+    .plotly-toolbar,
+    .plotly-legend-container {
+        transition: none;
+        animation: none;
+    }
+    
+    .plotly-chart-container:hover {
+        transform: none;
+    }
+    
+    .legend-item:hover {
+        transform: none;
+    }
+}
+
+/* ===== INTEGRAZIONE CON BOOTSTRAP ===== */
+.plotly-chart-container .btn {
+    --bs-btn-font-size: 0.875rem;
+}
+
+.plotly-chart-container .dropdown-menu {
+    --bs-dropdown-border-radius: 8px;
+    --bs-dropdown-box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+}
+
+/* ===== PERFORMANCE OTTIMIZZAZIONI ===== */
+.plotly-chart-main,
+.plotly-toolbar,
+.plotly-legend-container {
+    contain: layout style;
+    will-change: transform;
+}
+
+/* Forza accelerazione hardware */
+.plotly-toolbar-btn,
+.legend-item {
+    will-change: transform;
+    backface-visibility: hidden;
+    transform: translateZ(0);
+}
+
+/* ===== STATI SPECIFICI PER TECHNICAL ANALYSIS ===== */
+
+/* Indicatori di zoom attivo */
+.plotly-chart-container[data-mode="zoom"] .plotly-chart-main {
+    cursor: crosshair;
+}
+
+.plotly-chart-container[data-mode="pan"] .plotly-chart-main {
+    cursor: move;
+}
+
+.plotly-chart-container[data-mode="select"] .plotly-chart-main {
+    cursor: cell;
+}
+
+/* Evidenziazione per annotazioni attive */
+.plotly-chart-container .annotation-highlight {
+    animation: annotationGlow 1.5s ease-in-out infinite alternate;
+}
+
+@keyframes annotationGlow {
+    from {
+        filter: drop-shadow(0 0 5px rgba(255, 235, 59, 0.8));
+    }
+    to {
+        filter: drop-shadow(0 0 15px rgba(255, 235, 59, 1));
+    }
+}

@@ -1,0 +1,470 @@
+/**
+ * DataTable Component CSS
+ * Stili per il componente DataTable modulare
+ */
+
+/* ===== CONTAINER PRINCIPALE ===== */
+.datatable-container {
+    position: relative;
+    background: white;
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    overflow: hidden;
+}
+
+/* ===== HEADER CON CONTROLLI ===== */
+.datatable-header {
+    padding: 1rem;
+    background: #f8f9fa;
+    border-bottom: 1px solid #dee2e6;
+}
+
+.datatable-search-container .input-group {
+    transition: all 0.3s ease;
+}
+
+.datatable-search-container .input-group:focus-within {
+    transform: scale(1.02);
+    box-shadow: 0 4px 8px rgba(0, 123, 255, 0.15);
+}
+
+.datatable-search {
+    border-left: none !important;
+    box-shadow: none !important;
+}
+
+.datatable-search:focus {
+    border-color: #007bff;
+    box-shadow: 0 0 0 0.2rem rgba(0, 123, 255, 0.25);
+}
+
+.datatable-clear-search {
+    border-left: none !important;
+}
+
+/* ===== TABELLA ===== */
+.datatable-wrapper {
+    position: relative;
+    max-height: 70vh;
+    overflow-y: auto;
+    overflow-x: auto;
+    background: white;
+}
+
+.datatable-table {
+    margin-bottom: 0;
+}
+
+/* Header della tabella */
+.datatable-head th {
+    background: #f8f9fa;
+    border-bottom: 2px solid #dee2e6;
+    font-weight: 600;
+    font-size: 0.875rem;
+    color: #495057;
+    white-space: nowrap;
+    position: sticky;
+    top: 0;
+    z-index: 10;
+}
+
+.datatable-head th.sortable {
+    cursor: pointer;
+    user-select: none;
+    transition: all 0.2s ease;
+}
+
+.datatable-head th.sortable:hover {
+    background: #e9ecef;
+    color: #007bff;
+}
+
+.datatable-head th.sortable:hover i {
+    color: #007bff !important;
+}
+
+/* Body della tabella */
+.datatable-body tr {
+    transition: all 0.2s ease;
+}
+
+.datatable-body tr:hover {
+    background-color: #f8f9fa;
+    transform: scale(1.01);
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.datatable-body td {
+    vertical-align: middle;
+    font-size: 0.875rem;
+    border-color: #f1f3f4;
+}
+
+/* Righe selezionate */
+.datatable-body tr.table-active {
+    background-color: rgba(0, 123, 255, 0.1);
+    border-color: rgba(0, 123, 255, 0.2);
+}
+
+/* ===== CELLE SPECIALI ===== */
+
+/* Badges nelle celle */
+.datatable-body .badge {
+    font-size: 0.75rem;
+    font-weight: 500;
+}
+
+/* Numeri e valute */
+.datatable-body td[data-field*="price"],
+.datatable-body td[data-field*="volume"],
+.datatable-body td[data-field*="distance"] {
+    text-align: right;
+    font-family: 'Monaco', 'Consolas', monospace;
+    font-weight: 500;
+}
+
+/* Date */
+.datatable-body td[data-field*="date"],
+.datatable-body td[data-field*="created"],
+.datatable-body td[data-field*="updated"] {
+    font-size: 0.8rem;
+    color: #6c757d;
+}
+
+/* ===== AZIONI ===== */
+.datatable-action {
+    margin-right: 0.25rem;
+    margin-bottom: 0.25rem;
+    padding: 0.25rem 0.5rem;
+    font-size: 0.75rem;
+    transition: all 0.2s ease;
+}
+
+.datatable-action:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.15);
+}
+
+.datatable-action:last-child {
+    margin-right: 0;
+}
+
+/* Bottoni solo icona */
+.datatable-action:has(span:empty),
+.datatable-action:not(:has(span)) {
+    width: 32px;
+    height: 32px;
+    padding: 0;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+}
+
+/* ===== FOOTER CON PAGINAZIONE ===== */
+.datatable-footer {
+    padding: 1rem;
+    background: #f8f9fa;
+    border-top: 1px solid #dee2e6;
+}
+
+.datatable-info {
+    color: #6c757d;
+    font-size: 0.875rem;
+}
+
+.datatable-pagination .pagination {
+    margin: 0;
+}
+
+.datatable-page {
+    transition: all 0.2s ease;
+}
+
+.datatable-page:hover {
+    transform: translateY(-1px);
+}
+
+/* ===== CONTROLLI EXPORT E ALTRO ===== */
+.datatable-controls .btn-group .btn {
+    font-size: 0.875rem;
+    padding: 0.375rem 0.75rem;
+}
+
+.datatable-page-size {
+    font-size: 0.875rem;
+    padding: 0.375rem 0.75rem;
+    min-width: 120px;
+}
+
+/* ===== SELEZIONE MULTIPLA ===== */
+.datatable-selection-actions {
+    padding: 0.75rem 1rem;
+    background: rgba(0, 123, 255, 0.1);
+    border-top: 1px solid rgba(0, 123, 255, 0.2);
+    display: none;
+}
+
+.datatable-selection-actions.show {
+    display: block;
+    animation: slideDown 0.3s ease;
+}
+
+.datatable-select-all,
+.datatable-row-select {
+    transform: scale(1.1);
+}
+
+/* ===== STATI DI LOADING E ERRORE ===== */
+.component-loading {
+    background: rgba(255, 255, 255, 0.95);
+    backdrop-filter: blur(4px);
+    border-radius: 8px;
+    min-width: 200px;
+}
+
+.component-error {
+    margin: 1rem;
+    border-radius: 8px;
+}
+
+/* ===== RESPONSIVE DESIGN ===== */
+@media (max-width: 768px) {
+    .datatable-header {
+        flex-direction: column;
+        gap: 1rem;
+    }
+    
+    .datatable-search-container {
+        order: 2;
+    }
+    
+    .datatable-controls {
+        order: 1;
+        align-self: flex-start;
+    }
+    
+    .datatable-search-container .input-group {
+        width: 100% !important;
+    }
+    
+    .datatable-footer {
+        flex-direction: column;
+        gap: 1rem;
+        text-align: center;
+    }
+    
+    .datatable-wrapper {
+        max-height: 60vh;
+    }
+    
+    /* Nasconde alcune colonne su mobile */
+    .datatable-table th:nth-child(n+5),
+    .datatable-table td:nth-child(n+5) {
+        display: none;
+    }
+    
+    /* Eccetto la colonna azioni */
+    .datatable-table th:last-child,
+    .datatable-table td:last-child {
+        display: table-cell;
+    }
+}
+
+@media (max-width: 576px) {
+    .datatable-action span {
+        display: none;
+    }
+    
+    .datatable-action {
+        width: 32px;
+        height: 32px;
+        padding: 0;
+    }
+    
+    .datatable-head th,
+    .datatable-body td {
+        padding: 0.5rem 0.25rem;
+        font-size: 0.8rem;
+    }
+}
+
+/* ===== ANIMAZIONI ===== */
+@keyframes slideDown {
+    from {
+        opacity: 0;
+        transform: translateY(-10px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(10px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.datatable-body tr {
+    animation: fadeIn 0.3s ease;
+}
+
+/* ===== SCROLLBAR PERSONALIZZATA ===== */
+.datatable-wrapper::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
+}
+
+.datatable-wrapper::-webkit-scrollbar-track {
+    background: #f1f1f1;
+    border-radius: 4px;
+}
+
+.datatable-wrapper::-webkit-scrollbar-thumb {
+    background: #c1c1c1;
+    border-radius: 4px;
+    transition: background 0.2s ease;
+}
+
+.datatable-wrapper::-webkit-scrollbar-thumb:hover {
+    background: #a1a1a1;
+}
+
+/* ===== MIGLIORAMENTI ACCESSIBILITÀ ===== */
+.datatable-table:focus-within {
+    outline: 2px solid #007bff;
+    outline-offset: 2px;
+}
+
+.datatable-head th[aria-sort="ascending"] i::before {
+    content: "\f0de";
+}
+
+.datatable-head th[aria-sort="descending"] i::before {
+    content: "\f0dd";
+}
+
+/* ===== TEMI PERSONALIZZATI ===== */
+
+/* Tema scuro */
+[data-bs-theme="dark"] .datatable-container {
+    background: #343a40;
+    color: #fff;
+}
+
+[data-bs-theme="dark"] .datatable-header {
+    background: #495057;
+    border-color: #6c757d;
+}
+
+[data-bs-theme="dark"] .datatable-head th {
+    background: #495057;
+    border-color: #6c757d;
+    color: #fff;
+}
+
+[data-bs-theme="dark"] .datatable-head th.sortable:hover {
+    background: #5a6268;
+}
+
+[data-bs-theme="dark"] .datatable-body tr:hover {
+    background-color: #495057;
+}
+
+[data-bs-theme="dark"] .datatable-footer {
+    background: #495057;
+    border-color: #6c757d;
+}
+
+/* ===== INTEGRAZIONE CON BOOTSTRAP ===== */
+.datatable-container .table-responsive {
+    border: none;
+    border-radius: 0;
+}
+
+.datatable-container .table-striped > tbody > tr:nth-of-type(odd) > td {
+    background-color: rgba(0, 0, 0, 0.02);
+}
+
+.datatable-container .table-hover > tbody > tr:hover > td {
+    background-color: rgba(0, 0, 0, 0.04);
+}
+
+/* ===== PERFORMANCE OTTIMIZZATA ===== */
+.datatable-wrapper {
+    contain: layout style;
+    will-change: scroll-position;
+}
+
+.datatable-body {
+    contain: layout style;
+}
+
+/* Forza accelerazione hardware per animazioni */
+.datatable-body tr,
+.datatable-action {
+    will-change: transform;
+    backface-visibility: hidden;
+}
+
+/* ===== STATI SPECIFICI PER TECHNICAL ANALYSIS ===== */
+
+/* Zone Skorupinski */
+.datatable-container[data-table="zones"] .badge.bg-danger {
+    background: linear-gradient(45deg, #dc3545, #fd7e14) !important;
+}
+
+.datatable-container[data-table="zones"] .badge.bg-success {
+    background: linear-gradient(45deg, #28a745, #20c997) !important;
+}
+
+/* Livelli S&R */
+.datatable-container[data-table="levels"] .text-warning {
+    filter: drop-shadow(0 0 2px rgba(255, 193, 7, 0.5));
+}
+
+/* Indicatori di prossimità */
+.proximity-indicator {
+    position: relative;
+    overflow: hidden;
+}
+
+.proximity-indicator::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: linear-gradient(90deg, transparent, rgba(255, 193, 7, 0.1), transparent);
+    animation: proximityPulse 2s infinite;
+}
+
+@keyframes proximityPulse {
+    0%, 100% { transform: translateX(-100%); }
+    50% { transform: translateX(100%); }
+}
+
+/* Stato attivo per elementi evidenziati sul grafico */
+.datatable-body tr.highlighted {
+    background: linear-gradient(90deg, rgba(0, 123, 255, 0.1), rgba(0, 123, 255, 0.05), rgba(0, 123, 255, 0.1));
+    border-left: 4px solid #007bff;
+    animation: highlight 1s ease;
+}
+
+@keyframes highlight {
+    0% {
+        background: rgba(255, 235, 59, 0.3);
+        transform: scale(1.02);
+    }
+    100% {
+        background: rgba(0, 123, 255, 0.1);
+        transform: scale(1);
+    }
+}
