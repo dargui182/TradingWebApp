@@ -75,30 +75,96 @@ class TechnicalAnalysisManager:
         
         print(f"📁 Directory analisi tecnica inizializzate: {self.analysis_dir}")
     
+
     def _initialize_managers(self):
-        """Inizializza i manager specifici per ogni tipo di analisi."""
+        """Inizializza i manager specifici per ogni tipo di analisi con controllo automatico."""
         try:
+            # 🔧 CONTROLLO AUTOMATICO FILE DI STATO
+            print("🔍 Controllo file di stato...")
+            
+            # Verifica se i file di stato esistono
+            sr_exists = self.sr_state_file.exists()
+            skorupinski_exists = self.skorupinski_state_file.exists()
+            
+            print(f"   📁 sr_state.json: {'✅' if sr_exists else '❌'}")
+            print(f"   📁 skorupinski_state.json: {'✅' if skorupinski_exists else '❌'}")
+            
+            # Se uno o entrambi mancano, li ricrea automaticamente
+            if not sr_exists or not skorupinski_exists:
+                print("🔧 File di stato mancanti - ricreazione automatica...")
+                self.recreate_state_files()
+                return  # recreate_state_files() già chiama _initialize_managers() alla fine
+            
+            # Verifica che i file non siano vuoti o corrotti
+            try:
+                # Test caricamento sr_state.json
+                if self.sr_state_file.stat().st_size == 0:
+                    raise ValueError("sr_state.json è vuoto")
+                with open(self.sr_state_file, 'r') as f:
+                    sr_data = json.load(f)
+                if not sr_data:
+                    raise ValueError("sr_state.json non contiene ticker")
+                    
+                # Test caricamento skorupinski_state.json  
+                if self.skorupinski_state_file.stat().st_size == 0:
+                    raise ValueError("skorupinski_state.json è vuoto")
+                with open(self.skorupinski_state_file, 'r') as f:
+                    sk_data = json.load(f)
+                if not sk_data:
+                    raise ValueError("skorupinski_state.json non contiene ticker")
+                    
+                print(f"✅ File di stato validi: {len(sr_data)} SR ticker, {len(sk_data)} Skorupinski ticker")
+                
+            except (json.JSONDecodeError, ValueError) as e:
+                print(f"⚠️ File di stato corrotti ({e}) - ricreazione automatica...")
+                self.recreate_state_files()
+                return
+            
+            # 🚀 INIZIALIZZAZIONE MANAGER
+            print("🔧 Inizializzazione manager...")
+            
             # Supporti e Resistenze Manager
             self.sr_manager = SupportResistanceManager(
+                input_file=self.sr_state_file,  # ✅ CORRETTO: input_file non state_file
                 input_folder_prices=self.data_dir,
-                output_folder=self.sr_output_dir,
-                state_file=self.sr_state_file
+                output_folder=self.sr_output_dir
             )
             
-            # Skorupinski Zone Manager
+            # Skorupinski Zone Manager  
             self.skorupinski_manager = SkorupinkiZoneManager(
+                input_file=self.skorupinski_state_file,  # ✅ CORRETTO: input_file non state_file
                 input_folder_prices=self.data_dir,
-                output_folder=self.skorupinski_output_dir,
-                state_file=self.skorupinski_state_file
+                output_folder=self.skorupinski_output_dir
             )
             
-            print("✅ Manager analisi tecnica inizializzati")
+            # Verifica che i manager abbiano caricato i ticker correttamente
+            sr_ticker_count = len(self.sr_manager.tickers) if self.sr_manager.tickers else 0
+            sk_ticker_count = len(self.skorupinski_manager.tickers) if self.skorupinski_manager.tickers else 0
+            
+            if sr_ticker_count == 0 or sk_ticker_count == 0:
+                print(f"⚠️ Manager con ticker vuoti (SR: {sr_ticker_count}, SK: {sk_ticker_count}) - ricreazione...")
+                self.recreate_state_files()
+                return
+            
+            print("✅ Manager analisi tecnica inizializzati correttamente")
+            print(f"   📊 SupportResistanceManager: {sr_ticker_count} ticker")
+            print(f"   📊 SkorupinkiZoneManager: {sk_ticker_count} ticker")
             
         except Exception as e:
             logger.error(f"Errore inizializzazione manager: {e}")
-            # Inizializza con valori None per evitare crash
-            self.sr_manager = None
-            self.skorupinski_manager = None
+            print(f"❌ Errore inizializzazione: {e}")
+            
+            # Tentativo di recupero automatico
+            try:
+                print("🔄 Tentativo di recupero automatico...")
+                self.recreate_state_files()
+            except Exception as recovery_error:
+                logger.error(f"Errore anche nel recupero automatico: {recovery_error}")
+                print(f"❌ Errore anche nel recupero: {recovery_error}")
+                # Inizializza con valori None per evitare crash totale
+                self.sr_manager = None
+                self.skorupinski_manager = None
+                print("⚠️ Manager impostati a None - l'analisi tecnica non sarà disponibile")
     
     def _load_ticker_config(self):
         """Carica la configurazione dei ticker."""
@@ -785,36 +851,157 @@ class TechnicalAnalysisManager:
         return all_zones
 
 
-# ===== FUNZIONI DI UTILITÀ =====
+
+
+    def recreate_state_files(self):
+        """Forza la ricreazione dei file di stato leggendo da tickers.json"""
+        print("🔧 Ricreazione forzata file di stato...")
+        
+        # Carica ticker dalla configurazione principale
+        ticker_config = self._load_ticker_config()
+        tickers = ticker_config.get('tickers', [])
+        
+        if not tickers:
+            print("⚠️ Nessun ticker trovato in tickers.json")
+            return
+        
+        print(f"📋 Trovati {len(tickers)} ticker: {tickers}")
+        
+        # Ricrea sr_state.json
+        sr_state = {}
+        for ticker in tickers:
+            sr_state[ticker] = "1900-01-01T00:00:00"
+        
+        try:
+            with open(self.sr_state_file, 'w', encoding='utf-8') as f:
+                json.dump(sr_state, f, indent=2, ensure_ascii=False)
+            print(f"✅ {self.sr_state_file} ricreato con {len(tickers)} ticker")
+        except Exception as e:
+            print(f"❌ Errore creazione sr_state.json: {e}")
+        
+        # Ricrea skorupinski_state.json 
+        skorupinski_state = {}
+        for ticker in tickers:
+            skorupinski_state[ticker] = {
+                'timestamp': "1900-01-01T00:00:00",
+                'custom_params': {}
+            }
+        
+        try:
+            with open(self.skorupinski_state_file, 'w', encoding='utf-8') as f:
+                json.dump(skorupinski_state, f, indent=2, ensure_ascii=False)
+            print(f"✅ {self.skorupinski_state_file} ricreato con {len(tickers)} ticker")
+        except Exception as e:
+            print(f"❌ Errore creazione skorupinski_state.json: {e}")
+        
+        # Reinizializza i manager
+        self._initialize_managers()
+        print("🔄 Manager reinizializzati")
+
+    def force_initialize_managers(self):
+        """Forza l'inizializzazione dei manager anche se i file di stato mancano"""
+        print("🔧 Inizializzazione forzata manager...")
+        
+        # Assicurati che i file di stato esistano
+        if not self.sr_state_file.exists() or not self.skorupinski_state_file.exists():
+            print("📝 File di stato mancanti, li ricreo...")
+            self.recreate_state_files()
+            return
+        
+        try:
+            # Reinizializza comunque i manager
+            self._initialize_managers()
+            print("✅ Manager inizializzati correttamente")
+            
+            # Verifica che i manager siano funzionanti
+            if self.sr_manager and self.skorupinski_manager:
+                print(f"✅ SupportResistanceManager: {len(self.sr_manager.tickers)} ticker")
+                print(f"✅ SkorupinkiZoneManager: {len(self.skorupinski_manager.tickers)} ticker")
+            else:
+                print("❌ Uno o entrambi i manager non sono inizializzati")
+                
+        except Exception as e:
+            print(f"❌ Errore nell'inizializzazione manager: {e}")
+            # Prova a ricreare i file di stato e riprovare
+            self.recreate_state_files()
+
+    def debug_state_files(self):
+        """Debug dei file di stato per capire cosa sta succedendo"""
+        print("🔍 DEBUG FILE DI STATO")
+        print("="*50)
+        
+        # Verifica configurazione principale
+        print(f"📁 Config file: {self.config_file}")
+        print(f"   Exists: {self.config_file.exists()}")
+        if self.config_file.exists():
+            try:
+                config = self._load_ticker_config()
+                print(f"   Ticker count: {len(config.get('tickers', []))}")
+                print(f"   Tickers: {config.get('tickers', [])}")
+            except Exception as e:
+                print(f"   Error loading: {e}")
+        
+        # Verifica file di stato SR
+        print(f"📁 SR State file: {self.sr_state_file}")
+        print(f"   Exists: {self.sr_state_file.exists()}")
+        if self.sr_state_file.exists():
+            try:
+                with open(self.sr_state_file, 'r') as f:
+                    sr_data = json.load(f)
+                print(f"   Ticker count: {len(sr_data)}")
+                print(f"   Tickers: {list(sr_data.keys())}")
+            except Exception as e:
+                print(f"   Error loading: {e}")
+        
+        # Verifica file di stato Skorupinski
+        print(f"📁 Skorupinski State file: {self.skorupinski_state_file}")
+        print(f"   Exists: {self.skorupinski_state_file.exists()}")
+        if self.skorupinski_state_file.exists():
+            try:
+                with open(self.skorupinski_state_file, 'r') as f:
+                    sk_data = json.load(f)
+                print(f"   Ticker count: {len(sk_data)}")
+                print(f"   Tickers: {list(sk_data.keys())}")
+            except Exception as e:
+                print(f"   Error loading: {e}")
+        
+        # Verifica manager
+        print(f"🔧 Manager status:")
+        print(f"   SR Manager: {'✅' if self.sr_manager else '❌'}")
+        print(f"   Skorupinski Manager: {'✅' if self.skorupinski_manager else '❌'}")
+        
+        print("="*50)
+
+
+    # ===== FUNZIONI DI UTILITÀ =====
 
 def get_technical_analysis_manager(base_dir='resources') -> TechnicalAnalysisManager:
-    """
-    Factory function per ottenere un'istanza del manager.
-    
-    Args:
-        base_dir: directory base del progetto
+        """
+        Factory function per ottenere un'istanza del manager.
         
-    Returns:
-        Istanza di TechnicalAnalysisManager
-    """
-    return TechnicalAnalysisManager(base_dir)
+        Args:
+            base_dir: directory base del progetto
+            
+        Returns:
+            Istanza di TechnicalAnalysisManager
+        """
+        return TechnicalAnalysisManager(base_dir)
 
 
 def run_complete_technical_analysis(base_dir='resources', use_adjusted=True) -> Dict:
-    """
-    Esegue un'analisi tecnica completa per tutti i ticker configurati.
-    
-    Args:
-        base_dir: directory base del progetto
-        use_adjusted: se usare dati adjusted o not adjusted
+        """
+        Esegue un'analisi tecnica completa per tutti i ticker configurati.
         
-    Returns:
-        Dict con risultati dell'analisi
-    """
-    manager = get_technical_analysis_manager(base_dir)
-    return manager.run_full_analysis(use_adjusted)
-
-
+        Args:
+            base_dir: directory base del progetto
+            use_adjusted: se usare dati adjusted o not adjusted
+            
+        Returns:
+            Dict con risultati dell'analisi
+        """
+        manager = get_technical_analysis_manager(base_dir)
+        return manager.run_full_analysis(use_adjusted)
+    
 # ===== MAIN PER TEST =====
 if __name__ == "__main__":
     # Test del manager

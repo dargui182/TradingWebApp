@@ -1,105 +1,414 @@
 {
-  "TIT.MI": "2025-06-13T00:00:00",
-  "AAPL": "2025-06-13T00:00:00",
-  "ABNB": "2025-06-13T00:00:00",
-  "ADBE": "2025-06-13T00:00:00",
-  "ADI": "1900-01-01T00:00:00",
-  "ADP": "1900-01-01T00:00:00",
-  "ADSK": "1900-01-01T00:00:00",
-  "AEP": "1900-01-01T00:00:00",
-  "AMAT": "1900-01-01T00:00:00",
-  "AMD": "1900-01-01T00:00:00",
-  "AMGN": "1900-01-01T00:00:00",
-  "AMZN": "1900-01-01T00:00:00",
-  "ANSS": "1900-01-01T00:00:00",
-  "APP": "1900-01-01T00:00:00",
-  "ARM": "1900-01-01T00:00:00",
-  "ASML": "1900-01-01T00:00:00",
-  "AVGO": "1900-01-01T00:00:00",
-  "AXON": "1900-01-01T00:00:00",
-  "AZN": "1900-01-01T00:00:00",
-  "BIIB": "1900-01-01T00:00:00",
-  "BKNG": "1900-01-01T00:00:00",
-  "BKR": "1900-01-01T00:00:00",
-  "CCEP": "1900-01-01T00:00:00",
-  "CDNS": "1900-01-01T00:00:00",
-  "CDW": "1900-01-01T00:00:00",
-  "CEG": "1900-01-01T00:00:00",
-  "CHTR": "1900-01-01T00:00:00",
-  "CMCSA": "1900-01-01T00:00:00",
-  "COST": "1900-01-01T00:00:00",
-  "CPRT": "1900-01-01T00:00:00",
-  "CRWD": "1900-01-01T00:00:00",
-  "CSCO": "1900-01-01T00:00:00",
-  "CSGP": "1900-01-01T00:00:00",
-  "CSX": "1900-01-01T00:00:00",
-  "CTAS": "1900-01-01T00:00:00",
-  "CTSH": "1900-01-01T00:00:00",
-  "DASH": "1900-01-01T00:00:00",
-  "DDOG": "1900-01-01T00:00:00",
-  "DXCM": "1900-01-01T00:00:00",
-  "EA": "1900-01-01T00:00:00",
-  "EXC": "1900-01-01T00:00:00",
-  "FANG": "1900-01-01T00:00:00",
-  "FAST": "1900-01-01T00:00:00",
-  "FTNT": "1900-01-01T00:00:00",
-  "GEHC": "1900-01-01T00:00:00",
-  "GFS": "1900-01-01T00:00:00",
-  "GILD": "1900-01-01T00:00:00",
-  "GOOG": "1900-01-01T00:00:00",
-  "GOOGL": "1900-01-01T00:00:00",
-  "HON": "1900-01-01T00:00:00",
-  "IDXX": "1900-01-01T00:00:00",
-  "INTC": "1900-01-01T00:00:00",
-  "INTU": "1900-01-01T00:00:00",
-  "ISRG": "1900-01-01T00:00:00",
-  "KDP": "1900-01-01T00:00:00",
-  "KHC": "1900-01-01T00:00:00",
-  "KLAC": "1900-01-01T00:00:00",
-  "LIN": "1900-01-01T00:00:00",
-  "LRCX": "1900-01-01T00:00:00",
-  "LULU": "1900-01-01T00:00:00",
-  "MAR": "1900-01-01T00:00:00",
-  "MCHP": "1900-01-01T00:00:00",
-  "MDB": "1900-01-01T00:00:00",
-  "MDLZ": "1900-01-01T00:00:00",
-  "MELI": "1900-01-01T00:00:00",
-  "META": "1900-01-01T00:00:00",
-  "MNST": "1900-01-01T00:00:00",
-  "MRVL": "1900-01-01T00:00:00",
-  "MSFT": "1900-01-01T00:00:00",
-  "MSTR": "1900-01-01T00:00:00",
-  "MU": "1900-01-01T00:00:00",
-  "NFLX": "1900-01-01T00:00:00",
-  "NVDA": "2025-06-13T00:00:00",
-  "NXPI": "1900-01-01T00:00:00",
-  "ODFL": "1900-01-01T00:00:00",
-  "ON": "1900-01-01T00:00:00",
-  "ORLY": "1900-01-01T00:00:00",
-  "PANW": "1900-01-01T00:00:00",
-  "PAYX": "1900-01-01T00:00:00",
-  "PCAR": "1900-01-01T00:00:00",
-  "PDD": "1900-01-01T00:00:00",
-  "PEP": "1900-01-01T00:00:00",
-  "PLTR": "1900-01-01T00:00:00",
-  "PYPL": "1900-01-01T00:00:00",
-  "QCOM": "1900-01-01T00:00:00",
-  "REGN": "1900-01-01T00:00:00",
-  "ROP": "1900-01-01T00:00:00",
-  "ROST": "1900-01-01T00:00:00",
-  "SBUX": "1900-01-01T00:00:00",
-  "SNPS": "1900-01-01T00:00:00",
-  "TEAM": "1900-01-01T00:00:00",
-  "TMUS": "1900-01-01T00:00:00",
-  "TSLA": "1900-01-01T00:00:00",
-  "TTD": "1900-01-01T00:00:00",
-  "TTWO": "1900-01-01T00:00:00",
-  "TXN": "1900-01-01T00:00:00",
-  "VRSK": "1900-01-01T00:00:00",
-  "VRTX": "1900-01-01T00:00:00",
-  "WBD": "1900-01-01T00:00:00",
-  "WDAY": "1900-01-01T00:00:00",
-  "XEL": "1900-01-01T00:00:00",
-  "ZS": "1900-01-01T00:00:00",
-  "ISP.MI": "2025-06-13T00:00:00"
+  "TIT.MI": {
+    "timestamp": "1900-01-01T00:00:00",
+    "custom_params": {}
+  },
+  "AAPL": {
+    "timestamp": "1900-01-01T00:00:00",
+    "custom_params": {}
+  },
+  "ABNB": {
+    "timestamp": "1900-01-01T00:00:00",
+    "custom_params": {}
+  },
+  "ADBE": {
+    "timestamp": "1900-01-01T00:00:00",
+    "custom_params": {}
+  },
+  "ADI": {
+    "timestamp": "1900-01-01T00:00:00",
+    "custom_params": {}
+  },
+  "ADP": {
+    "timestamp": "1900-01-01T00:00:00",
+    "custom_params": {}
+  },
+  "ADSK": {
+    "timestamp": "1900-01-01T00:00:00",
+    "custom_params": {}
+  },
+  "AEP": {
+    "timestamp": "1900-01-01T00:00:00",
+    "custom_params": {}
+  },
+  "AMAT": {
+    "timestamp": "1900-01-01T00:00:00",
+    "custom_params": {}
+  },
+  "AMD": {
+    "timestamp": "1900-01-01T00:00:00",
+    "custom_params": {}
+  },
+  "AMGN": {
+    "timestamp": "1900-01-01T00:00:00",
+    "custom_params": {}
+  },
+  "AMZN": {
+    "timestamp": "1900-01-01T00:00:00",
+    "custom_params": {}
+  },
+  "ANSS": {
+    "timestamp": "1900-01-01T00:00:00",
+    "custom_params": {}
+  },
+  "APP": {
+    "timestamp": "1900-01-01T00:00:00",
+    "custom_params": {}
+  },
+  "ARM": {
+    "timestamp": "1900-01-01T00:00:00",
+    "custom_params": {}
+  },
+  "ASML": {
+    "timestamp": "1900-01-01T00:00:00",
+    "custom_params": {}
+  },
+  "AVGO": {
+    "timestamp": "1900-01-01T00:00:00",
+    "custom_params": {}
+  },
+  "AXON": {
+    "timestamp": "1900-01-01T00:00:00",
+    "custom_params": {}
+  },
+  "AZN": {
+    "timestamp": "1900-01-01T00:00:00",
+    "custom_params": {}
+  },
+  "BIIB": {
+    "timestamp": "1900-01-01T00:00:00",
+    "custom_params": {}
+  },
+  "BKNG": {
+    "timestamp": "1900-01-01T00:00:00",
+    "custom_params": {}
+  },
+  "BKR": {
+    "timestamp": "1900-01-01T00:00:00",
+    "custom_params": {}
+  },
+  "CCEP": {
+    "timestamp": "1900-01-01T00:00:00",
+    "custom_params": {}
+  },
+  "CDNS": {
+    "timestamp": "1900-01-01T00:00:00",
+    "custom_params": {}
+  },
+  "CDW": {
+    "timestamp": "1900-01-01T00:00:00",
+    "custom_params": {}
+  },
+  "CEG": {
+    "timestamp": "1900-01-01T00:00:00",
+    "custom_params": {}
+  },
+  "CHTR": {
+    "timestamp": "1900-01-01T00:00:00",
+    "custom_params": {}
+  },
+  "CMCSA": {
+    "timestamp": "1900-01-01T00:00:00",
+    "custom_params": {}
+  },
+  "COST": {
+    "timestamp": "1900-01-01T00:00:00",
+    "custom_params": {}
+  },
+  "CPRT": {
+    "timestamp": "1900-01-01T00:00:00",
+    "custom_params": {}
+  },
+  "CRWD": {
+    "timestamp": "1900-01-01T00:00:00",
+    "custom_params": {}
+  },
+  "CSCO": {
+    "timestamp": "1900-01-01T00:00:00",
+    "custom_params": {}
+  },
+  "CSGP": {
+    "timestamp": "1900-01-01T00:00:00",
+    "custom_params": {}
+  },
+  "CSX": {
+    "timestamp": "1900-01-01T00:00:00",
+    "custom_params": {}
+  },
+  "CTAS": {
+    "timestamp": "1900-01-01T00:00:00",
+    "custom_params": {}
+  },
+  "CTSH": {
+    "timestamp": "1900-01-01T00:00:00",
+    "custom_params": {}
+  },
+  "DASH": {
+    "timestamp": "1900-01-01T00:00:00",
+    "custom_params": {}
+  },
+  "DDOG": {
+    "timestamp": "1900-01-01T00:00:00",
+    "custom_params": {}
+  },
+  "DXCM": {
+    "timestamp": "1900-01-01T00:00:00",
+    "custom_params": {}
+  },
+  "EA": {
+    "timestamp": "1900-01-01T00:00:00",
+    "custom_params": {}
+  },
+  "EXC": {
+    "timestamp": "1900-01-01T00:00:00",
+    "custom_params": {}
+  },
+  "FANG": {
+    "timestamp": "1900-01-01T00:00:00",
+    "custom_params": {}
+  },
+  "FAST": {
+    "timestamp": "1900-01-01T00:00:00",
+    "custom_params": {}
+  },
+  "FTNT": {
+    "timestamp": "1900-01-01T00:00:00",
+    "custom_params": {}
+  },
+  "GEHC": {
+    "timestamp": "1900-01-01T00:00:00",
+    "custom_params": {}
+  },
+  "GFS": {
+    "timestamp": "1900-01-01T00:00:00",
+    "custom_params": {}
+  },
+  "GILD": {
+    "timestamp": "1900-01-01T00:00:00",
+    "custom_params": {}
+  },
+  "GOOG": {
+    "timestamp": "1900-01-01T00:00:00",
+    "custom_params": {}
+  },
+  "GOOGL": {
+    "timestamp": "1900-01-01T00:00:00",
+    "custom_params": {}
+  },
+  "HON": {
+    "timestamp": "1900-01-01T00:00:00",
+    "custom_params": {}
+  },
+  "IDXX": {
+    "timestamp": "1900-01-01T00:00:00",
+    "custom_params": {}
+  },
+  "INTC": {
+    "timestamp": "1900-01-01T00:00:00",
+    "custom_params": {}
+  },
+  "INTU": {
+    "timestamp": "1900-01-01T00:00:00",
+    "custom_params": {}
+  },
+  "ISRG": {
+    "timestamp": "1900-01-01T00:00:00",
+    "custom_params": {}
+  },
+  "KDP": {
+    "timestamp": "1900-01-01T00:00:00",
+    "custom_params": {}
+  },
+  "KHC": {
+    "timestamp": "1900-01-01T00:00:00",
+    "custom_params": {}
+  },
+  "KLAC": {
+    "timestamp": "1900-01-01T00:00:00",
+    "custom_params": {}
+  },
+  "LIN": {
+    "timestamp": "1900-01-01T00:00:00",
+    "custom_params": {}
+  },
+  "LRCX": {
+    "timestamp": "1900-01-01T00:00:00",
+    "custom_params": {}
+  },
+  "LULU": {
+    "timestamp": "1900-01-01T00:00:00",
+    "custom_params": {}
+  },
+  "MAR": {
+    "timestamp": "1900-01-01T00:00:00",
+    "custom_params": {}
+  },
+  "MCHP": {
+    "timestamp": "1900-01-01T00:00:00",
+    "custom_params": {}
+  },
+  "MDB": {
+    "timestamp": "1900-01-01T00:00:00",
+    "custom_params": {}
+  },
+  "MDLZ": {
+    "timestamp": "1900-01-01T00:00:00",
+    "custom_params": {}
+  },
+  "MELI": {
+    "timestamp": "1900-01-01T00:00:00",
+    "custom_params": {}
+  },
+  "META": {
+    "timestamp": "1900-01-01T00:00:00",
+    "custom_params": {}
+  },
+  "MNST": {
+    "timestamp": "1900-01-01T00:00:00",
+    "custom_params": {}
+  },
+  "MRVL": {
+    "timestamp": "1900-01-01T00:00:00",
+    "custom_params": {}
+  },
+  "MSFT": {
+    "timestamp": "1900-01-01T00:00:00",
+    "custom_params": {}
+  },
+  "MSTR": {
+    "timestamp": "1900-01-01T00:00:00",
+    "custom_params": {}
+  },
+  "MU": {
+    "timestamp": "1900-01-01T00:00:00",
+    "custom_params": {}
+  },
+  "NFLX": {
+    "timestamp": "1900-01-01T00:00:00",
+    "custom_params": {}
+  },
+  "NVDA": {
+    "timestamp": "1900-01-01T00:00:00",
+    "custom_params": {}
+  },
+  "NXPI": {
+    "timestamp": "1900-01-01T00:00:00",
+    "custom_params": {}
+  },
+  "ODFL": {
+    "timestamp": "1900-01-01T00:00:00",
+    "custom_params": {}
+  },
+  "ON": {
+    "timestamp": "1900-01-01T00:00:00",
+    "custom_params": {}
+  },
+  "ORLY": {
+    "timestamp": "1900-01-01T00:00:00",
+    "custom_params": {}
+  },
+  "PANW": {
+    "timestamp": "1900-01-01T00:00:00",
+    "custom_params": {}
+  },
+  "PAYX": {
+    "timestamp": "1900-01-01T00:00:00",
+    "custom_params": {}
+  },
+  "PCAR": {
+    "timestamp": "1900-01-01T00:00:00",
+    "custom_params": {}
+  },
+  "PDD": {
+    "timestamp": "1900-01-01T00:00:00",
+    "custom_params": {}
+  },
+  "PEP": {
+    "timestamp": "1900-01-01T00:00:00",
+    "custom_params": {}
+  },
+  "PLTR": {
+    "timestamp": "1900-01-01T00:00:00",
+    "custom_params": {}
+  },
+  "PYPL": {
+    "timestamp": "1900-01-01T00:00:00",
+    "custom_params": {}
+  },
+  "QCOM": {
+    "timestamp": "1900-01-01T00:00:00",
+    "custom_params": {}
+  },
+  "REGN": {
+    "timestamp": "1900-01-01T00:00:00",
+    "custom_params": {}
+  },
+  "ROP": {
+    "timestamp": "1900-01-01T00:00:00",
+    "custom_params": {}
+  },
+  "ROST": {
+    "timestamp": "1900-01-01T00:00:00",
+    "custom_params": {}
+  },
+  "SBUX": {
+    "timestamp": "1900-01-01T00:00:00",
+    "custom_params": {}
+  },
+  "SNPS": {
+    "timestamp": "1900-01-01T00:00:00",
+    "custom_params": {}
+  },
+  "TEAM": {
+    "timestamp": "1900-01-01T00:00:00",
+    "custom_params": {}
+  },
+  "TMUS": {
+    "timestamp": "1900-01-01T00:00:00",
+    "custom_params": {}
+  },
+  "TSLA": {
+    "timestamp": "1900-01-01T00:00:00",
+    "custom_params": {}
+  },
+  "TTD": {
+    "timestamp": "1900-01-01T00:00:00",
+    "custom_params": {}
+  },
+  "TTWO": {
+    "timestamp": "1900-01-01T00:00:00",
+    "custom_params": {}
+  },
+  "TXN": {
+    "timestamp": "1900-01-01T00:00:00",
+    "custom_params": {}
+  },
+  "VRSK": {
+    "timestamp": "1900-01-01T00:00:00",
+    "custom_params": {}
+  },
+  "VRTX": {
+    "timestamp": "1900-01-01T00:00:00",
+    "custom_params": {}
+  },
+  "WBD": {
+    "timestamp": "1900-01-01T00:00:00",
+    "custom_params": {}
+  },
+  "WDAY": {
+    "timestamp": "1900-01-01T00:00:00",
+    "custom_params": {}
+  },
+  "XEL": {
+    "timestamp": "1900-01-01T00:00:00",
+    "custom_params": {}
+  },
+  "ZS": {
+    "timestamp": "1900-01-01T00:00:00",
+    "custom_params": {}
+  },
+  "ISP.MI": {
+    "timestamp": "1900-01-01T00:00:00",
+    "custom_params": {}
+  }
 }

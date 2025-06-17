@@ -507,23 +507,95 @@ class SkorupinkiZoneManager:
                 except Exception as e:
                     print(f"    ⚠️ Errore nella ricerca pattern {pattern_name}: {str(e)}")
         
-        print(f"    📊 Trovate {len(zones)} zone Skorupinski per {ticker}")
-        return zones
-
+        
+        # APPLICARE FILTRI IN SEQUENZA:
+    
+        # 1. Filtra zone non più valide
+        valid_zones = [zone for zone in zones 
+                    if self._is_zone_valid_corrected(zone, current_price)]
+        
+        # 2. Rimuovi duplicati
+        unique_zones = self._remove_duplicate_zones(valid_zones)
+        
+        # 3. Rimuovi sovrapposizioni
+        final_zones = self._remove_overlapping_zones(unique_zones)
+        
+        # 4. Ordina per rilevanza (distanza + forza)
+        final_zones.sort(key=lambda x: (
+            abs(x.get('distance_from_current', 100)), 
+            -x.get('strength_score', 0)
+        ))
+        
+        print(f"    📊 Trovate {len(final_zones)} zone Skorupinski per {ticker}")
+        return final_zones
+        
 
     # Aggiungi anche questi metodi mancanti se non esistono già:
 
-    def _is_zone_valid(self, df: pd.DataFrame, zone: Dict, zone_index: int, current_price: float) -> bool:
-        """Verifica se una zona è valida."""
-        try:
-            # Verifica che la zona non sia troppo vicina al prezzo attuale
-            zone_center = zone['zone_center']
-            distance_pct = abs(current_price - zone_center) / current_price * 100
-            
-            # Deve essere almeno 0.5% distante dal prezzo attuale
-            return distance_pct >= 0.5
-        except:
+    def _is_zone_valid(self, df, zone, zone_index, current_price):
+        zone_center = zone['zone_center']
+        zone_type = zone['type']
+        
+        # 1. Distanza minima
+        distance_pct = abs(current_price - zone_center) / current_price * 100
+        if distance_pct < 0.5:
             return False
+        
+        # 2. LOGICA FONDAMENTALE: Zone non più valide
+        if zone_type == 'Demand' and zone_center > current_price:
+            return False  # Demand sopra il prezzo = NON VALIDA
+        
+        if zone_type == 'Supply' and zone_center < current_price:
+            return False  # Supply sotto il prezzo = NON VALIDA
+        
+        return True
+    
+    
+    def _remove_overlapping_zones(self, zones, min_margin_pct=1.0):
+        """Rimuove zone che si sovrappongono mantenendo la più forte"""
+        zones_sorted = sorted(zones, key=lambda x: x.get('strength_score', 0), reverse=True)
+        valid_zones = []
+        
+        for zone in zones_sorted:
+            overlaps = False
+            for existing_zone in valid_zones:
+                if self._zones_overlap(zone, existing_zone, min_margin_pct):
+                    overlaps = True
+                    break
+            
+            if not overlaps:
+                valid_zones.append(zone)
+        
+        return valid_zones
+
+    def _zones_overlap(self, zone1, zone2, min_margin_pct):
+        """Verifica se due zone si sovrappongono o sono troppo vicine"""
+        # Calcola margine minimo richiesto
+        avg_price = (zone1['zone_center'] + zone2['zone_center']) / 2
+        min_margin = avg_price * (min_margin_pct / 100)
+        
+        # Verifica sovrapposizione o vicinanza eccessiva
+        return (abs(zone1['zone_center'] - zone2['zone_center']) < min_margin)
+    
+    
+    def _remove_duplicate_zones(self, zones, similarity_threshold_pct=0.3):
+        """Rimuove zone duplicate o molto simili"""
+        unique_zones = []
+        
+        for zone in zones:
+            is_duplicate = False
+            for existing_zone in unique_zones:
+                if (zone['type'] == existing_zone['type'] and 
+                    abs(zone['zone_center'] - existing_zone['zone_center']) / 
+                    zone['zone_center'] * 100 < similarity_threshold_pct):
+                    is_duplicate = True
+                    break
+            
+            if not is_duplicate:
+                unique_zones.append(zone)
+        
+        return unique_zones    
+    
 
     def _has_pullback(self, df: pd.DataFrame, zone: Dict, zone_index: int) -> Dict:
         """Verifica se c'è stato un pullback dalla zona."""
